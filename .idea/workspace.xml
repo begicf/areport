@@ -2,8 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3411c718-b1a7-433c-aa9f-b1ae9db8152c" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -18,6 +16,11 @@
     </execution>
   </component>
   <component name="Git.Settings">
+    <option name="PREVIOUS_COMMIT_AUTHORS">
+      <list>
+        <option value="Fuad Begic &lt;fuad.begic@gmail.com&gt;" />
+      </list>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="PhpWorkspaceProjectConfiguration">
@@ -124,6 +127,7 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="fileTemplates" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -147,22 +151,55 @@
       <option name="presentableId" value="Default" />
       <updated>1580545265269</updated>
       <workItem from="1580545266982" duration="4496000" />
-      <workItem from="1580572673149" duration="6493000" />
+      <workItem from="1580572673149" duration="7982000" />
+      <workItem from="1580926157668" duration="165000" />
+      <workItem from="1581012702819" duration="514000" />
+      <workItem from="1581448793033" duration="208000" />
+      <workItem from="1584432202754" duration="438000" />
     </task>
+    <task id="LOCAL-00001" summary="Upload fix">
+      <created>1580663440250</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1580663440250</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
   </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Upload fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="Upload fix" />
+  </component>
   <component name="WindowStateProjectService">
+    <state x="1135" y="292" key="CommitChangelistDialog2" timestamp="1580663440073">
+      <screen x="0" y="23" width="2560" height="1337" />
+    </state>
+    <state x="1135" y="292" key="CommitChangelistDialog2/0.23.2560.1337@0.23.2560.1337" timestamp="1580663440073" />
     <state x="1222" y="630" key="NewPhpFileDialog" timestamp="1580573485689">
       <screen x="0" y="23" width="2560" height="1337" />
     </state>
     <state x="1222" y="630" key="NewPhpFileDialog/0.23.2560.1337@0.23.2560.1337" timestamp="1580573485689" />
-    <state x="1173" y="519" key="com.intellij.ide.util.TipDialog" timestamp="1580572684291">
+    <state x="1035" y="326" key="SettingsEditor" timestamp="1580663333930">
       <screen x="0" y="23" width="2560" height="1337" />
     </state>
-    <state x="1173" y="519" key="com.intellij.ide.util.TipDialog/0.23.2560.1337@0.23.2560.1337" timestamp="1580572684291" />
+    <state x="1035" y="326" key="SettingsEditor/0.23.2560.1337@0.23.2560.1337" timestamp="1580663333930" />
+    <state x="1126" y="429" key="Vcs.Push.Dialog.v2" timestamp="1580663453835">
+      <screen x="0" y="23" width="2560" height="1337" />
+    </state>
+    <state x="1126" y="429" key="Vcs.Push.Dialog.v2/0.23.2560.1337@0.23.2560.1337" timestamp="1580663453835" />
+    <state x="880" y="387" key="com.intellij.ide.util.TipDialog" timestamp="1584432267565">
+      <screen x="0" y="23" width="1920" height="982" />
+    </state>
+    <state x="880" y="387" key="com.intellij.ide.util.TipDialog/0.23.1920.982@0.23.1920.982" timestamp="1584432267565" />
+    <state x="1173" y="519" key="com.intellij.ide.util.TipDialog/0.23.2560.1337@0.23.2560.1337" timestamp="1581012702848" />
+    <state x="696" y="311" key="git4idea.merge.GitPullDialog" timestamp="1584445721623">
+      <screen x="0" y="23" width="1920" height="977" />
+    </state>
+    <state x="696" y="311" key="git4idea.merge.GitPullDialog/0.23.1920.977@0.23.1920.977" timestamp="1584445721623" />
     <state x="1062" y="419" width="670" height="676" key="search.everywhere.popup" timestamp="1580573293644">
       <screen x="0" y="23" width="2560" height="1337" />
     </state>
