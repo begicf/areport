@@ -1,0 +1,13 @@
+{
+    "name": "begicf/simple-menu",
+    "description": "Simple LaravelMenu package from datasources",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Fuad Begic",
+            "email": "fuad.begic@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
