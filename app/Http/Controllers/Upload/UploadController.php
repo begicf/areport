@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Upload;
 
 use App\Http\Controllers\Controller;
-use App\Model\UploadTaxonomy;
+use App\Model\Taxonomy;
 use Illuminate\Http\Request;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use ZipArchive;
 
 /**
  * Class UploadController
@@ -16,6 +19,9 @@ use Illuminate\Http\Request;
  */
 class UploadController extends Controller
 {
+
+    private $path = 'tax';
+
     public function __construct()
     {
         $this->middleware('auth');
@@ -27,8 +33,84 @@ class UploadController extends Controller
     public function index()
     {
 
-        return view('upload/upload');
+        return view('taxonomy.upload.upload');
     }
+
+    public function managing()
+    {
+        $tax = Taxonomy::all();
+
+        if (!$tax->isEmpty()):
+
+            return view('taxonomy.managing.managing', ['tax' => $tax]);
+
+        else:
+
+            return redirect('/home')->with('warning', 'Please upload the taxonomy !');
+
+        endif;
+    }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function active(Request $request)
+    {
+        $id = $request->get('tax_active');
+
+        if ($id != null):
+
+            Taxonomy::query()->update(['active' => false]);
+            Taxonomy::where('id', $id)->update(['active' => true]);
+
+            return back()->with('success', 'You are successful active the taxonomy.');
+        else:
+
+            return back()->with('warning', 'Please select the taxonomy !');
+
+        endif;
+
+    }
+
+    public function delete(Request $request)
+    {
+        $id = $request->get('tax_active');
+
+        if ($id != null):
+
+            $_tax = Taxonomy::find($id);
+
+            try {
+                $dir = storage_path('app/public/' . $_tax->file);
+
+                $it = new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS);
+                $files = new RecursiveIteratorIterator($it,
+                    RecursiveIteratorIterator::CHILD_FIRST);
+
+                foreach ($files as $file) {
+                    if ($file->isDir()) {
+                        rmdir($file->getRealPath());
+                    } else {
+                        unlink($file->getRealPath());
+                    }
+                }
+                rmdir($dir);
+
+                Taxonomy::destroy($id);
+
+            } catch (\Exception $exception) {
+
+                return back()->with('danger', 'An error has occurred!');
+            }
+
+            return back()->with('success', 'You taxonomy is successful deleted.');
+        else:
+            return back()->with('warning', 'Please select the taxonomy !');
+        endif;
+
+    }
+
 
     /**
      * @param Request $request
@@ -36,37 +118,35 @@ class UploadController extends Controller
      */
     public function store(Request $request)
     {
-        $path = 'file';
 
-        $_name = $request->file('file')->getClientOriginalName();
-        $file = $request->file('file')->store($path, 'public');
+        $_name = pathinfo($request->file('file')->getClientOriginalName(), PATHINFO_FILENAME);
+        $file = $request->file('file')->store($this->path, 'public');
 
-        $zip = new \ZipArchive();
+        $zip = new ZipArchive();
 
         $res = $zip->open(storage_path('app/public/' . $file));
 
-        $name = $path . DIRECTORY_SEPARATOR . substr($_name, 0, strpos($_name, "."));
-
         if ($res === TRUE):
 
-            $zip->extractTo(storage_path('app/public/' . $name));
+            $zip->extractTo(storage_path('app/public/' . $this->path));
 
             $zip->close();
-            // remove zip file
-            //  unlink(storage_path('app/public/' . $file));
 
-            UploadTaxonomy::create([
-                'file' => $file,
-                'original_name' => $name
+            // remove zip file
+            unlink(storage_path('app/public/' . $file));
+            $_newName = uniqid();
+
+            // rename
+            rename(storage_path('app/public/' . $this->path . DIRECTORY_SEPARATOR . $_name), storage_path('app/public/' . $this->path . DIRECTORY_SEPARATOR . $_newName));
+
+            Taxonomy::create([
+                'file' => $this->path . DIRECTORY_SEPARATOR . $_newName,
+                'name' => $request->get('name'),
+                'original_name' => $_name
             ]);
 
         endif;
 
-
-        if ($request->wantsJson()) {
-            return response([], 204);
-        }
-
-        return back();
+        return back()->with('success', 'Upload Seccessful.');
     }
 }

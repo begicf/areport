@@ -1,8 +1,94 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="3411c718-b1a7-433c-aa9f-b1ae9db8152c" name="Default Changelist" comment="">
+    <list default="true" id="1b1e9baa-31d8-436e-af2b-53aac158d39c" name="Default Changelist" comment="Upload fix">
+      <change afterPath="$PROJECT_DIR$/app/Http/Controllers/Modules/ModulesController.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/database/seeds/MenuTable.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/dpmxbrl/README.MD" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/dpmxbrl/composer.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/dpmxbrl/src/Config/Config.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/dpmxbrl/src/Creat/CreatInstace.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/dpmxbrl/src/Creat/CreateXBRLFromDB.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/dpmxbrl/src/Dimension/Dimension.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/dpmxbrl/src/Domain/Domain.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/dpmxbrl/src/Error.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/dpmxbrl/src/Gen/Link.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/dpmxbrl/src/Gen/TableLinkbase.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/dpmxbrl/src/Helper/ExtendMpdf.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/dpmxbrl/src/Helper/ExtendTCPDF.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/dpmxbrl/src/Library/Data.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/dpmxbrl/src/Library/Directory.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/dpmxbrl/src/Library/DomToArray.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/dpmxbrl/src/Library/Format.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/dpmxbrl/src/Library/Normalise.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/dpmxbrl/src/Link/DefinitionLink.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/dpmxbrl/src/LinkBase.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/dpmxbrl/src/Metric/Metric.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/dpmxbrl/src/Mod.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/dpmxbrl/src/Module/Presentation.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/dpmxbrl/src/ReadExcel.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/dpmxbrl/src/Render/Axis.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/dpmxbrl/src/Render/RenderExport.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/dpmxbrl/src/Render/RenderOutput.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/dpmxbrl/src/Render/RenderPDF.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/dpmxbrl/src/Render/RenderTable.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/dpmxbrl/src/Set.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/dpmxbrl/src/Tax.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/dpmxbrl/src/UploadXbrl.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/dpmxbrl/src/XbrlInterface.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/dpmxbrl/src/html_common/HTML_Common.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/dpmxbrl/src/html_table/HTML_Table.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/dpmxbrl/src/html_table/Table/HTML_Table_Storage.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/simpleMenu/composer.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/simpleMenu/src/SimpleMenuServiceProvider.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/simpleMenu/src/migrations/2019_10_12_000000_create_menu_table.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/simpleMenu/src/views/components/cmenu.blade.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/vendor/@fortawesome/fontawesome-free/webfa-regular-400.eot" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/vendor/@fortawesome/fontawesome-free/webfa-regular-400.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/vendor/@fortawesome/fontawesome-free/webfa-regular-400.ttf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/vendor/@fortawesome/fontawesome-free/webfa-regular-400.woff" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/vendor/@fortawesome/fontawesome-free/webfa-regular-400.woff2" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/vendor/@fortawesome/fontawesome-free/webfa-solid-900.eot" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/vendor/@fortawesome/fontawesome-free/webfa-solid-900.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/vendor/@fortawesome/fontawesome-free/webfa-solid-900.ttf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/vendor/@fortawesome/fontawesome-free/webfa-solid-900.woff" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/fonts/vendor/@fortawesome/fontawesome-free/webfa-solid-900.woff2" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/images/vendor/jstree/dist/themes/default/32px.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/images/vendor/jstree/dist/themes/default/40px.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/images/vendor/jstree/dist/themes/default/throbber.gif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/js/components/TreeComponent.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/views/flash/flash-message.blade.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/views/modules/index.blade.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/views/taxonomy/managing/managing.blade.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/views/taxonomy/upload/upload.blade.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.env.example" beforeDir="false" afterPath="$PROJECT_DIR$/.env.example" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dpm_xbrl.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dpm_xbrl.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Exceptions/Handler.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Exceptions/Handler.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Http/Controllers/HomeController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Controllers/HomeController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Http/Controllers/Upload/UploadController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Controllers/Upload/UploadController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Model/UploadTaxonomy.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Model/Taxonomy.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Providers/AppServiceProvider.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Providers/AppServiceProvider.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/composer.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/composer.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/app.php" beforeDir="false" afterPath="$PROJECT_DIR$/config/app.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/migrations/2020_02_01_162136_create_upload_taxonomy_table.php" beforeDir="false" afterPath="$PROJECT_DIR$/database/migrations/2020_02_01_162136_create_taxonomy_table.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/seeds/DatabaseSeeder.php" beforeDir="false" afterPath="$PROJECT_DIR$/database/seeds/DatabaseSeeder.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/simpleMenu/src/views/components/cmenu.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/packages/simpleMenu/src/views/components/cmenu.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/css/app.css" beforeDir="false" afterPath="$PROJECT_DIR$/public/css/app.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/js/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/js/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/js/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/resources/js/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/sass/app.scss" beforeDir="false" afterPath="$PROJECT_DIR$/resources/sass/app.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/views/home.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/home.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/views/layouts/app.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/layouts/app.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/views/upload/upload.blade.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/web.php" beforeDir="false" afterPath="$PROJECT_DIR$/routes/web.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -14,6 +100,16 @@
     <execution>
       <executable />
     </execution>
+  </component>
+  <component name="FavoritesManager">
+    <favorites_list name="dpm_xbrl" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Vue Single File Component" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="PREVIOUS_COMMIT_AUTHORS">
@@ -72,7 +168,6 @@
       <path value="$PROJECT_DIR$/vendor/symfony/http-kernel" />
       <path value="$PROJECT_DIR$/vendor/symfony/error-handler" />
       <path value="$PROJECT_DIR$/vendor/psy/psysh" />
-      <path value="$PROJECT_DIR$/vendor/symfony/debug" />
       <path value="$PROJECT_DIR$/vendor/tijsverkoyen/css-to-inline-styles" />
       <path value="$PROJECT_DIR$/vendor/symfony/process" />
       <path value="$PROJECT_DIR$/vendor/symfony/mime" />
@@ -95,7 +190,6 @@
       <path value="$PROJECT_DIR$/vendor/psr/log" />
       <path value="$PROJECT_DIR$/vendor/webmozart/assert" />
       <path value="$PROJECT_DIR$/vendor/league/flysystem" />
-      <path value="$PROJECT_DIR$/vendor/league/commonmark-ext-table" />
       <path value="$PROJECT_DIR$/vendor/theseer/tokenizer" />
       <path value="$PROJECT_DIR$/vendor/fzaninotto/faker" />
       <path value="$PROJECT_DIR$/vendor/dnoegel/php-xdg-base-dir" />
@@ -113,6 +207,8 @@
       <path value="$PROJECT_DIR$/vendor/sebastian/version" />
       <path value="$PROJECT_DIR$/vendor/sebastian/recursion-context" />
       <path value="$PROJECT_DIR$/vendor/laravel/ui" />
+      <path value="$PROJECT_DIR$/vendor/voku/portable-ascii" />
+      <path value="$PROJECT_DIR$/vendor/psr/event-dispatcher" />
     </include_path>
   </component>
   <component name="ProjectId" id="1XCLjeNnpd95dyNhXfdi0udxAFy" />
@@ -126,12 +222,20 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="fileTemplates" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/packages/dpmxbrl" />
+    <property name="settings.editor.selected.configurable" value="web-ide.project.structure" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/packages/dpmxbrl" />
+      <recent name="$PROJECT_DIR$/packages/dpmxbrl/src" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/app/Model" />
+      <recent name="$PROJECT_DIR$/resources/views/taxonomy" />
+      <recent name="$PROJECT_DIR$/packages/simpleMenu/images" />
+      <recent name="$PROJECT_DIR$/packages/simpleMenu/src" />
+      <recent name="$PROJECT_DIR$/packages/simpleMenu/src/" />
+      <recent name="$PROJECT_DIR$/packages/simpleMenu/src/views/components" />
     </key>
   </component>
   <component name="RunManager">
@@ -145,7 +249,7 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="3411c718-b1a7-433c-aa9f-b1ae9db8152c" name="Default Changelist" comment="" />
+      <changelist id="1b1e9baa-31d8-436e-af2b-53aac158d39c" name="Default Changelist" comment="Upload fix" />
       <created>1580545265269</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
@@ -156,6 +260,8 @@
       <workItem from="1581012702819" duration="514000" />
       <workItem from="1581448793033" duration="208000" />
       <workItem from="1584432202754" duration="438000" />
+      <workItem from="1584702725485" duration="40567000" />
+      <workItem from="1585916763712" duration="2885000" />
     </task>
     <task id="LOCAL-00001" summary="Upload fix">
       <created>1580663440250</created>
@@ -175,17 +281,41 @@
     <option name="LAST_COMMIT_MESSAGE" value="Upload fix" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="1135" y="292" key="CommitChangelistDialog2" timestamp="1580663440073">
-      <screen x="0" y="23" width="2560" height="1337" />
+    <state x="526" y="306" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog" timestamp="1585916615352">
+      <screen x="0" y="23" width="1920" height="995" />
     </state>
+    <state x="526" y="306" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog/0.23.1920.995@0.23.1920.995" timestamp="1585916615352" />
+    <state x="1090" y="23" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1585736937779">
+      <screen x="0" y="23" width="1920" height="992" />
+    </state>
+    <state x="1090" y="23" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.23.1920.982@0.23.1920.982" timestamp="1584560863860" />
+    <state x="1090" y="23" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.23.1920.992@0.23.1920.992" timestamp="1585736937779" />
+    <state x="648" y="306" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1585685702137">
+      <screen x="0" y="23" width="1920" height="989" />
+    </state>
+    <state x="648" y="304" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.23.1920.982@0.23.1920.982" timestamp="1584560357254" />
+    <state x="648" y="306" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.23.1920.989@0.23.1920.989" timestamp="1585685702137" />
+    <state x="851" y="215" key="CommitChangelistDialog2" timestamp="1584566105631">
+      <screen x="0" y="23" width="1920" height="984" />
+    </state>
+    <state x="851" y="215" key="CommitChangelistDialog2/0.23.1920.982@0.23.1920.982" timestamp="1584560457164" />
+    <state x="851" y="215" key="CommitChangelistDialog2/0.23.1920.984@0.23.1920.984" timestamp="1584566105631" />
     <state x="1135" y="292" key="CommitChangelistDialog2/0.23.2560.1337@0.23.2560.1337" timestamp="1580663440073" />
-    <state x="1222" y="630" key="NewPhpFileDialog" timestamp="1580573485689">
-      <screen x="0" y="23" width="2560" height="1337" />
+    <state x="917" y="472" key="NewPhpFileDialog" timestamp="1585809005156">
+      <screen x="0" y="23" width="1920" height="989" />
     </state>
+    <state x="917" y="467" key="NewPhpFileDialog/0.23.1920.978@0.23.1920.978" timestamp="1584477239587" />
+    <state x="917" y="472" key="NewPhpFileDialog/0.23.1920.989@0.23.1920.989" timestamp="1585809005156" />
+    <state x="917" y="473" key="NewPhpFileDialog/0.23.1920.992@0.23.1920.992" timestamp="1585736727185" />
+    <state x="917" y="474" key="NewPhpFileDialog/0.23.1920.994@0.23.1920.994" timestamp="1585735611336" />
     <state x="1222" y="630" key="NewPhpFileDialog/0.23.2560.1337@0.23.2560.1337" timestamp="1580573485689" />
-    <state x="1035" y="326" key="SettingsEditor" timestamp="1580663333930">
-      <screen x="0" y="23" width="2560" height="1337" />
+    <state x="776" y="250" key="SettingsEditor" timestamp="1585918507780">
+      <screen x="0" y="23" width="1920" height="995" />
     </state>
+    <state x="776" y="248" key="SettingsEditor/0.23.1920.989@0.23.1920.989" timestamp="1585685904605" />
+    <state x="776" y="248" key="SettingsEditor/0.23.1920.991@0.23.1920.991" timestamp="1584907648137" />
+    <state x="776" y="249" key="SettingsEditor/0.23.1920.992@0.23.1920.992" timestamp="1585744101624" />
+    <state x="776" y="250" key="SettingsEditor/0.23.1920.995@0.23.1920.995" timestamp="1585918507780" />
     <state x="1035" y="326" key="SettingsEditor/0.23.2560.1337@0.23.2560.1337" timestamp="1580663333930" />
     <state x="1126" y="429" key="Vcs.Push.Dialog.v2" timestamp="1580663453835">
       <screen x="0" y="23" width="2560" height="1337" />
@@ -196,13 +326,17 @@
     </state>
     <state x="880" y="387" key="com.intellij.ide.util.TipDialog/0.23.1920.982@0.23.1920.982" timestamp="1584432267565" />
     <state x="1173" y="519" key="com.intellij.ide.util.TipDialog/0.23.2560.1337@0.23.2560.1337" timestamp="1581012702848" />
-    <state x="696" y="311" key="git4idea.merge.GitPullDialog" timestamp="1584445721623">
-      <screen x="0" y="23" width="1920" height="977" />
+    <state x="696" y="312" key="git4idea.merge.GitPullDialog" timestamp="1584560292873">
+      <screen x="0" y="23" width="1920" height="982" />
     </state>
     <state x="696" y="311" key="git4idea.merge.GitPullDialog/0.23.1920.977@0.23.1920.977" timestamp="1584445721623" />
-    <state x="1062" y="419" width="670" height="676" key="search.everywhere.popup" timestamp="1580573293644">
-      <screen x="0" y="23" width="2560" height="1337" />
+    <state x="696" y="312" key="git4idea.merge.GitPullDialog/0.23.1920.982@0.23.1920.982" timestamp="1584560292873" />
+    <state x="797" y="316" width="670" height="502" key="search.everywhere.popup" timestamp="1585809019329">
+      <screen x="0" y="23" width="1920" height="989" />
     </state>
+    <state x="797" y="314" width="670" height="497" key="search.everywhere.popup/0.23.1920.982@0.23.1920.982" timestamp="1584521611970" />
+    <state x="797" y="316" width="670" height="502" key="search.everywhere.popup/0.23.1920.989@0.23.1920.989" timestamp="1585809019329" />
+    <state x="797" y="317" width="670" height="503" key="search.everywhere.popup/0.23.1920.992@0.23.1920.992" timestamp="1585739735259" />
     <state x="1062" y="419" width="670" height="676" key="search.everywhere.popup/0.23.2560.1337@0.23.2560.1337" timestamp="1580573293644" />
   </component>
 </project>

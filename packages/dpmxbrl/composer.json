@@ -1,0 +1,22 @@
+{
+    "name": "begicf/dpmxbrl",
+    "description": "DPM package for XBRL taxonomy",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Fuad Begic",
+            "email": "fuad.begic@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+
+        "php": "^7.2.5",
+        "laravel/framework": "^7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "DpmXbrl\\": "src/"
+        }
+    }
+}

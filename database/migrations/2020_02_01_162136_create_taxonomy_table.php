@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateUploadTaxonomyTable extends Migration
+class CreateTaxonomyTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,12 @@ class CreateUploadTaxonomyTable extends Migration
      */
     public function up()
     {
-        Schema::create('upload_taxonomies', function (Blueprint $table) {
+        Schema::create('taxonomies', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('name')->nullable();
             $table->string('original_name')->nullable();
             $table->string('file');
+            $table->boolean('active')->nullable();
             $table->timestamps();
         });
     }
@@ -29,6 +30,6 @@ class CreateUploadTaxonomyTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('upload_taxonomies');
+        Schema::dropIfExists('taxonomies');
     }
 }
