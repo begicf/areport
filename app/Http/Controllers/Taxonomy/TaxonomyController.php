@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Upload;
+namespace App\Http\Controllers\Taxonomy;
 
 use App\Http\Controllers\Controller;
 use App\Model\Taxonomy;
@@ -17,7 +17,7 @@ use ZipArchive;
  * Date: 02/02/2020
  * Time: 18:08
  */
-class UploadController extends Controller
+class TaxonomyController extends Controller
 {
 
     private $path = 'tax';

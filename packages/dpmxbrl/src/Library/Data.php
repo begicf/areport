@@ -30,6 +30,7 @@ class Data
 
         $_tax['imports'] = $tax->imports;
         $_tax['namespace'] = $tax->namespace;
+        $_tax['elements'] = $tax->elements;
 
         foreach ($tax->load() as $key => $row):
             $_tax[$key] = $row->Xbrl;

@@ -19,22 +19,29 @@ Route::get('/', function () {
 
 
 
-//Tax
 Auth::routes();
 Route::get('/home', 'HomeController@index')->name('home');
 
+//Taxonomy
+Route::group(['prefix' => 'taxonomy', 'middleware' => 'auth'], function () {
+Route::get('/upload', 'Taxonomy\TaxonomyController@index');
+Route::post('/upload', 'Taxonomy\TaxonomyController@store');
 
-Route::get('/upload', 'Upload\UploadController@index');
-Route::post('/upload', 'Upload\UploadController@store');
-
-Route::get('/managing', 'Upload\UploadController@managing');
-Route::post('/managing', 'Upload\UploadController@active');
-Route::post('/tax_delete', 'Upload\UploadController@delete');
+Route::get('/managing', 'Taxonomy\TaxonomyController@managing');
+Route::post('/managing', 'Taxonomy\TaxonomyController@active');
+Route::post('/delete', 'Taxonomy\TaxonomyController@delete');
+});
 
 //Modules
 Route::group(['prefix' => 'modules', 'middleware' => 'auth'], function () {
     Route::get('/', 'Modules\ModulesController@index')->name('Modules');
     Route::post('/json', 'Modules\ModulesController@json')->name('Modules');
+    Route::get('/test', 'Modules\ModulesController@test')->name('Modules');
+});
+
+Route::group(['prefix' => 'table', 'middleware' => 'auth'], function () {
+    Route::post('/', 'Table\TableController@table')->name('Modules');
+    //Route::post('/json', 'Modules\ModulesController@json')->name('Modules');
 });
 
 //Route::get(['/','/home'], 'HomeController@index')->name('home');

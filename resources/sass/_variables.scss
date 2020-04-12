@@ -17,3 +17,140 @@ $yellow: #ffed4a;
 $green: #38c172;
 $teal: #4dc0b5;
 $cyan: #6cb2eb;
+
+
+.xbrl_table {
+    font-size: 85%;
+    overflow-x: scroll;
+
+}
+
+.table > tbody > tr > td { /*specificity = 0 2 3*/
+    padding: 3px;
+    overflow: hidden;
+    white-space: nowrap;
+
+}
+
+.table > tbody > tr > th { /*specificity = 0 2 3*/
+    vertical-align: middle;
+    padding: 2px;
+}
+
+.xbrl-input {
+    display: inline-block;
+    padding: 3px;
+    margin: 0;
+    border: 1px;
+    width: 100%;
+    float: right;
+    clear: both;
+    direction: ltr;
+    text-align: right;
+    height: 100%;
+    position: relative;
+    min-width: 100px;
+}
+
+.xbrl-input-text {
+    display: inline-block;
+    padding: 3px;
+    margin: 0;
+    border: 1px;
+    width: 100%;
+    clear: both;
+    height: 100%;
+    position: relative;
+    min-width: 100px;
+}
+
+.xbrl-input-decimal {
+    display: inline-block;
+    padding: 3px;
+    margin: 0;
+    border: 1px;
+    width: 100%;
+    float: right;
+    clear: both;
+    direction: ltr;
+    text-align: right;
+    height: 100%;
+    position: relative;
+    min-width: 100px;
+}
+
+input:invalid {
+    color: red;
+}
+
+.xbrl-select {
+    display: inline-block;
+    padding: 3px;
+    margin: 0;
+    border: 1px;
+    width: 100%;
+    float: right;
+    clear: both;
+    height: 100%;
+    position: relative;
+    min-width: 100px;
+}
+
+.xbrl-input-open {
+    display: inline-block;
+    padding: 3px;
+    margin: 0;
+    border: 1px;
+    min-width: 50px;
+    width: 100%;
+    float: right;
+    clear: both;
+    height: 100%;
+    position: relative;
+    min-width: 150px;
+}
+
+.xbrl-td {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.xbrl-th {
+    text-align: center;
+    vertical-align: middle;
+    background-color: buttonface;
+}
+
+.xbrl-none-top {
+    border-top: none !important;
+}
+
+.xbrl-none-bottom {
+    border-bottom: none !important;
+}
+
+.xbrl-title {
+    text-align: center;
+    vertical-align: middle;
+    background-color: buttonface;
+    white-space: normal;
+}
+
+.rc-code {
+    text-align: center;
+    background-color: beige;
+
+}
+
+.xbrl-none-left {
+
+    border-left: none !important;
+}
+
+.xbrl-none-right {
+    border-right: none !important;
+}
+
+.xbrl-bold {
+    font-weight: bold;
+}

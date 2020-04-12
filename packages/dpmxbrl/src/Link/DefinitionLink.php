@@ -108,7 +108,7 @@ class DefinitionLink implements XbrlInterface
                 if ($children):
 
                     if ($element['contextElement'] == 'scenario'):
-
+                        $metric=array();
                         $pathMetric =
                             dirname($this->path) . DIRECTORY_SEPARATOR . strtok($loc[$element['from']]['href'], "#");
 
@@ -199,7 +199,7 @@ class DefinitionLink implements XbrlInterface
         return $branch;
     }
 
-    // povezuje nazive lokalnih linkovanja sa globalnim    
+    // povezuje nazive lokalnih linkovanja sa globalnim
     private function reduceLocLable($elements)
     {
 

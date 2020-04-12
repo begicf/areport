@@ -92,6 +92,7 @@ class Metric
 
             return $metric;
         endif;
+        return [];
     }
 
     private static function getTargetNamespace()

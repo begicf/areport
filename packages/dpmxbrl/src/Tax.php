@@ -29,19 +29,16 @@ class Tax
     private $tax;
     private $filename;
     private $path = array();
-    private $arr;
+    private $arr = null;
 
     /**
      *
-
-     * @param type $arr -
      * @param type $filename - naziv tabele
      */
-    public function __construct($arr = NULL, $filename = NULL)
+    public function __construct($filename = NULL)
     {
 
         $this->tax = DomToArray::getPath(Config::publicDir(), ['tab' => 'tab' . DIRECTORY_SEPARATOR]);
-        $this->arr = $arr;
         $this->filename = $filename;
 
         $this->getPathXsd();
@@ -75,7 +72,7 @@ class Tax
                         }
                     } catch (Exception $e) {
 
-
+                        echo "err";
                     }
                 }
             endforeach;

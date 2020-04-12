@@ -1965,12 +1965,12 @@ __webpack_require__.r(__webpack_exports__);
             'responsive': true,
             'name': 'proton'
           },
-          'url': function url(node) {
-            return node.id === '#' ? 'modules/json' : 'modules/json';
-          },
+          'url': 'modules/json',
           'data': function data(node) {
             return {
               'id': node.id,
+              'path': node.data,
+              'ext': node.id === '#' ? 'fws' : node.original.type == 'fws' ? "tax" : node.original.type == 'tax' ? "mod" : "mod",
               'mod': typeof node.original === 'undefined' ? null : node.original.mod
             };
           }
@@ -1999,7 +1999,7 @@ __webpack_require__.r(__webpack_exports__);
             "Create": {
               "separator_before": false,
               "separator_after": false,
-              "label": "Nova instanca",
+              "label": "New instance",
               "_disabled": $node.type == 'file' ? false : true,
               "icon": "fas fa-external-link-alt",
               "action": function action() {

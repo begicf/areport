@@ -36,14 +36,14 @@ class MenuTable extends Seeder
             [
                 'parent_id' => '3',
                 'title' => 'Managing',
-                'url'=>'/managing',
+                'url'=>'/taxonomy/managing',
                 'description' => 'Taxonomy Page',
                 'order'=>1
             ],
             [
                 'parent_id' => '3',
                 'title' => 'Upload',
-                'url'=>'/upload',
+                'url'=>'/taxonomy/upload',
                 'description' => 'Taxonomy Page',
                 'order'=>2
             ]

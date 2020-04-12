@@ -42,13 +42,13 @@ class Config
         'rend' => 'rend',
         'def' => 'def',
     ];
-    public static $owner = 'www.fba.ba';
+    public static $owner = 'www.eba.europa.eu';
 
     /* Setuj absolut path na root direktorij */
 
     public static function publicDir()
     {
-        return public_path() . DIRECTORY_SEPARATOR . 'tax' . DIRECTORY_SEPARATOR;
+        return storage_path('app/public/tax/');
     }
 
     /* Setuj prefix za ownera */

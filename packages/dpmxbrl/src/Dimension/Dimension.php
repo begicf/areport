@@ -36,7 +36,7 @@ class Dimension
         self::$dom = DomToArray::invoke(self::$path);
     }
 
-    public static function getDimension($path, $xpathQuery)
+    public static function getDimension($path, $xpathQuery): ?array
     {
 
 
@@ -48,6 +48,7 @@ class Dimension
 
         endif;
 
+        $dimension = array();
 
         if (file_exists($path)):
 

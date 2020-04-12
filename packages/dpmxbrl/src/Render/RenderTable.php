@@ -622,11 +622,8 @@ class RenderTable
         $_dim = json_decode($dim, true);
 
 
-        if ($additional['locked_status'] === 'locked'):
+        //$readonly = 'readonly';
 
-            $readonly = 'readonly';
-
-        endif;
 
         $input = "<input  name='" . $name . "[dim]' value='$dim' type='hidden' />";
 

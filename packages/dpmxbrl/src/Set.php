@@ -11,9 +11,9 @@ use DpmXbrl\Render\RenderTable;
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
- * Tools for rendering logical structure of the table(s). 
+ * Tools for rendering logical structure of the table(s).
  * ver 1.0.
- * 
+ *
  */
 
 /**
@@ -25,11 +25,13 @@ class Set
 {
 
     public $schema;
-    public $imports = array();
-    public $namespace = array();
-    private $linkbase = array();
-    private $linkArray = array();
+    public $imports = [];
+    public $namespace = [];
+    public $elements = [];
+    private $linkbase = [];
+    private $linkArray = [];
     private $assertion = null;
+
 
     /*
      * @void set $linkArray
@@ -52,6 +54,7 @@ class Set
         $this->getImports();
         $this->getNamespace();
         $this->getLinkbases();
+        $this->getElements();
         $this->assertion = $assertion;
     }
 
@@ -89,6 +92,33 @@ class Set
 
             $this->namespace[$node->prefix] = $node->nodeValue;
         }
+    }
+
+    /**
+     * Used for fws.xsd
+     * @void set Elements
+     */
+    private function getElements()
+    {
+
+        $xPath = new \DOMXPath($this->schema);
+
+        $xPath->registerNamespace('xs', 'http://www.w3.org/2001/XMLSchema');
+
+        $context = $this->schema->documentElement;
+
+        foreach ($xPath->query('//xs:element', $context) as $node) {
+            $id = $node->getAttribute('id');
+            $this->elements[$id]['name'] = $node->getAttribute('name');
+            $this->elements[$id]['abstract'] = $node->getAttribute('abstract');
+            $this->elements[$id]['substitutionGroup'] = $node->getAttribute('substitutionGroup');
+            $this->elements[$id]['type'] = $node->getAttribute('type');
+            $this->elements[$id]['periodType'] = $node->getAttribute('xbrli:periodType');
+            $this->elements[$id]['nillable'] = $node->getAttribute('nillable');
+            $this->elements[$id]['creationDate'] = $node->getAttribute('model:creationDate');
+            $this->elements[$id]['id'] = $node->getAttribute('id');
+        }
+
     }
 
     /**

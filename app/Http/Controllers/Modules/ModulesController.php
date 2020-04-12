@@ -24,9 +24,20 @@ class ModulesController extends Controller
         if (empty($this->_taxonomy)) {
 
             return redirect('/home')->with('warning', 'Please active the taxonomy !');
+
         }
 
-        return view('modules.index');
+        return view('modules.modules');
+    }
+
+    public function test()
+    {
+
+
+        $mod = new Mod(storage_path('app/public/') . $this->_taxonomy->file, 'en');
+
+        $mod->getModule('#');
+
     }
 
     public function json(Request $request)
@@ -34,15 +45,16 @@ class ModulesController extends Controller
 
         $mod = new Mod(storage_path('app/public/') . $this->_taxonomy->file, 'en');
 
-        if ($request->get('id') != '#'):
+        $id = $request->get('id');
+//        if ($id != '#'):
+//
+//            $mod->getTable($request->get('id'), $request->get('id'));
+//
+//        else:
+       //return json_encode($mod->getModule($id, $request->get('ext'), $request->get('path')), $request->get('mod'));
+        return response()->json($mod->getModule($id, $request->get('ext'),$request->get('path'),$request->get('mod')));
 
-            $mod->getTable($request->get('id'), $request->get('id'));
-
-        else:
-
-            $mod->getTable(NULL);
-
-        endif;
+//        endif;
 
 
     }

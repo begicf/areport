@@ -2,15 +2,13 @@
 
 @section('content')
 
-
-
     <div class="container">
         @include('flash.flash-message')
 
         <div class="card col-lg-8">
             <div class="card-body">
 
-                <form class="form" action="/upload" method="post" enctype="multipart/form-data">
+                <form class="form" action="/taxonomy/upload" method="post" enctype="multipart/form-data">
                     {{ csrf_field() }}
                     <div class="form-group">
                         <label for="tax">Taxonomy name</label>

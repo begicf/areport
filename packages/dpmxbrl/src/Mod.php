@@ -11,8 +11,12 @@ namespace DpmXbrl;
 ini_set('max_execution_time', 300);
 ini_set('memory_limit', '1024M');
 
+use DpmXbrl\Config\Config;
+use DpmXbrl\Library\Directory;
+use DpmXbrl\Library\Format;
 use DpmXbrl\Library\Normalise;
 use DpmXbrl\Library\DomToArray;
+use DpmXbrl\Library\Data;
 
 /**
  * Description of Modules
@@ -27,6 +31,7 @@ class Mod
     private $data = array();
     private $path;
     private $lang;
+    private $freamworks;
 
 
     // public function __construct($path = '/taxonomy')
@@ -35,7 +40,9 @@ class Mod
         if (!empty($path) && !empty($lang)):
             $this->path = $path;
             $this->lang = $lang;
-            $this->modules = DomToArray::getPath($this->path, ['mod' => 'mod' . DIRECTORY_SEPARATOR]);
+            // $this->freamworks = Directory::searchFile($this->path, 'fws.xsd');
+            // $this->freamworks = current(Directory::searchFileGlob($this->path . DIRECTORY_SEPARATOR . 'fws.xsd'));
+            //$this->modules = Directory::getPath($this->path, ['mod' => 'mod' . DIRECTORY_SEPARATOR]);
         endif;
     }
 
@@ -55,8 +62,105 @@ class Mod
     }
 
 
-    public function getTable($id, $modulePath = null, $return = false)
+    public function getModule($id, $ext, $path, $mod = null)
     {
+
+
+        switch ($ext):
+
+            case 'fws':
+                //$fws = Directory::searchFile($this->path, 'fws.xsd');
+                //potrebno ispravit
+                $fws = Directory::searchFileExclude($this->path, 'fws.xsd');
+                //$fws = current(Directory::searchFileGlob($this->path . DIRECTORY_SEPARATOR . 'fws.xsd'));;
+                return $this->getFreamworks($fws);
+
+                break;
+            case 'tax':
+                $taxonomy = Directory::searchFile($path, 'tax.xsd');
+                return $this->getTaxonomy($id, $taxonomy);
+                // dd($tax);
+                break;
+            case 'mod':
+                //dump($path);
+                if (!empty($path)):
+                    $this->modules = Directory::getPath($path, ['mod' => 'mod/']);
+                endif;
+
+                $this->getTable($id, $mod);
+                return $this->getTable($id, $mod);
+                break;
+
+
+        endswitch;
+
+
+    }
+
+
+    public function getTaxonomy($id, $taxonomy)
+    {
+
+        $data = [];
+        foreach ($taxonomy as $key => $rows):
+
+            $tax = Data::getTax($rows->getRealPath(), null, null);
+
+            foreach ($tax['elements'] as $k => $row):
+
+                $data[] = [
+                    'parent' => $id,
+                    'children' => true,
+                    'data' => $rows->getPath(),
+                    'id' => str_replace(".", "", $row['name']),
+                    'text' => $row['name'] . ' / ' . $row['creationDate'],
+                    'type' => 'mod',
+                    'creationDate' => $row['creationDate']
+
+                ];
+            endforeach;
+
+        endforeach;
+        usort($data, function ($a, $b) {
+            return $a['creationDate'] <=> $b['creationDate'];
+        });
+        return $data;
+
+    }
+
+    public function getFreamworks($freamworks)
+    {
+//dd($this->freamworks);
+        //dd($freamworks);
+        $data = [];
+        foreach ($freamworks as $fws):
+//dump($fws);
+            $fw = Data::getTax($fws->getRealPath(), null, null);
+
+            foreach ($fw['elements'] as $row):
+
+                $data[] = [
+                    'parent' => '#',
+                    'children' => true,
+                    'data' => $fws->getPath() . DIRECTORY_SEPARATOR . strtolower($row['name'] . DIRECTORY_SEPARATOR),
+                    'id' => $row['id'],
+                    'text' => $row['name'],
+                    'type' => 'fws'
+
+                ];
+
+
+            endforeach;
+        endforeach;
+        sort($data);
+
+        return $data;
+    }
+
+    public function getTable($id, $modulePath = null)
+    {
+
+        $data = [];
         $module = array();
         $i = 0;
         foreach ($this->modules['mod'] as $mod):
@@ -65,7 +169,7 @@ class Mod
             $module[$i]['mod_path'] = Normalise::taxPath($mod);
             ++$i;
         endforeach;
-
+//dd($this->modules['mod']);
         foreach ($module as $mod):
 
             $this->lang = Library\Data::checkLang($mod);
@@ -74,17 +178,20 @@ class Mod
                 foreach ($mod['pre'] as $key => $row):
 
 
-                    if (empty($id) && !isset($row['order']) && isset($row['label'])):
+                    if (!isset($row['order']) && isset($row['label'])):
 
                         $name =
                             (empty($this->lang)) ? $row['label'] : call_user_func_array("array_merge", DomToArray::search_multdim($mod[$this->lang], 'from', $row['label']));
-                        $this->data[] = [
-                            'parent' => '#',
-                            "children" => true,
-                            'id' => $row['label'],
-                            "text" => (empty($this->lang)) ? $row['label'] : $name['@content'],
-                            "mod" => $mod['mod_path'],
-                            'type' => '#'];
+//                        $data[] = [
+//                            'parent' => $id,
+//                            "children" => true,
+//                            'data' => $this->path,
+//                            'id' => $row['label'],
+//                            'ext' => 'tab',
+//                            "text" => (empty($this->lang)) ? $row['label'] : $name['@content'],
+//                            "mod" => $mod['mod_path'],
+//                            'type' => '#'
+//                        ];
 
 
                     elseif (isset($row['from']) && $row['from'] == $id && isset($row['label'])):
@@ -128,7 +235,6 @@ class Mod
 
                             //Pretražuje putanju tax gdje se nalazi modul i gleda da li postoji XSD file koji je jednak linkovanom fajlu
                             $getFileXsdSource = DomToArray::getPath($tpmPath, ['tab' => end($getFile)]);
-                     ;
                             //Get XBRL specification source
 
                             if (empty($getFileXsdSource)):
@@ -164,16 +270,17 @@ class Mod
                             }
                         endif;
 
-                        $this->data[$row['order'] - 1] = [
+                        $data[$row['order'] - 1] = [
                             'parent' => $row['from'],
                             "children" => $children,
-                            'data' => $pathXsd,
+                            'data' => $this->path,
                             'lang' => preg_replace('/lab-/', '', $this->lang, 1),
                             'id' => $row['to'],
                             'ext_code' => $ext_code,
                             "text" => (empty($name)) ? $row['href'] : $name['@content'],
-                            "mod" => $mod['mod_path'],
-                            'type' => $type];
+                            "mod" => $pathXsd,
+                            'type' => $type
+                        ];
 
                     endif;
 
@@ -181,11 +288,10 @@ class Mod
             endif;
 
         endforeach;
-        if ($return == false):
-            echo json_encode($this->data);
-        else:
-            return $this->data;
-        endif;
+
+//dump($data);
+        return $data;
+
     }
 
     public function getXbrlSpec($path)
