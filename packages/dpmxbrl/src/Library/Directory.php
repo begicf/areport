@@ -23,44 +23,45 @@ class Directory
     /**
      * @param $path
      * @param array $string
-     * @param null $return
+     * @param bool $return_first_content
+     * @param int $max_depth
+     * @param array $ext
      * @return array|null
      */
-    public static function getPath($path, $string = array(), $return = NULL)
+    public static function getPath($path, $pattern = [], $return_first_content = FALSE, $max_depth = 10, $ext = ['xsd'])
     {
 
-
-        $rii = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS), RecursiveIteratorIterator::SELF_FIRST);
-        $ext = array('xsd');
         $content = NULL;
-        $dir = array();
+        $dir = [];
 
-        foreach ($rii as $file) :
+        $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS), RecursiveIteratorIterator::SELF_FIRST);
 
-//            if ($file->isDir()) {
-//                continue;
-//            }
+        $iterator->setMaxDepth($max_depth);
+
+        foreach ($iterator as $file) :
 
             $content = $file->getPathname();
 
-            foreach ($string as $key => $str):
+            foreach ($pattern as $key => $str):
 
                 if (strpos($content, $str) !== false) :
 
-                    /* @var $tmpPath type pathifno */
-
                     if (in_array($file->getExtension(), $ext)):
-                        if ($return == NULL):
-                            $dir[$key][] = $content;
-                        else:
+
+                        if ($return_first_content === TRUE):
                             return $content;
+                        else:
+                            $dir[$key][] = $content;
                         endif;
+
                     endif;
+
                 endif;
+
             endforeach;
 
-            //  }
         endforeach;
+
         return $dir;
     }
 
@@ -127,10 +128,10 @@ class Directory
         };
 
         $innerIterator = new RecursiveDirectoryIterator(
-            $directory,
+            $directory, RecursiveDirectoryIterator::SKIP_DOTS
         );
         $iterator = new RecursiveIteratorIterator(
-            new RecursiveCallbackFilterIterator($innerIterator, $filter),
+            new RecursiveCallbackFilterIterator($innerIterator, $filter),RecursiveIteratorIterator::SELF_FIRST
         );
         $iterator->setMaxDepth($maxDepth);
 

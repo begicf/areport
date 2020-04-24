@@ -1945,6 +1945,25 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+function getExtension($type) {
+  switch ($type) {
+    case 'default':
+      return 'fws';
+
+    case 'fws':
+      return 'tax';
+
+    case 'tax':
+      return 'mod';
+
+    case 'mod':
+      return 'tab';
+
+    default:
+      return 'tab';
+  }
+}
+
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "TreeComponent",
   mounted: function mounted() {
@@ -1970,25 +1989,31 @@ __webpack_require__.r(__webpack_exports__);
             return {
               'id': node.id,
               'path': node.data,
-              'ext': node.id === '#' ? 'fws' : node.original.type == 'fws' ? "tax" : node.original.type == 'tax' ? "mod" : "mod",
+              'ext': node.id === '#' ? 'fws' : getExtension(node.type),
               'mod': typeof node.original === 'undefined' ? null : node.original.mod
             };
           }
         }
       },
       "types": {
-        "#": {
-          "max_children": 1,
-          "max_depth": 4,
-          "icon": "fa fa-box",
+        "fws": {
+          "icon": "fas fa-folder text-primary",
+          "valid_children": ["group"]
+        },
+        "tax": {
+          "icon": "fa fa-box text-info",
+          "valid_children": ["group"]
+        },
+        "mod": {
+          "icon": "fa fa-box text-danger",
           "valid_children": ["group"]
         },
         "group": {
-          "icon": "fa fa-layer-group",
+          "icon": "fa fa-layer-group text-primary",
           "valid_children": ["file"]
         },
         "file": {
-          "icon": "fa fa-table",
+          "icon": "fa fa-table text-success",
           "valid_children": []
         }
       },
@@ -2000,12 +2025,14 @@ __webpack_require__.r(__webpack_exports__);
               "separator_before": false,
               "separator_after": false,
               "label": "New instance",
-              "_disabled": $node.type == 'file' ? false : true,
+              "_disabled": $node.type == 'mod' ? false : true,
               "icon": "fas fa-external-link-alt",
               "action": function action() {
+                console.log($node);
                 $('#table').val($node.data);
                 $('#lang').val($node.original.lang);
                 $('#mod').val($node.original.mod);
+                $('#table_xsd').val($node.original.table_xsd);
                 $('#ext_code').val($node.original.ext_code);
                 $('#module').modal();
               }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Table;
 
 use App\Http\Controllers\Controller;
 use App\Model\Taxonomy;
+use DpmXbrl\Library\Data;
 use DpmXbrl\Library\Normalise;
 use Illuminate\Http\Request;
 use DpmXbrl\Tax;
@@ -20,7 +21,13 @@ class TableController extends Controller
     public function table(Request $request)
     {
 
+
+        $module=Data::getTax($request->get('mod'));
+
+        dump(Data::buildTree($module['pre'],'loc_fba_Corep_Ind'));
+        dd($request->all());
         $this->_taxonomy = Taxonomy::all()->where('active', true)->first();
+
         $_taxonomyPath= storage_path('app/public/') . $this->_taxonomy->file;
 
        // dd($request->all());
@@ -41,15 +48,16 @@ class TableController extends Controller
 
 
 
-        if (file_exists($request->get('taxonomy'))):
+        if (file_exists($request->get('table_xsd'))):
 
 
-            $tmpDir = pathinfo($request->get('taxonomy'));
+            $tmpDir = pathinfo($request->get('table_xsd'));
 
 
-            $taxOb = new Tax($tmpDir['basename']);
+            $tax = Data::getTax($request->get('table_xsd'));
 
-            $tax = $taxOb->getTax();
+            $taxOb = new Tax();
+            //$tax = $taxOb->getTax();
 
 
 

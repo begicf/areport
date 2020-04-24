@@ -36,25 +36,18 @@ class ModulesController extends Controller
 
         $mod = new Mod(storage_path('app/public/') . $this->_taxonomy->file, 'en');
 
-        $mod->getModule('#');
+        $mod->module('#');
 
     }
 
     public function json(Request $request)
     {
 
-        $mod = new Mod(storage_path('app/public/') . $this->_taxonomy->file, 'en');
+        $mod = new Mod(storage_path('app/public/') . $this->_taxonomy->file);
 
         $id = $request->get('id');
-//        if ($id != '#'):
-//
-//            $mod->getTable($request->get('id'), $request->get('id'));
-//
-//        else:
-       //return json_encode($mod->getModule($id, $request->get('ext'), $request->get('path')), $request->get('mod'));
-        return response()->json($mod->getModule($id, $request->get('ext'),$request->get('path'),$request->get('mod')));
 
-//        endif;
+        return response()->json($mod->module($id, $request->get('ext'), $request->get('path'), $request->get('mod')));
 
 
     }

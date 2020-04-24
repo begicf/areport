@@ -101,7 +101,19 @@ class Format
         return $short = substr($haystack, 0, strrpos($haystack, $needle));
     }
 
+    /**
+     * @param $arr
+     * @param $string
+     * @return array
+     */
+    public static function findStringInArray($arr, $string)
+    {
 
+        return array_filter($arr, function ($value) use ($string) {
+            return strpos($value, $string) !== false;
+        });
+
+    }
 
 
 }

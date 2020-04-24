@@ -38,10 +38,10 @@ class Tax
     public function __construct($filename = NULL)
     {
 
-        $this->tax = DomToArray::getPath(Config::publicDir(), ['tab' => 'tab' . DIRECTORY_SEPARATOR]);
-        $this->filename = $filename;
+        //$this->tax = DomToArray::getPath(Config::publicDir(), ['tab' => 'tab' . DIRECTORY_SEPARATOR]);
+       // $this->filename = $filename;
 
-        $this->getPathXsd();
+        //$this->getPathXsd();
     }
 
     public function getTax()

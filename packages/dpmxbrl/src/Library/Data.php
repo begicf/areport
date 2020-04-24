@@ -155,4 +155,22 @@ class Data
         endforeach;
     }
 
+
+    public static function buildTree(array $elements, $parentId = 0)
+    {
+        $branch = array();
+
+        foreach ($elements as $element) {
+            if (isset ($element['from']) && $element['from'] == $parentId) {
+                $children = self::buildTree($elements, $element['to']);
+                if ($children) {
+                    $element['children'] = $children;
+                }
+                $branch[] = $element;
+            }
+        }
+
+        return $branch;
+    }
+
 }

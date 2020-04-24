@@ -73,10 +73,10 @@ class Presentation implements XbrlInterface
 
                                             break;
                                         case('presentationArc'):
-                                            $this->link[$role][$el->getAttribute('xlink:to')]['to'] =
-                                                $el->getAttribute('xlink:to');
                                             $this->link[$role][$el->getAttribute('xlink:to')]['from'] =
                                                 $el->getAttribute('xlink:from');
+                                            $this->link[$role][$el->getAttribute('xlink:to')]['to'] =
+                                                $el->getAttribute('xlink:to');
                                             $this->link[$role][$el->getAttribute('xlink:to')]['order'] =
                                                 $el->getAttribute('order');
                                             $this->link[$role][$el->getAttribute('xlink:to')]['arcrole'] =

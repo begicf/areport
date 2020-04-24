@@ -20,9 +20,9 @@ class Config
     public static $monetaryItem = 'BAM';
 
     public static $lang = [
-        '0' => "ba",
-        '1' => 'bs-Latn-BA',
-        '2' => 'en'
+        '0' => 'en',
+        '1' => 'bs-Latn-BA'
+
     ];
     /* Renderovanje specifikacija */
     public static $confSet = [

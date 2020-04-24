@@ -17,6 +17,7 @@ use DpmXbrl\Library\Format;
 use DpmXbrl\Library\Normalise;
 use DpmXbrl\Library\DomToArray;
 use DpmXbrl\Library\Data;
+use MongoDB\Driver\Exception\ExecutionTimeoutException;
 
 /**
  * Description of Modules
@@ -26,82 +27,80 @@ use DpmXbrl\Library\Data;
 class Mod
 {
 
-    //put your code here
-    private $modules;
-    private $data = array();
     private $path;
     private $lang;
-    private $freamworks;
 
-
-    // public function __construct($path = '/taxonomy')
     public function __construct($path = NULL, $lang = NULL)
     {
-        if (!empty($path) && !empty($lang)):
-            $this->path = $path;
-            $this->lang = $lang;
-            // $this->freamworks = Directory::searchFile($this->path, 'fws.xsd');
-            // $this->freamworks = current(Directory::searchFileGlob($this->path . DIRECTORY_SEPARATOR . 'fws.xsd'));
-            //$this->modules = Directory::getPath($this->path, ['mod' => 'mod' . DIRECTORY_SEPARATOR]);
-        endif;
+
+        $this->path = $path;
+        $this->lang = $lang;
+
     }
 
-
-    private function getId($arr, $val)
+    public function module($id, $ext, $path, $mod = null)
     {
-        if (is_array($arr)) {
-            if (isset($arr['from']) && trim($arr['from']) == trim($val)) {
-                return isset($arr['category_id']) ? $arr['category_id'] : 'Not found';
-            }
-            foreach ($arr as $values) {
-                if (is_array($values)) {
-                    return $this->getId($values, $val);
-                }
-            }
-        }
-    }
-
-
-    public function getModule($id, $ext, $path, $mod = null)
-    {
-
 
         switch ($ext):
 
             case 'fws':
-                //$fws = Directory::searchFile($this->path, 'fws.xsd');
-                //potrebno ispravit
+
                 $fws = Directory::searchFileExclude($this->path, 'fws.xsd');
-                //$fws = current(Directory::searchFileGlob($this->path . DIRECTORY_SEPARATOR . 'fws.xsd'));;
-                return $this->getFreamworks($fws);
+                return $this->getFrameworks($fws);
 
-                break;
             case 'tax':
-                $taxonomy = Directory::searchFile($path, 'tax.xsd');
+
+                $taxonomy = Directory::searchFileExclude($path, 'tax.xsd');
                 return $this->getTaxonomy($id, $taxonomy);
-                // dd($tax);
-                break;
+
             case 'mod':
-                //dump($path);
-                if (!empty($path)):
-                    $this->modules = Directory::getPath($path, ['mod' => 'mod/']);
-                endif;
 
-                $this->getTable($id, $mod);
-                return $this->getTable($id, $mod);
-                break;
+                return $this->getModules($id, $path);
 
+            case 'tab':
+
+                return $this->getTable($id, $path, $mod);
 
         endswitch;
 
 
     }
 
+    public function getFrameworks($frameworks)
+    {
+
+        $data = [];
+
+        foreach ($frameworks as $fws):
+
+            $fw = Data::getTax($fws->getRealPath(), null, null);
+
+            foreach ($fw['elements'] as $row):
+
+                $data[] = [
+                    'parent' => '#',
+                    'children' => true,
+                    'data' => $fws->getPath() . DIRECTORY_SEPARATOR . strtolower($row['name'] . DIRECTORY_SEPARATOR),
+                    'id' => $row['id'],
+                    'text' => $row['name'],
+                    'type' => "fws"
+
+                ];
+
+
+            endforeach;
+        endforeach;
+
+        sort($data);
+
+        return $data;
+    }
 
     public function getTaxonomy($id, $taxonomy)
     {
 
         $data = [];
+
         foreach ($taxonomy as $key => $rows):
 
             $tax = Data::getTax($rows->getRealPath(), null, null);
@@ -114,13 +113,14 @@ class Mod
                     'data' => $rows->getPath(),
                     'id' => str_replace(".", "", $row['name']),
                     'text' => $row['name'] . ' / ' . $row['creationDate'],
-                    'type' => 'mod',
+                    'type' => 'tax',
                     'creationDate' => $row['creationDate']
 
                 ];
             endforeach;
 
         endforeach;
+
         usort($data, function ($a, $b) {
             return $a['creationDate'] <=> $b['creationDate'];
         });
@@ -128,48 +128,13 @@ class Mod
 
     }
 
-    public function getFreamworks($freamworks)
-    {
-//dd($this->freamworks);
-        //dd($freamworks);
-        $data = [];
-        foreach ($freamworks as $fws):
-//dump($fws);
-            $fw = Data::getTax($fws->getRealPath(), null, null);
-
-            foreach ($fw['elements'] as $row):
-
-                $data[] = [
-                    'parent' => '#',
-                    'children' => true,
-                    'data' => $fws->getPath() . DIRECTORY_SEPARATOR . strtolower($row['name'] . DIRECTORY_SEPARATOR),
-                    'id' => $row['id'],
-                    'text' => $row['name'],
-                    'type' => 'fws'
-
-                ];
-
-
-            endforeach;
-        endforeach;
-        sort($data);
-
-        return $data;
-    }
-
-    public function getTable($id, $modulePath = null)
+    public function getModules($id, $path)
     {
 
         $data = [];
-        $module = array();
-        $i = 0;
-        foreach ($this->modules['mod'] as $mod):
 
-            $module[$i] = $this->getXbrlSpec($mod);
-            $module[$i]['mod_path'] = Normalise::taxPath($mod);
-            ++$i;
-        endforeach;
-//dd($this->modules['mod']);
+        $module = $this->fetchModule($path);
+
         foreach ($module as $mod):
 
             $this->lang = Library\Data::checkLang($mod);
@@ -182,28 +147,51 @@ class Mod
 
                         $name =
                             (empty($this->lang)) ? $row['label'] : call_user_func_array("array_merge", DomToArray::search_multdim($mod[$this->lang], 'from', $row['label']));
-//                        $data[] = [
-//                            'parent' => $id,
-//                            "children" => true,
-//                            'data' => $this->path,
-//                            'id' => $row['label'],
-//                            'ext' => 'tab',
-//                            "text" => (empty($this->lang)) ? $row['label'] : $name['@content'],
-//                            "mod" => $mod['mod_path'],
-//                            'type' => '#'
-//                        ];
+                        $data[] = [
+                            'parent' => $id,
+                            'children' => true,
+                            'data' => $path,
+                            'id' => $row['label'],
+                            'ext' => 'tab',
+                            "text" => (empty($this->lang)) ? $row['label'] : $name['@content'],
+                            "mod" => Config::publicDir() . DIRECTORY_SEPARATOR . $mod['mod_path'],
+                            'type' => 'mod'
+                        ];
+
+                    endif;
+
+                endforeach;
+            endif;
+        endforeach;
+
+        return $data;
+    }
+
+    public function getTable($id, $path, $modulePath = null): ?array
+    {
+
+        $data = [];
+
+        $module = $this->fetchModule($path);
+
+        foreach ($module as $mod):
+
+            $this->lang = Library\Data::checkLang($mod);
+
+            if (isset($mod['pre'])):
+                foreach ($mod['pre'] as $key => $row):
 
 
-                    elseif (isset($row['from']) && $row['from'] == $id && isset($row['label'])):
+                    if (isset($row['from']) && $row['from'] == $id && isset($row['label'])):
 
-                        $path = pathinfo(strtok($row['href'], "#"));
+                        $_path = pathinfo(strtok($row['href'], "#"));
 
-                        if (strpos($path['filename'], '-rend')):
+                        if (strpos($_path['filename'], '-rend')):
 
                             $row['href'] =
-                                preg_replace('#^https?://#', '', $path['dirname']) . DIRECTORY_SEPARATOR . str_replace('-rend', '.xsd', $path['filename']);
+                                preg_replace('#^https?://#', '', $_path['dirname']) . DIRECTORY_SEPARATOR . str_replace('-rend', '.xsd', $_path['filename']);
 
-                            $path['extension'] = 'xsd';
+                            $_path['extension'] = 'xsd';
                             $type = 'file';
                             $children = false;
 
@@ -213,35 +201,49 @@ class Mod
 
                             $type = 'group';
                             $children = true;
+
                         endif;
 
-                        if ($path['extension'] == 'xsd'):
+                        if ($_path['extension'] == 'xsd'):
 
 
                             if (strpos($row['href'], 'www') !== false):
 
                                 $str = preg_replace('#^https?://#', '', $row['href']);
-                                $pathXsd = $this->getDir() . DIRECTORY_SEPARATOR . strtok($str, "#");
+                                $pathXsd = $this->path . DIRECTORY_SEPARATOR . strtok($str, "#");
+
                             else:
+
                                 $pathXsd =
                                     dirname($mod['pre']['path']) . DIRECTORY_SEPARATOR . strtok($row['href'], "#");
                             endif;
 
 
-                            $getFile = explode('/', $pathXsd);
+                            $getFile = pathinfo($pathXsd);
 
-                            //Uzima putanju modula
-                            $tpmPath = substr($mod['pre']['path'], 0, strpos($mod['pre']['path'], '/mod'));
 
-                            //Pretražuje putanju tax gdje se nalazi modul i gleda da li postoji XSD file koji je jednak linkovanom fajlu
-                            $getFileXsdSource = DomToArray::getPath($tpmPath, ['tab' => end($getFile)]);
-                            //Get XBRL specification source
+                            if ($type == 'file'):
 
-                            if (empty($getFileXsdSource)):
-                                throw new \Exception(("Not found tab.xsd"));
+                                $getTableXsd = Format::findStringInArray($mod['imports'], $getFile['basename']);
+
+                                $getFileXsdSource = $path . DIRECTORY_SEPARATOR . 'mod' . DIRECTORY_SEPARATOR . current($getTableXsd);
+
+                            else:
+
+                                $getFileXsdSource = (current(Directory::searchFile($path, 'tab.xsd')))->getPathName();
+                                // $getFileXsdSource =$modulePath;
                             endif;
 
-                            $linkSource = $this->getXbrlSpec($getFileXsdSource['tab'][0]);
+
+                            try {
+
+                                $linkSource = Data::getTax($getFileXsdSource, Data::getLangSpec('mod'));
+
+                            } catch (\Exception $e) {
+
+                                echo \Exception(("Not found $getFileXsdSource"));
+
+                            }
 
                             $ext_code = null;
                             if (isset($linkSource['lab-codes'])):
@@ -251,7 +253,7 @@ class Mod
                             endif;
 
                             //Get XBRL specification destination
-                            $linkDestination = $this->getXbrlSpec($pathXsd);
+                            $linkDestination = Data::getTax($getFileXsdSource, Data::getLangSpec('mod'));
 
                             $link = array_merge($linkSource, $linkDestination);
                             //  echo "<pre>", print_r($link), "</pre>";
@@ -273,12 +275,12 @@ class Mod
                         $data[$row['order'] - 1] = [
                             'parent' => $row['from'],
                             "children" => $children,
-                            'data' => $this->path,
+                            'data' => $path,
                             'lang' => preg_replace('/lab-/', '', $this->lang, 1),
                             'id' => $row['to'],
                             'ext_code' => $ext_code,
                             "text" => (empty($name)) ? $row['href'] : $name['@content'],
-                            "mod" => $pathXsd,
+                            "table_xsd" => $pathXsd,
                             'type' => $type
                         ];
 
@@ -289,42 +291,26 @@ class Mod
 
         endforeach;
 
-//dump($data);
         return $data;
 
     }
 
-    public function getXbrlSpec($path)
+    private function fetchModule($path)
     {
 
-        if (file_exists($path)):
+        $modules = Directory::getPath($path, ['mod' => 'mod/']);
+        $module = [];
 
+        foreach ($modules['mod'] as $key => $mod):
 
-            $spec = array();
+            $module[$key] = Data::getTax($mod);
+            $module[$key]['mod_path'] = Normalise::taxPath($mod);
 
-            $xbrl = new Set($path, Library\Data::getLangSpec('mod'));
+        endforeach;
 
-            $_xbrl = $xbrl->load();
+        return $module;
 
-            if (is_array($_xbrl) || is_object($_xbrl)):
-
-                foreach ($xbrl->load() as $key => $row):
-                    $spec[$key] = $row->Xbrl;
-                endforeach;
-            endif;
-            return $spec;
-
-
-        else:
-            die('Not found' . $path);
-        endif;
     }
 
-
-    private function getDir()
-    {
-
-        return $this->path;
-    }
 
 }

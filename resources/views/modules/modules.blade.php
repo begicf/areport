@@ -32,6 +32,7 @@
                         <input name="taxonomy" type="hidden" id="table" type="text"/>
                         <input name="lang" type="hidden" id="lang" type="text"/>
                         <input name="mod" type="hidden" id="mod" type="text"/>
+                        <input name="table_xsd" type="hidden" id="table_xsd" type="text"/>
                         <input name="ext_code" type="hidden" id="ext_code" type="text"/>
 
 
