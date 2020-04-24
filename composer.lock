@@ -4,8 +4,45 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8ce3c1d3113b6104ab9957d7f9eb3981",
+    "content-hash": "213723bffad9271f84f91a2a951c7df8",
     "packages": [
+        {
+            "name": "begicf/simple-menu",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/begicf/simpleMenu.git",
+                "reference": "db49510e426e0a19e58f9c59c74ab9c4094aa06b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/begicf/simpleMenu/zipball/db49510e426e0a19e58f9c59c74ab9c4094aa06b",
+                "reference": "db49510e426e0a19e58f9c59c74ab9c4094aa06b",
+                "shasum": ""
+            },
+            "require": {
+                "laravel/framework": "^7.0",
+                "php": "^7.2.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "SimpleMenu\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fuad Begic",
+                    "email": "fuad.begic@gmail.com"
+                }
+            ],
+            "description": "Simple LaravelMenu package from datasources",
+            "time": "2020-04-03T16:07:54+00:00"
+        },
         {
             "name": "dnoegel/php-xdg-base-dir",
             "version": "v0.1.1",
@@ -374,6 +411,7 @@
                     "email": "jakub.onderka@gmail.com"
                 }
             ],
+            "abandoned": "php-parallel-lint/php-console-color",
             "time": "2018-09-29T17:23:10+00:00"
         },
         {
@@ -420,6 +458,7 @@
                 }
             ],
             "description": "Highlight PHP code in terminal",
+            "abandoned": "php-parallel-lint/php-console-highlighter",
             "time": "2018-09-29T18:48:56+00:00"
         },
         {
@@ -5099,7 +5138,9 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "begicf/simple-menu": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
