@@ -28,14 +28,21 @@ class Data
         $_tax = array();
         $tax = new Set($path, $config, $assertion);
 
+
+        if (strpos($tax->schema->baseURI, 'tab/') !== false):
+            $_tax['tab_xsd_uri'] = $tax->schema->baseURI;
+        endif;
+
         $_tax['imports'] = $tax->imports;
         $_tax['namespace'] = $tax->namespace;
-        $_tax['elements'] = $tax->elements;
+
+        if (empty($tax->elements) == FALSE):
+            $_tax['elements'] = $tax->elements;
+        endif;
 
         foreach ($tax->load() as $key => $row):
             $_tax[$key] = $row->Xbrl;
         endforeach;
-
 
         return $_tax;
     }
@@ -155,22 +162,5 @@ class Data
         endforeach;
     }
 
-
-    public static function buildTree(array $elements, $parentId = 0)
-    {
-        $branch = array();
-
-        foreach ($elements as $element) {
-            if (isset ($element['from']) && $element['from'] == $parentId) {
-                $children = self::buildTree($elements, $element['to']);
-                if ($children) {
-                    $element['children'] = $children;
-                }
-                $branch[] = $element;
-            }
-        }
-
-        return $branch;
-    }
 
 }

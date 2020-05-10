@@ -16,5 +16,11 @@ composer require chumper/zipper
 
 php artisan migrate:refresh --seed
 
+## yarn
+yarn add multiselect-two-sides
+yarn add jstree
+yarn add bootstra-table
+yarn add bootstrap-select
+
 ### Bitbucket pull
 

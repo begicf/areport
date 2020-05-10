@@ -56,13 +56,13 @@ class Format
     /**
      * Dobavi sting poslije specificiranog karaktera
      * @param type $string
-     * @param type $char
+     * @param string $needle
      * @param type $num
      * @return type
      */
-    public static function getAfterSpecChar($string, $char, $num = 1)
+    public static function getAfterSpecChar($string, $needle, $num = 1)
     {
-        return substr($string, strpos($string, $char) + $num);
+        return substr($string, strpos($string, $needle) + $num);
     }
 
     /**

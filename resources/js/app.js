@@ -6,9 +6,8 @@
 
 require('./bootstrap');
 // Bootstrap table
-require('bootstrap-table/dist/bootstrap-table.min');
-// Js tree
-require('jstree/dist/jstree.min')
+
+
 
 window.Vue = require('vue');
 
@@ -34,5 +33,13 @@ import TreeComponent from "./components/TreeComponent";
 
 const app = new Vue({
     el: '#app',
-   components: {TreeComponent}
 });
+
+if (document.getElementById("comp")) {
+    const comp = new Vue({
+        el: '#comp',
+        components: {TreeComponent}
+
+    })
+}
+

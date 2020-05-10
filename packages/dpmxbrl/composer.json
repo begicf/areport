@@ -1,6 +1,6 @@
 {
     "name": "begicf/dpmxbrl",
-    "description": "DPM package for XBRL taxonomy",
+    "description": "Areport package for DPM-XBRL taxonomy",
     "license": "MIT",
     "authors": [
         {
@@ -11,8 +11,7 @@
     "minimum-stability": "dev",
     "require": {
 
-        "php": "^7.2.5",
-        "laravel/framework": "^7.0"
+        "php": "^7.2.5"
     },
     "autoload": {
         "psr-4": {

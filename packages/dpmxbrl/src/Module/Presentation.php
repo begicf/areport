@@ -22,7 +22,6 @@ class Presentation implements XbrlInterface
         $xpath = new DOMXPath($this->arrayPath);
 
 
-
         foreach ($xpath->query('namespace::*', $context) as $node) {
 
             $xpath->registerNamespace($node->prefix, $node->nodeValue);
@@ -38,8 +37,11 @@ class Presentation implements XbrlInterface
                     $arc = $xpath->query("//gen:arc ", $context);
 
                     foreach ($arc as $element):
-                        $this->gen[$element->getAttribute('xlink:to')]['to'] = $element->getAttribute('xlink:to');
+
+                        $this->gen[$element->getAttribute('xlink:to')]['type'] = $element->getAttribute('xlink:type');
+
                         $this->gen[$element->getAttribute('xlink:to')]['from'] = $element->getAttribute('xlink:from');
+                        $this->gen[$element->getAttribute('xlink:to')]['to'] = $element->getAttribute('xlink:to');
                         $this->gen[$element->getAttribute('xlink:to')]['arcrole'] =
                             $element->getAttribute('xlink:arcrole');
                         $this->gen[$element->getAttribute('xlink:to')]['order'] = $element->getAttribute('order');
@@ -94,17 +96,13 @@ class Presentation implements XbrlInterface
 
                     else:
 
-
                         $link = $xpath->query("//link:loc ", $context);
 
                         foreach ($link as $element):
 
-
-                            $this->link[$element->getAttribute('xlink:label')]['href'] =
-                                $element->getAttribute('xlink:href');
-                            $this->link[$element->getAttribute('xlink:label')]['label'] =
-                                $element->getAttribute('xlink:label');
-
+                            $this->link[$element->getAttribute('xlink:label')]['type'] = $element->getAttribute('xlink:type');
+                            $this->link[$element->getAttribute('xlink:label')]['href'] = $element->getAttribute('xlink:href');
+                            $this->link[$element->getAttribute('xlink:label')]['label'] = $element->getAttribute('xlink:label');
 
                         endforeach;
 
@@ -114,6 +112,7 @@ class Presentation implements XbrlInterface
 
 
             endswitch;
+
         endforeach;
 
         if (is_array($this->gen) && is_array($this->link)):

@@ -17,7 +17,6 @@ use DpmXbrl\Library\Format;
 use DpmXbrl\Library\Normalise;
 use DpmXbrl\Library\DomToArray;
 use DpmXbrl\Library\Data;
-use MongoDB\Driver\Exception\ExecutionTimeoutException;
 
 /**
  * Description of Modules
@@ -29,6 +28,7 @@ class Mod
 
     private $path;
     private $lang;
+    private static $groupTable = [];
 
     public function __construct($path = NULL, $lang = NULL)
     {
@@ -295,7 +295,11 @@ class Mod
 
     }
 
-    private function fetchModule($path)
+    /**
+     * @param $path
+     * @return array
+     */
+    private function fetchModule($path): ?array
     {
 
         $modules = Directory::getPath($path, ['mod' => 'mod/']);
@@ -310,6 +314,89 @@ class Mod
 
         return $module;
 
+    }
+
+    /**
+     * @param $elements
+     * @param $parentId
+     * @return array
+     */
+    public static function makeTree($elements, $parentId): ?array
+    {
+        $branch = [];
+
+        foreach ($elements as $element) {
+            if (isset ($element['from']) && $element['from'] == $parentId) {
+                $children = self::makeTree($elements, $element['to']);
+
+                if ($children) {
+
+                    $element['group'] = $children;
+
+                }
+
+                if (strpos($element['href'], 'rend.xml')):
+                    $branch['table'][] = $element;
+                else:
+                    $branch[] = $element;
+                endif;
+
+
+            }
+        }
+
+        return $branch;
+
+    }
+
+    /**
+     * @param $elements
+     * @param $parentId
+     * @return array
+     */
+    public static function getGroupTable($elements, $parentId): array
+    {
+        $tree = self::makeTree($elements, $parentId);
+
+        self::extractGroupTable($tree);
+
+        return self::$groupTable;
+
+    }
+
+    /**
+     * @param $tree
+     */
+    private static function extractGroupTable($tree)
+    {
+
+        if (!is_null($tree) && count($tree) > 0) {
+
+            foreach ($tree as $node) {
+
+                if (isset($node['group']['table'])):
+
+                    $key = Format::getAfterSpecChar($node['label'], '_tg', 3);
+                    $tmp = [];
+
+                    usort($node['group']['table'], function ($a, $b) {
+                        return $a['order'] <=> $b['order'];
+                    });
+                    foreach ($node['group']['table'] as $row):
+                        $_key = Format::getAfterSpecChar($row['href'], '#');
+                        $tmp[$_key] = $row;
+                    endforeach;
+
+
+                    self::$groupTable[$key] = $tmp;
+
+                elseif (isset($node['group'])):
+
+                    self::extractGroupTable($node['group']);
+
+                endif;
+            }
+        }
     }
 
 

@@ -30,103 +30,127 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
+            $(function () {
+                $('#modules').jstree(
+                    {
+                        'core': {
+                            'check_callback': true,
+                            'data': {
+                                'animation': 0,
+                                'type': "POST",
+                                'dataType': "json",
+                                'cache': false,
+                                'themes': {
+                                    'responsive': true,
+                                    'name': 'proton'
+                                },
+                                'url': 'modules/json',
 
-            $('#modules').jstree(
-                {
-                    'core': {
-                        'check_callback': true,
-                        'data': {
-                            'animation': 0,
-                            'type': "POST",
-                            'dataType': "json",
-                            'cache': false,
-                            'themes': {
-                                'responsive': true,
-                                'name': 'proton'
+                                'data': function (node) {
+
+                                    return {
+                                        'id': node.id,
+                                        'path': node.data,
+                                        'ext': (node.id === '#') ? 'fws' : getExtension(node.type),
+                                        'mod': (typeof node.original === 'undefined') ? null : node.original.mod
+                                    };
+                                }
+                            }
+                        },
+                        "types": {
+                            "fws": {
+
+                                "icon": "fas fa-folder text-primary",
+                                "valid_children": ["group"]
                             },
-                            'url': 'modules/json',
+                            "tax": {
 
-                            'data': function (node) {
+                                "icon": "fa fa-box text-info",
+                                "valid_children": ["group"]
+                            },
+                            "mod": {
+
+                                "icon": "fa fa-box text-danger",
+                                "valid_children": ["group"]
+                            },
+                            "group": {
+                                "icon": "fa fa-layer-group text-primary",
+                                "valid_children": ["file"]
+                            },
+                            "file": {
+                                "icon": "fa fa-table text-success",
+                                "valid_children": []
+                            }
+                        },
+                        "plugins": [
+                            "contextmenu", "state", "types", "wholerow"
+                        ],
+                        "contextmenu": {
+                            "items": function ($node) {
 
                                 return {
-                                    'id': node.id,
-                                    'path': node.data,
-                                    'ext': (node.id === '#') ? 'fws' : getExtension(node.type),
-                                    'mod': (typeof node.original === 'undefined') ? null : node.original.mod
-                                };
+                                    "Create": {
+                                        "separator_before": false,
+                                        "separator_after": false,
+                                        "label": "New instance",
+                                        "_disabled": ($node.type == 'mod') ? false : true,
+                                        "icon": "fas fa-external-link-alt",
+                                        "action": function () {
+
+                                            $('#table').val($node.data);
+                                            $('#lang').val($node.original.lang);
+                                            $('#mod').val($node.original.mod);
+                                            $('#table_xsd').val($node.original.table_xsd);
+                                            $('#ext_code').val($node.original.ext_code);
+
+                                            $.ajax({
+                                                url: 'modules/group',
+                                                type: 'post',
+                                                data: {module: $node.original.mod},
+                                            }).done(function (response) {
+
+                                                var optionsHTML = [];
+
+                                                for (var k in response) {
+
+                                                    optionsHTML.push("<option value='" + response[k] + "'>" + k + "</option>")
+                                                }
+
+                                                $('#multiselect option').remove();
+                                                $('#multiselect_to option').remove();
+
+
+                                                $('#multiselect').append(optionsHTML);
+                                                $('#module').modal();
+
+                                            })
+
+
+                                        }
+                                    },
+
+                                }
                             }
                         }
-                    },
-                    "types": {
-                        "fws": {
+                    }).on('select_node.jstree', function (e, data, response) {
 
-                            "icon": "fas fa-folder text-primary",
-                            "valid_children": ["group"]
-                        },
-                        "tax": {
+                    if (data.node.type == '#') {
 
-                            "icon": "fa fa-box text-info",
-                            "valid_children": ["group"]
-                        },
-                        "mod": {
+                        $.post('/ajax_instance',
+                            {'mod': data.node.original.mod})
+                            .fail(function () {
+                                //data.instance.refresh();
+                            })
+                            .done(function (data) {
 
-                            "icon": "fa fa-box text-danger",
-                            "valid_children": ["group"]
-                        },
-                        "group": {
-                            "icon": "fa fa-layer-group text-primary",
-                            "valid_children": ["file"]
-                        },
-                        "file": {
-                            "icon": "fa fa-table text-success",
-                            "valid_children": []
-                        }
-                    },
-                    "plugins": [
-                        "contextmenu", "state", "types", "wholerow"
-                    ],
-                    "contextmenu": {
-                        "items": function ($node) {
-
-                            return {
-                                "Create": {
-                                    "separator_before": false,
-                                    "separator_after": false,
-                                    "label": "New instance",
-                                    "_disabled": ($node.type == 'mod') ? false : true,
-                                    "icon": "fas fa-external-link-alt",
-                                    "action": function () {
-console.log($node);
-                                        $('#table').val($node.data);
-                                        $('#lang').val($node.original.lang);
-                                        $('#mod').val($node.original.mod);
-                                        $('#table_xsd').val($node.original.table_xsd);
-                                        $('#ext_code').val($node.original.ext_code);
-                                        $('#module').modal();
-
-                                    }
-                                },
-
-                            }
-                        }
+                                $("#instance").html(data);
+                            });
+                    } else {
+                        $("#instance").empty();
                     }
-                }).on('select_node.jstree', function (e, data, response) {
 
-                if (data.node.type == '#') {
 
-                    $.post('/ajax_instance',
-                        {'mod': data.node.original.mod})
-                        .fail(function () {
-                            //data.instance.refresh();
-                        })
-                        .done(function (data) {
-
-                            $("#instance").html(data);
-                        });
-                } else {
-                    $("#instance").empty();
-                }
-
+                })
             })
         }
     }

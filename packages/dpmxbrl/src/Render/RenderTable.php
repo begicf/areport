@@ -126,7 +126,7 @@ class RenderTable
                             $this->specification['rend']['explicitDimension'][$this->specification['rend']['aspectNodeFilterArc'][key($row)]['to']];
 
                         $domain =
-                            Domain::getDomain($explicitDimension['linkrole'], Directory::getRootName($additional['file_path']));
+                            Domain::getDomain($explicitDimension['linkrole'], Directory::getRootName($this->specification['tab_xsd_uri']));
 
                         $sheetsHtml = $this->explicitDimensionSheets($domain, $explicitDimension['dimension']);
 

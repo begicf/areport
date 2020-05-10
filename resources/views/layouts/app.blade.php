@@ -10,6 +10,8 @@
     <title>{{ config('app.name', 'Laravel') }}</title>
 
     <!-- Scripts -->
+    <script src="{{ asset('js/jquerylib.js') }}" ></script>
+
     <script src="{{ asset('js/app.js') }}" defer></script>
 
     <!-- Fonts -->
@@ -35,12 +37,12 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <!-- Left Side Of Navbar -->
                 @auth
-                <ul class="navbar-nav mr-auto">
-                    <x-menu-menu-component type="v" />
-                </ul>
-                @endauth
+                    <ul class="navbar-nav mr-auto">
+                        <x-menu-menu-component type="v"/>
+                    </ul>
+            @endauth
 
-                <!-- Right Side Of Navbar -->
+            <!-- Right Side Of Navbar -->
                 <ul class="navbar-nav ml-auto">
                     <!-- Authentication Links -->
                     @guest
@@ -78,10 +80,10 @@
             </div>
         </div>
     </nav>
-
-    <main class="py-4">
-        @yield('content')
-    </main>
 </div>
+<main class="py-4">
+    @yield('content')
+</main>
+
 </body>
 </html>

@@ -36,11 +36,12 @@ Route::post('/delete', 'Taxonomy\TaxonomyController@delete');
 Route::group(['prefix' => 'modules', 'middleware' => 'auth'], function () {
     Route::get('/', 'Modules\ModulesController@index')->name('Modules');
     Route::post('/json', 'Modules\ModulesController@json')->name('Modules');
-    Route::get('/test', 'Modules\ModulesController@test')->name('Modules');
+    Route::post('/group', 'Modules\ModulesController@group')->name('Modules');
 });
 
 Route::group(['prefix' => 'table', 'middleware' => 'auth'], function () {
     Route::post('/', 'Table\TableController@table')->name('Modules');
+    Route::post('/ajax', 'Table\TableController@table')->name('Modules');
     //Route::post('/json', 'Modules\ModulesController@json')->name('Modules');
 });
 

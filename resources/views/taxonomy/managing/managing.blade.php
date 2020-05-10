@@ -5,16 +5,23 @@
     <div class="container">
         @include('flash.flash-message')
 
-        <div class="card col-lg-8">
-            <div class="card-body">
-                <form class="form" method="post">
+        <div class="card">
+
+            <div class="card-header">
+                Taxonomy
+            </div>
+
+
+            <form class="form" method="post">
+                <div class="card-body">
+
                     {{ csrf_field() }}
                     <table class="table">
                         <thead>
                         <tr>
                             <th>Active</th>
                             <th>Original name</th>
-                            <th>Delete</th>
+                            <th class="text-center">Delete</th>
                         </tr>
                         </thead>
                         @foreach($tax as $row)
@@ -32,16 +39,22 @@
                                 <td>
                                     {{$row->original_name}}
                                 </td>
-                                <td>
-                                    <button formaction="tax_delete" class="btn btn-sn btn-danger"><i class="fas fa-trash"></i></button>
+                                <td class="text-center">
+                                    <button formaction="tax_delete" class="btn btn-outline-danger"><i
+                                            class="fas fa-trash"></i></button>
                                 </td>
                             </tr>
 
                         @endforeach
                     </table>
-                    <button class="btn btn-primary float-right" type="submit"><i class="fas fa-cog"></i> Set</button>
-                </form>
-            </div>
+
+
+                </div>
+                <div class="card-footer text-right">
+                    <button class="btn btn-primary" type="submit"><i class="fas fa-cog"></i> Set
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 @endsection
