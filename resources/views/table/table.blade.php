@@ -13,7 +13,7 @@
                         <button type="button" class="btn btn-primary"><i class="fas fa-table"></i></button>
                     </div>
                     <div class="btn-group mr-4" role="group" aria-label="First group">
-                        <select id="group" onchange="changeTable(this)" class="form-control">
+                        <select id="group" onchange="changeTable(this,'G')" class="form-control">
                             @foreach($groups as $key=>$row)
                                 <option value="{{$row}}">
                                     {{$key}}
@@ -48,6 +48,9 @@
             </div>
         </div>
 
+        <div id="button_group" class="col-lg-12 p-2">
+
+        </div>
         <div id="sheets" class="col-lg-3 p-2"></div>
         <div id="tab" class="overflow-auto">
 
@@ -69,19 +72,29 @@
     }
 
 
+    function changeTable(selectedOb, type = 'G') {
 
+        var group;
+        var table = null;
 
-    function changeTable(selectedOb) {
-
-        const group = selectedOb.value;
+        if (type == 'G') {
+            group = selectedOb.value;
+        } else {
+            group = document.querySelector('#group').value;
+            table = selectedOb.value;
+        }
 
         $("#tab").empty();
+        $("#button_group").empty();
+        $("#sheets").empty();
+
         $('#pleaseWaitDialog').modal();
 
 
         axios.post('/table/ajax', {
 
                 'group': group,
+                'tab': table,
                 'mod': '{{$mod}}',
                 'period': '{{$period}}'
             }
@@ -90,6 +103,7 @@
             $('#pleaseWaitDialog').modal('hide');
             $('#tab').html(response.data.table);
             $('#sheets').html(response.data.sheets);
+            $('#button_group').html(response.data.groups);
             $('#sheet').selectpicker();
         })
     }

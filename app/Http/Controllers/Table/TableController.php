@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Table;
 use App\Http\Controllers\Controller;
 use App\Model\Taxonomy;
 use DpmXbrl\Library\Data;
+use DpmXbrl\Library\Format;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
 use DpmXbrl\Tax;
@@ -38,11 +39,19 @@ class TableController extends Controller
             $tc = current($table[0]->table);
         else:
 
-            $tc = current(json_decode($request->get('group'), true));
+            $groups_array = json_decode($request->get('group'), true);
+
+
+            if ($request->get('tab')):
+                $tc = $request->get('tab');
+            else:
+                $tc = current($groups_array);
+            endif;
+
 
         endif;
 
-       // $tax = Data::getTax($tc);
+        // $tax = Data::getTax($tc);
 
         if (file_exists($tc)):
 
@@ -61,7 +70,7 @@ class TableController extends Controller
                 $tax = Data::getTax($tc);
                 $taxOb = new Tax();
                 $data = $taxOb->render()->renderHtml($tax);
-
+                $data['groups'] = $this->makeButtonGroup($groups_array, $tc);
 
                 return response($data);
 
@@ -70,5 +79,22 @@ class TableController extends Controller
         else:
             abort(404);
         endif;
+    }
+
+    private function makeButtonGroup($array, $table): ?string
+    {
+        $buttonGroup = null;
+
+        if (is_array($array) && count($array) > 1):
+
+            $buttonGroup = "<div class='btn-group' role='group' aria-label='Basic example'>";
+            foreach ($array as $key => $row):
+                $active = ($row == $table) ? 'active' : '';
+                $buttonGroup .= "<button type='button' onclick='changeTable(this,\"T\")' value='$row'  class='btn btn-primary $active'>" . Format::getAfterSpecChar($key, '_t', 2) . "</button>";
+            endforeach;
+            $buttonGroup .= "</div>";
+        endif;
+
+        return $buttonGroup;
     }
 }

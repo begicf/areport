@@ -5,6 +5,7 @@ namespace DpmXbrl\Link;
 use DOMXPath;
 use DpmXbrl\Dimension\Dimension;
 use DpmXbrl\Library\DomToArray;
+use DpmXbrl\Library\Format;
 use DpmXbrl\Metric\Metric;
 use DpmXbrl\XbrlInterface;
 

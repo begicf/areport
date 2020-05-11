@@ -408,7 +408,7 @@ class RenderTable
 
 
                             $additional['explicitDimension'] =
-                                Domain::getDomain($explicitDimension['linkrole'], Directory::getRootName($additional['file_path']));
+                                Domain::getDomain($explicitDimension['linkrole'], Directory::getRootName($this->specification['tab_xsd_uri']));
                             $additional['dimension'] = $explicitDimension['dimension'];
 
                         else:
@@ -636,6 +636,7 @@ class RenderTable
                     $input .= "<input  " . ((isset($readonly)) ? $readonly : "") . " id='$name' title='Upišite cjelobrojnu vrijednost'  name='" . $name . "[value]' type='number'  value='$value' class='xbrl-input' />";
                     break;
                 case 'xbrli:QNameItemType':
+                case 'enum:enumerationItemType':
                     if (isset($def['presentation'])):
 
                         $input .= "<select class='xbrl-select' id='$name' name='" . $name . "[value]'  oninvalid=\"this.setCustomValidity('Molim, odaberite stavku sa liste')\" oninput=\"setCustomValidity('')\">";
