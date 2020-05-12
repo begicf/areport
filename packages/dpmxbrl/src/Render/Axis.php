@@ -2,8 +2,8 @@
 
 namespace DpmXbrl\Render;
 
-use DpmXbrl\Library\DomToArray;
 use DpmXbrl\Library\Data;
+use DpmXbrl\Library\DomToArray;
 use DpmXbrl\Library\Format;
 
 /*
@@ -84,7 +84,7 @@ class Axis
                             $tmpC = $tmpC + 1;
                         endif;
                     endforeach;
-                    ///  echo $tmpC . PHP_EOL;
+                    //echo $tmpC . PHP_EOL;
                     $element['metric_element'] = $tmpC;
 
 
@@ -114,8 +114,11 @@ class Axis
 
                     foreach ($children as $c):
 
-
-                        $c['col'] = $element['order'] + $c['order'];
+                        if ($element['abstract'] = 'true'):
+                            $c['col'] = $element['order'] + (($c['order'] == 1) ? 0 : $c['order']);
+                        else:
+                            $c['col'] = $element['order'] + $c['order'];
+                        endif;
 
 
                         $branch[] = $c;

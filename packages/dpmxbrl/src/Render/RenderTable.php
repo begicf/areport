@@ -102,6 +102,7 @@ class RenderTable
 
                     $header =
                         $this->axis->buildXAxis($this->specification['rend']['definitionNodeSubtreeArc'], key($row));
+dump($header);
                     break;
 
                 case 'y':
@@ -202,7 +203,7 @@ class RenderTable
                 $prev = $header[$keys[$row - 1]];
             endif;
             $this_value = $header[$keys[$row]];
-
+//dump($this_value);
 
             if (isset($storPosition[$this_value['row']])) {
 
@@ -246,7 +247,7 @@ class RenderTable
                 $storPosition[$this_value['row']] = $tmpPos;
             }
 
-
+//dump($this->specification['rend']['path'] . "#" . $this_value['to']);
             //Rc-code
             $this->col[$col]['rc-code'] = $rcCode =
                 $this->axis->searchLabel($this->specification['rend']['path'] . "#" . $this_value['to'], 'http://www.eurofiling.info/xbrl/role/rc-code');

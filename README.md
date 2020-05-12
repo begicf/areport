@@ -24,3 +24,8 @@ yarn add bootstrap-select
 
 ### Bitbucket pull
 
+### php.ini
+max_execution_time = 6000
+upload_max_filesize = 4000M
+post_max_size = 4000M
+
