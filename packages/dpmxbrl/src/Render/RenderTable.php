@@ -121,7 +121,7 @@ class RenderTable
 
                 case 'z':
 
-                    if (isset($this->specification['rend']['aspectNode'][key($row)])):
+                    if (isset($this->specification['rend']['aspectNode'][key($row)]) && isset($this->specification['rend']['aspectNodeFilterArc'])):
 
                         $explicitDimension =
                             $this->specification['rend']['explicitDimension'][$this->specification['rend']['aspectNodeFilterArc'][key($row)]['to']];
@@ -217,7 +217,7 @@ class RenderTable
 
                 //Sacuvaj poziciju, ako pozicija posjeduje child elelemt onda je uvacaj za broj child elemenata
                 $tmpPos = NULL;
-                if (isset($this_value['leaves_element']) && $this_value['abstract'] != 'true'):
+                if (isset($this_value['leaves_element'])):
                     $tmpPos = $col + $this_value['leaves_element'] - 1;
                 elseif (isset($this_value['metric_element'])):
                     $tmpPos = $col + $this_value['metric_element'] - 1;
@@ -233,7 +233,7 @@ class RenderTable
                 $tmpPos = NULL;
                 //Ako pozicija nije setovan a posjeduje child elemente setuj je na broj child elemenata plus broj kolona inace samo na broj kolona
 
-                if (isset($this_value['leaves_element']) && $this_value['abstract'] != 'true'):
+                if (isset($this_value['leaves_element'])):
                     //ako pozicija posjeduje childe elemente i ako se parent element popunjava odnosno ima metric vrijednost
                     $tmpPos = $col + $this_value['leaves_element'] - 1;
                 elseif (isset($this_value['metric_element'])):
@@ -247,7 +247,7 @@ class RenderTable
                 $storPosition[$this_value['row']] = $tmpPos;
             }
 
-//dump($this->specification['rend']['path'] . "#" . $this_value['to']);
+
             //Rc-code
             $this->col[$col]['rc-code'] = $rcCode =
                 $this->axis->searchLabel($this->specification['rend']['path'] . "#" . $this_value['to'], 'http://www.eurofiling.info/xbrl/role/rc-code');
