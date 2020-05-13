@@ -4,13 +4,13 @@
 
     <div class="container-fluid">
 
-
         <div class="row pb-3">
             <div class="col col-lg-5">
 
                 <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
                     <div class="btn-group mr-2" role="group" aria-label="First group">
-                        <button type="button" class="btn btn-primary"><i class="fas fa-table"></i></button>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#module"><i
+                                class="fas fa-table"></i></button>
                     </div>
                     <div class="btn-group mr-4" role="group" aria-label="First group">
                         <select id="group" onchange="changeTable(this,'G')" class="form-control">
@@ -23,43 +23,25 @@
                     </div>
                 </div>
 
-
             </div>
         </div>
 
-
-        @include('flash.flash-message')
-
-
-        <div class="modal hide" tabindex="-1" id="pleaseWaitDialog" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog" role="document">
-
-                <div class="modal-body text-center">
-                    <div id="ajax_loader">
-                        <div class="spinner-grow text-primary" role="status">
-                            <span class="sr-only">Loading...</span>
-                        </div>
-                        <div class="spinner-grow text-warning" role="status">
-                            <span class="sr-only">Loading...</span>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <div id="button_group" class="col-lg-12 p-2">
-
-        </div>
+        <!--Button Table Group -->
+        <div id="button_group" class="col-lg-12 p-2"></div>
+        <!--Sheets Z -->
         <div id="sheets" class="col-lg-3 p-2"></div>
-        <div id="tab" class="overflow-auto">
-
-
-        </div>
+        <!--Table -->
+        <div id="tab" class="overflow-auto"></div>
 
     </div>
 
-    <table-component></table-component>
+    <!--Flash message-->
+    @include('flash.flash-message')
+    <!--Call module modal-->
+    @include('components.module')
+    <!--Call module modal-->
+    @include('components.please-wait')
+
 
 @endsection
 
