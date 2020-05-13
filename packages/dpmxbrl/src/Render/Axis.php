@@ -102,7 +102,7 @@ class Axis
                     endif;
 
 
-                    if ($element['metric'] != 'false'):
+                    if ($element['metric'] != 'false' && $element['abstract'] == 'false'):
                         $element['all_element'] = $element['all_element'] + 1;
                         $element['rollup'] = true;
                     endif;
@@ -114,14 +114,8 @@ class Axis
 
                     foreach ($children as $c):
 
-                        if ($element['abstract'] = 'true'):
-                            $c['col'] = $element['order'] + (($c['order'] == 1) ? 0 : $c['order']);
-                        else:
-                            $c['col'] = $element['order'] + $c['order'];
-                        endif;
-
-
                         $branch[] = $c;
+
                     endforeach;
                     $col = 0;
                     $n--;

@@ -102,7 +102,7 @@ class RenderTable
 
                     $header =
                         $this->axis->buildXAxis($this->specification['rend']['definitionNodeSubtreeArc'], key($row));
-dump($header);
+
                     break;
 
                 case 'y':
