@@ -25,60 +25,54 @@ class TableController extends Controller
         $this->_taxonomy = Taxonomy::all()->where('active', true)->first();
         $this->_period = $request->get('period');
 
-        if ($request->get('table')):
-            $table = array_map('json_decode', $request->get('table'));
+        $table = array_map('json_decode', $request->get('table'));
 
-            $groups = array_column($table, 'group');
+        $groups = array_column($table, 'group');
 
-            $tables = array_map(function ($arr) {
-                return $arr->group = json_encode($arr->table);
-            }, $table);
+        $tables = array_map(function ($arr) {
+            return $arr->group = json_encode($arr->table);
+        }, $table);
 
-            $_groups = array_combine($groups, $tables);
+        $_groups = array_combine($groups, $tables);
 
-            $tc = current($table[0]->table);
+        return view('table.table', [
+
+            'taxonomy' => $this->_tablePath,
+            'table' => $table,
+            'groups' => $_groups,
+            'period' => $this->_period,
+            'mod' => $request->get('mod'),
+            'group' => $request->get('mod')
+        ]);
+
+
+    }
+
+    public function renderTable(Request $request)
+    {
+
+        $groups_array = json_decode($request->get('group'), true);
+
+        if ($request->get('tab')):
+            $tc = $request->get('tab');
         else:
-
-            $groups_array = json_decode($request->get('group'), true);
-
-
-            if ($request->get('tab')):
-                $tc = $request->get('tab');
-            else:
-                $tc = current($groups_array);
-            endif;
-
-
+            $tc = current($groups_array);
         endif;
-
-        // $tax = Data::getTax($tc);
 
         if (file_exists($tc)):
 
-            if (isset($table)):
-                return view('table.table', [
+            $tax = Data::getTax($tc);
 
-                    'taxonomy' => $this->_tablePath,
-                    'table' => $table,
-                    'groups' => $_groups,
-                    'period' => $this->_period,
-                    'mod' => $request->get('mod'),
-                    'group' => $request->get('mod')
-                ]);
-            else:
+            $taxOb = new Tax();
 
-                $tax = Data::getTax($tc);
-                $taxOb = new Tax();
-                $data = $taxOb->render()->renderHtml($tax);
-                $data['groups'] = $this->makeButtonGroup($groups_array, $tc);
+            $data = $taxOb->render()->renderHtml($tax);
+            $data['groups'] = $this->makeButtonGroup($groups_array, $tc);
 
-                return response($data);
-
-            endif;
-
+            return response($data);
         else:
             abort(404);
         endif;
+
     }
 
     private function makeButtonGroup($array, $table): ?string

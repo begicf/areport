@@ -9,7 +9,7 @@
 
                 <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
                     <div class="btn-group mr-2" role="group" aria-label="First group">
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#module"><i
+                        <button type="button" class="btn btn-primary" data-toggle="modal" onclick="module()"><i
                                 class="fas fa-table"></i></button>
                     </div>
                     <div class="btn-group mr-4" role="group" aria-label="First group">
@@ -53,6 +53,34 @@
         changeTable(group)
     }
 
+    function module() {
+
+
+        $("#period").val('{{$period}}');
+
+        axios.post('modules/group', {
+
+            module: '{{$mod}}'
+        }).then(function (response) {
+
+            var optionsHTML = [];
+
+            for (var k in response.data) {
+
+                optionsHTML.push("<option value='" + response[k] + "'>" + k + "</option>")
+            }
+
+            $('#multiselect option').remove();
+            $('#multiselect_to option').remove();
+
+
+            $('#multiselect').append(optionsHTML);
+            $('#module').modal();
+
+        })
+
+    }
+
 
     function changeTable(selectedOb, type = 'G') {
 
@@ -72,7 +100,6 @@
 
         $('#pleaseWaitDialog').modal();
 
-
         axios.post('/table/ajax', {
 
                 'group': group,
@@ -83,9 +110,11 @@
         ).then(function (response) {
 
             $('#pleaseWaitDialog').modal('hide');
+
             $('#tab').html(response.data.table);
             $('#sheets').html(response.data.sheets);
             $('#button_group').html(response.data.groups);
+
             $('#sheet').selectpicker();
         })
     }

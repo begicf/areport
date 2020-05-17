@@ -56,9 +56,8 @@
 
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Zatvori</button>
-                    <button type="submit" class="btn btn-primary" name="module" value="1">Dalje
-                    </button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" name="module" value="1">Next</button>
                 </div>
             </form>
         </div>
