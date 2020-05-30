@@ -81,7 +81,9 @@
 
             <div class="content">
                 <div class="title m-b-md">
-                    AREPORT
+
+                    <img width="225px" src="{{asset('images/logo.svg')}}" alt="areport">
+
                 </div>
 
 
