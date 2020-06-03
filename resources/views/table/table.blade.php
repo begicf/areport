@@ -4,62 +4,80 @@
 
     <div class="container-fluid">
 
-        <div class="row">
+        <div class="row p-2">
 
-            <div class="col-auto mr-auto">
-                <div class="form-row align-items-center">
+            <div class="col-12 col-md-9">
 
-                    <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-                        <div class="btn-group mr-2" role="group" aria-label="First group">
-                            <button type="button" class="btn btn-primary" data-toggle="modal" onclick="module()"><i
-                                    class="fas fa-table"></i></button>
-                        </div>
-                        <div class="btn-group mr-4" role="group" aria-label="Second group">
-                            <select id="group" onchange="changeTable(this,'G')" class="form-control">
-                                @foreach($groups as $key=>$row)
-                                    <option value="{{$row}}">
-                                        {{$key}}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
-                            <div class="btn-group mr-4" role="group" aria-label="Third group">
 
-                                <div class="btn-group" role="group">
-                                    <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle"
-                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        Export
-                                    </button>
+                <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+                    <div class="btn-group mr-2" role="group" aria-label="First group">
+                        <button type="button" class="btn btn-primary" data-toggle="modal" onclick="module()"><i
+                                class="fas fa-table"></i></button>
+                    </div>
+                    <div class="btn-group mr-4" role="group" aria-label="Second group">
+                        <select id="group" onchange="changeTable(this,'G',event)" class="form-control">
+                            @foreach($groups as $key=>$row)
+                                <option value="{{$row}}">
+                                    {{$key}}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+                        <div class="btn-group mr-4" role="group" aria-label="Third group">
+
+                            <div class="btn-group" role="group">
+                                <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Export
+                                </button>
+                                <form id="export_table" method="post" action="table/export">
+                                    @csrf
+                                    <input name="period" type="hidden" value="{{$period}}">
+                                    <input name="mod" type="hidden" value="{{$mod}}">
+                                    <input id="export_table_path" name="table" type="hidden">
+
                                     <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                        <a class="dropdown-item" href="#"><i class="text-success fas fa-file-excel"></i>
+                                        <a class="dropdown-item" onclick="exportTable('xlsx')"><i
+                                                class="text-success fas fa-file-excel"></i>
                                             Export to .xlsx</a>
-                                        <a class="dropdown-item" href="#"><i class="text-danger fas fa-file-pdf"></i>
+                                        <a class="dropdown-item" onclick="exportTable('pdf')"><i class="text-danger fas fa-file-pdf"></i>
                                             Export to .pdf</a>
                                     </div>
-                                </div>
+                                </form>
                             </div>
                         </div>
+                    </div>
 
+                </div>
+
+
+            </div>
+
+
+            <div class="col-6 col-md-3">
+
+
+                <div class="card">
+                    <div class="card-header">Import *.xlsx, *.xml or *.json file</div>
+                    <div class="card-body">
+                        <form id="import" class="form-inline" method="POST" enctype="multipart/form-data">
+                            {{ csrf_field() }}
+                            <div class="form-group">
+
+                                <input type="file" name="fileToUpload" id="fileToUpload">
+                                <input id="sheetcodeImport" name="sheetcode" type="hidden"/>
+
+                            </div>
+                            <div class="form-group float-right">
+                                <button class="btn btn-primary" value="1">Import</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
 
-            </div>
-
-            <div class="col-auto">
-
-                <form class="form-inline float-right">
-                    <div class="form-group">
-                        <label for="exampleFormControlFile1">*.xlsx </label>
-                        <input type="file" class="form-control-file" id="exampleFormControlFile1">
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">Import</button>
-
-                </form>
 
             </div>
-
         </div>
 
 
@@ -76,7 +94,6 @@
             <a class="btn btn-light" id="delRow">-</a>
         </div>
 
-
     </div>
 
     <!--Flash message-->
@@ -85,134 +102,109 @@
     @include('components.module')
     <!--Call module modal-->
     @include('components.please-wait')
+    @stack('stacks/areport')
 
 
-@endsection
-
-<script type="text/javascript">
 
 
-    window.onload = function () {
-        const group = document.querySelector('#group');
-        changeTable(group)
-    }
 
-    function module() {
+    <script type="text/javascript">
 
 
-        $("#period").val('{{$period}}');
-
-        axios.post('modules/group', {
-
-            module: '{{$mod}}'
-        }).then(function (response) {
-
-            var optionsHTML = [];
-
-            for (var k in response.data) {
-
-                optionsHTML.push("<option value='" + response[k] + "'>" + k + "</option>")
-            }
-
-            $('#multiselect option').remove();
-            $('#multiselect_to option').remove();
-
-
-            $('#multiselect').append(optionsHTML);
-            $('#module').modal();
-
-        })
-
-    }
-
-
-    function changeTable(selectedOb, type = 'G') {
-
-        var group;
-        var table = null;
-
-        $("#openY").hide();
-
-        if (type == 'G') {
-            group = selectedOb.value;
-        } else {
-            group = document.querySelector('#group').value;
-            table = selectedOb.value;
+        window.onload = function () {
+            const group = document.querySelector('#group');
+            changeTable(group)
         }
 
-        $("#tab").empty();
-        $("#button_group").empty();
-        $("#sheets").empty();
+        function module() {
 
-        $('#pleaseWaitDialog').modal();
 
-        axios.post('/table/ajax', {
+            $("#period").val('{{$period}}');
 
-                'group': group,
-                'tab': table,
-                'mod': '{{$mod}}',
-                'period': '{{$period}}'
+            axios.post('modules/group', {
+
+                module: '{{$mod}}'
+            }).then(function (response) {
+
+                var optionsHTML = [];
+
+                for (var k in response.data) {
+
+                    optionsHTML.push("<option value='" + response[k] + "'>" + k + "</option>")
+                }
+
+                $('#multiselect option').remove();
+                $('#multiselect_to option').remove();
+
+
+                $('#multiselect').append(optionsHTML);
+                $('#module').modal();
+
+            })
+
+        }
+
+        function exportTable(val) {
+
+
+            $("#export_table").submit(function(eventObj) {
+                $(this).append('<input type="hidden" name="someName" value="someValue">');
+                return true;
+            });
+
+
+        }
+
+
+        function changeTable(selectedOb, type = 'G') {
+
+            var group;
+            var table = null;
+
+            $("#openY").hide();
+
+            if (type == 'G') {
+                group = selectedOb.value;
+            } else {
+                group = document.querySelector('#group').value;
+                table = selectedOb.value;
             }
-        ).then(function (response) {
 
-            $('#pleaseWaitDialog').modal('hide');
+            $("#tab").empty();
+            $("#button_group").empty();
+            $("#sheets").empty();
 
-            $('#tab').html(response.data.table);
-            $('#sheets').html(response.data.sheets);
-            $('#button_group').html(response.data.groups);
+            $('#pleaseWaitDialog').modal();
 
-            $('#sheet').selectpicker();
+            axios.post('/table/ajax', {
 
+                    'group': group,
+                    'tab': table,
+                    'mod': '{{$mod}}',
+                    'period': '{{$period}}'
+                }
+            ).then(function (response) {
 
-            if (response.data.aspectNode == true) {
-                var rowCount = null;
-                rowCount = $('#table tbody').find('tr').length;
-                console.log(rowCount);
-                $("#openY").show();
-                /*add rows*/
-                $("#addRow").on('click', function (event) {
-                    event.preventDefault();
+                $('#pleaseWaitDialog').modal('hide');
 
-                    $('#table tbody>tr:last').clone(true).each(function () {
+                $('#tab').html(response.data.table);
+                $('#sheets').html(response.data.sheets);
+                $('#button_group').html(response.data.groups);
+                $('#export_table_path').val(response.data.table_path);
 
-                        $(this).find('td input, td select').each(function () {
-
-
-                            var name = $(this).attr('name').replace(/(c\d*r)\d*([^]*)/, "$1" + rowCou
+                $('#sheet').selectpicker();
 
 
-                            nt + "$2");
-                            var id = name.substring(0, name.indexOf('['));
-                            $(this).attr('name', name);
-                            if ($(this).attr('type') != 'hidden') {
-                                $(this).val('');
-                                $(this).attr('id', id);
-                            }
-                        });
+                if (response.data.aspectNode == true) {
+                    var rowCount = $('#table tbody').find('tr').length;
 
-                    }).insertAfter('#table tbody>tr:last');
-                    /* $('#table tbody>tr:last').each(function () {
-                     this.reset();
-                     });*/
-                    //dataSet();
-                    rowCount++;
-                    return false;
-                });
-
-                /* delete rows */
-                var $tbody = $("#table tbody");
-                $("#delRow").click(function () {
-                    var $last = $tbody.find('tr:last');
-                    if ($last.is(':first-child')) {
-                        alert('You cannot delete the last one!');
-                    } else {
-                        $last.remove();
-                        rowCount--;
-                    }
-                });
-            }
-        })
-    }
+                    $("#openY").show();
 
 
-</script>
+                }
+            })
+        }
+
+
+    </script>
+@endsection

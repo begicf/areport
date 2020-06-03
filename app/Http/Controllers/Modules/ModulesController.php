@@ -50,7 +50,8 @@ class ModulesController extends Controller
             foreach ($group as $row) {
 
                 $k = Format::getAfterSpecChar($row['href'], '#');
-                $tmp['table'][$k] = dirname($request->get('module')) . DIRECTORY_SEPARATOR . (explode("-rend", $row['href']))[0] . '.xsd';
+                $tmp['table'][$k] =
+                    dirname($request->get('module')) . DIRECTORY_SEPARATOR . (explode("-rend", $row['href']))[0] . '.xsd';
             }
 
             $_g[$key][] = json_encode($tmp);
@@ -64,7 +65,7 @@ class ModulesController extends Controller
     public function json(Request $request)
     {
 
-        $mod = new Mod(storage_path('app/public/') . $this->_taxonomy->file);
+        $mod = new Mod(storage_path('app/public/') . $this->_taxonomy->path . DIRECTORY_SEPARATOR . $this->_taxonomy->file);
 
         $id = $request->get('id');
 

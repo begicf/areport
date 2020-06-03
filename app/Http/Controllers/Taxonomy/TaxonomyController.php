@@ -140,7 +140,8 @@ class TaxonomyController extends Controller
             rename(storage_path('app/public/' . $this->path . DIRECTORY_SEPARATOR . $_name), storage_path('app/public/' . $this->path . DIRECTORY_SEPARATOR . $_newName));
 
             Taxonomy::create([
-                'file' => $this->path . DIRECTORY_SEPARATOR . $_newName,
+                'path' => $this->path,
+                'file' => $_newName,
                 'name' => $request->get('name'),
                 'original_name' => $_name
             ]);

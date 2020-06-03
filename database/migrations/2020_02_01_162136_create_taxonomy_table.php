@@ -17,6 +17,7 @@ class CreateTaxonomyTable extends Migration
             $table->bigIncrements('id');
             $table->string('name')->nullable();
             $table->string('original_name')->nullable();
+            $table->string('path');
             $table->string('file');
             $table->boolean('active')->nullable();
             $table->timestamps();

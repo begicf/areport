@@ -64,7 +64,7 @@
     </div>
 </div>
 
-<script>
+<script type="text/javascript">
 
     $('#multiselect').multiselect();
 </script>

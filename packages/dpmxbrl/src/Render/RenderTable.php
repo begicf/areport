@@ -657,8 +657,8 @@ class RenderTable
                     $input .= "<select class='xbrl-select' id='$name' name='" . $name . "[value]''>";
                     $input .= "<option></option>";
 
-                    $input .= "<option " . (('true' === $value) ? "selected='selected'" : "") . " value='true'>Da</option>";
-                    $input .= "<option " . (('false' === $value) ? "selected='selected'" : "") . " value='false'>Ne</option>";
+                    $input .= "<option " . (('true' === $value) ? "selected='selected'" : "") . " value='true'>Yes</option>";
+                    $input .= "<option " . (('false' === $value) ? "selected='selected'" : "") . " value='false'>No</option>";
                     $input .= "</select>";
 
                     break;

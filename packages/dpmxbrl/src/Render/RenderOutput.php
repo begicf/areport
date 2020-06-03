@@ -248,7 +248,7 @@ class RenderOutput
 
         foreach ($z as $key => $row):
 
-            if (array_key_exists($key, $import)):
+            if (is_array($import) && array_key_exists($key, $import)):
                 $this->setImport($import[$key]);
             else:
                 $this->import = NULL;
@@ -766,11 +766,11 @@ class RenderOutput
                         if (isset($this->_col['explicitDimension'])):
 
                             $con = Data::getSelectedValue($this->_col['explicitDimension'], $value['string']);
-                            $this->spreadsheet->setActiveSheetIndex($s)->setCellValueExplicitByColumnAndRow($x, $this->_rowSpanMax + $y + 1, $con,DataType::TYPE_STRING);
+                            $this->spreadsheet->setActiveSheetIndex($s)->setCellValueExplicitByColumnAndRow($x, $this->_rowSpanMax + $y + 1, $con, DataType::TYPE_STRING);
 
                         else:
                             //dump($value['string']);
-                            $this->spreadsheet->setActiveSheetIndex($s)->setCellValueExplicitByColumnAndRow($x, $this->_rowSpanMax + $y + 1, $value['string'],DataType::TYPE_STRING);
+                            $this->spreadsheet->setActiveSheetIndex($s)->setCellValueExplicitByColumnAndRow($x, $this->_rowSpanMax + $y + 1, $value['string'], DataType::TYPE_STRING);
 
 
                         endif;
@@ -802,9 +802,9 @@ class RenderOutput
 
     private function drawFooter($x, $y, $s)
     {
-        $this->spreadsheet->setActiveSheetIndex($s)->setCellValueByColumnAndRow(1, $y + 1, "Obrazac je kreiran programom Agencije za Bankarstvo FBiH - na osnovu XBRL specifikacije")->mergeCellsByColumnAndRow(1, $y + 1, $x, $y + 1);
-        $this->spreadsheet->setActiveSheetIndex($s)->setCellValueByColumnAndRow(1, $y + 2, 'Datum kreiranja: ' . date('d.m.Y'))->mergeCellsByColumnAndRow(1, $y + 2, $x, $y + 2);
-        $this->spreadsheet->setActiveSheetIndex($s)->setCellValueByColumnAndRow(1, $y + 3, 'Izvještaj pripremio/la: ' . $this->_additionalData['user'])->mergeCellsByColumnAndRow(1, $y + 3, $x, $y + 3);
+        $this->spreadsheet->setActiveSheetIndex($s)->setCellValueByColumnAndRow(1, $y + 1, "© Areport")->mergeCellsByColumnAndRow(1, $y + 1, $x, $y + 1);
+        $this->spreadsheet->setActiveSheetIndex($s)->setCellValueByColumnAndRow(1, $y + 2, 'Date: ' . date('d.m.Y'))->mergeCellsByColumnAndRow(1, $y + 2, $x, $y + 2);
+
     }
 
     private function drawHeader($s)
@@ -812,7 +812,7 @@ class RenderOutput
 
         $offsetMerge = (isset($this->_aspectNode['y'])) ? count($this->col) : 2 + $this->_col;
         $this->spreadsheet->setActiveSheetIndex($s)->setCellValueByColumnAndRow(1, 1, $this->tableVerboseName())->mergeCellsByColumnAndRow(1, 1, $offsetMerge, 1);
-        $this->spreadsheet->setActiveSheetIndex($s)->setCellValueByColumnAndRow(1, 2, "Naziv: " . $this->_additionalData['org'] . " | Datum:" . $this->_additionalData['period'] . " " . " | Broj ponavljanja:" . $this->_additionalData['rep_num'])->mergeCellsByColumnAndRow(1, 2, $offsetMerge, 2);
+
     }
 
     private function typeMetric($def, $x, $y, $value, $s)

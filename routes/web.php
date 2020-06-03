@@ -40,7 +40,8 @@ Route::group(['prefix' => 'modules', 'middleware' => 'auth'], function () {
 
 Route::group(['prefix' => 'table', 'middleware' => 'auth'], function () {
     Route::post('/', 'Table\TableController@table')->name('Modules');
-    Route::post('/ajax', 'Table\TableController@renderTable')->name('Modules');
+    Route::post('/ajax', 'Table\TableController@renderTable')->name('Table');
+    Route::post('/export', 'Table\TableController@exportTable')->name('Table Export');
     //Route::post('/json', 'Modules\ModulesController@json')->name('Modules');
 });
 

@@ -6,9 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Model\Taxonomy;
 use DpmXbrl\Library\Data;
 use DpmXbrl\Library\Format;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\View;
 use DpmXbrl\Tax;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Input;
 
 
 class TableController extends Controller
@@ -67,11 +67,24 @@ class TableController extends Controller
 
             $data = $taxOb->render()->renderHtml($tax);
             $data['groups'] = $this->makeButtonGroup($groups_array, $tc);
-
+            $data['table_path'] = $tc;
             return response($data);
         else:
             abort(404);
         endif;
+
+    }
+
+    public function exportTable(Request $request)
+    {
+
+dd($request->all());
+        $tax = Data::getTax($request->get('table'));
+
+        $taxOb = new Tax();
+
+        $taxOb->export($tax, null, 'xlsx',null)->renderOutputAll(null)->exportFormat();
+
 
     }
 
