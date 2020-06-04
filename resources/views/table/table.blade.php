@@ -199,7 +199,7 @@
 
                     $("#addRow").on('click.add', function () {
 
-                        let rowCount = $('#table tbody').find('tr').length;
+                        var rowCount = $('#table tbody').find('tr').length + 1;
 
                         $('#table tbody>tr:last').clone(true).each(function () {
 
