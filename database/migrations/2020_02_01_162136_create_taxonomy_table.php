@@ -18,7 +18,7 @@ class CreateTaxonomyTable extends Migration
             $table->string('name')->nullable();
             $table->string('original_name')->nullable();
             $table->string('path');
-            $table->string('file');
+            $table->string('folder');
             $table->boolean('active')->nullable();
             $table->timestamps();
         });

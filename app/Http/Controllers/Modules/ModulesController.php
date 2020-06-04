@@ -65,7 +65,7 @@ class ModulesController extends Controller
     public function json(Request $request)
     {
 
-        $mod = new Mod(storage_path('app/public/') . $this->_taxonomy->path . DIRECTORY_SEPARATOR . $this->_taxonomy->file);
+        $mod = new Mod(storage_path('app/public/') . $this->_taxonomy->path . DIRECTORY_SEPARATOR . $this->_taxonomy->folder);
 
         $id = $request->get('id');
 
