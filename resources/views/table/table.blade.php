@@ -40,13 +40,16 @@
                                     <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                                         <button class="dropdown-item" name="export_type" value="xlsx" type="submit"><i
                                                 class="text-success fas fa-file-excel"></i>
-                                            Export to .xlsx</button>
+                                            Export to .xlsx
+                                        </button>
                                         <button class="dropdown-item" name="export_type" value="pdf" type="submit"><i
                                                 class="text-danger fas fa-file-pdf"></i>
-                                            Export to .pdf</button>
+                                            Export to .pdf
+                                        </button>
                                         <button class="dropdown-item" name="export_type" value="html" type="submit"><i
                                                 class="text-primary fas fa-file-code"></i>
-                                            Export to .html</button>
+                                            Export to .html
+                                        </button>
                                     </div>
                                 </form>
                             </div>
@@ -106,7 +109,7 @@
     @include('components.module')
     <!--Call module modal-->
     @include('components.please-wait')
-    @stack('stacks/areport')
+
 
 
 
@@ -177,6 +180,7 @@
                 }
             ).then(function (response) {
 
+
                 $('#pleaseWaitDialog').modal('hide');
 
                 $('#tab').html(response.data.table);
@@ -188,9 +192,50 @@
 
 
                 if (response.data.aspectNode == true) {
-                    var rowCount = $('#table tbody').find('tr').length;
 
                     $("#openY").show();
+
+                    $('#addRow').off('click.add');
+
+                    $("#addRow").on('click.add', function () {
+
+                        let rowCount = $('#table tbody').find('tr').length;
+
+                        $('#table tbody>tr:last').clone(true).each(function () {
+
+                            $(this).find('td input, td select').each(function () {
+
+
+                                let name = $(this).attr('name').replace(/(c\d*r)\d*([^]*)/, "$1" + rowCount + "$2");
+                                let id = name.substring(0, name.indexOf('['));
+                                $(this).attr('name', name);
+                                if ($(this).attr('type') != 'hidden') {
+                                    $(this).val('');
+                                    $(this).attr('id', id);
+                                }
+                            });
+
+                        }).insertAfter('#table tbody>tr:last');
+
+                        rowCount++;
+
+                    });
+
+                    $('#delRow').off('click.del');
+
+                    $("#delRow").on('click.del', function () {
+
+                        let rowCount = $('#table tbody').find('tr').length;
+                        let $tbody = $("#table tbody");
+
+                        let $last = $tbody.find('tr:last');
+                        if ($last.is(':first-child')) {
+                            alert('You cannot delete the last one!');
+                        } else {
+                            $last.remove();
+                            rowCount--;
+                        }
+                    });
 
 
                 }
