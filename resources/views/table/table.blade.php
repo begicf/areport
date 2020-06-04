@@ -38,11 +38,15 @@
                                     <input id="export_table_path" name="table" type="hidden">
 
                                     <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                        <a class="dropdown-item" onclick="exportTable('xlsx')"><i
+                                        <button class="dropdown-item" name="export_type" value="xlsx" type="submit"><i
                                                 class="text-success fas fa-file-excel"></i>
-                                            Export to .xlsx</a>
-                                        <a class="dropdown-item" onclick="exportTable('pdf')"><i class="text-danger fas fa-file-pdf"></i>
-                                            Export to .pdf</a>
+                                            Export to .xlsx</button>
+                                        <button class="dropdown-item" name="export_type" value="pdf" type="submit"><i
+                                                class="text-danger fas fa-file-pdf"></i>
+                                            Export to .pdf</button>
+                                        <button class="dropdown-item" name="export_type" value="html" type="submit"><i
+                                                class="text-primary fas fa-file-code"></i>
+                                            Export to .html</button>
                                     </div>
                                 </form>
                             </div>
@@ -143,18 +147,6 @@
             })
 
         }
-
-        function exportTable(val) {
-
-
-            $("#export_table").submit(function(eventObj) {
-                $(this).append('<input type="hidden" name="someName" value="someValue">');
-                return true;
-            });
-
-
-        }
-
 
         function changeTable(selectedOb, type = 'G') {
 

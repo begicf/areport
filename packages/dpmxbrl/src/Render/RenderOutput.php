@@ -61,11 +61,11 @@ class RenderOutput
         $this->spreadsheet = new Spreadsheet();
 
         $this->spreadsheet->getProperties()
-            ->setCreator("Agencija za bankarstvo FBA")
-            ->setTitle("FBA BATEDIS 2")
+            ->setCreator("AREPORT")
+            ->setTitle("AREPORT XLSX")
             ->setSubject("Ver.1.2.")
             ->setDescription(
-                "File je kreiran na osnovu XBRL specifikacija"
+                "Based on XBRL specification"
             )
             ->setCategory("XBRL");
 
@@ -302,7 +302,7 @@ class RenderOutput
                 break;
             case 'pdf':
                 $addInformation['tablename'] = $this->tableVerboseName();
-                $addInformation['locked_status'] = $this->import['locked_status'];
+
 
                 $this->outputPDF($this->spreadsheet, array_merge($this->_additionalData, $addInformation));
                 break;
@@ -812,6 +812,7 @@ class RenderOutput
 
         $offsetMerge = (isset($this->_aspectNode['y'])) ? count($this->col) : 2 + $this->_col;
         $this->spreadsheet->setActiveSheetIndex($s)->setCellValueByColumnAndRow(1, 1, $this->tableVerboseName())->mergeCellsByColumnAndRow(1, 1, $offsetMerge, 1);
+        $this->spreadsheet->setActiveSheetIndex($s)->setCellValueByColumnAndRow(1, 2, 'dd')->mergeCellsByColumnAndRow(1, 2, $offsetMerge, 2);
 
     }
 

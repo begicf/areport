@@ -50,7 +50,7 @@ class ExtendMpdf extends Pdf
         $this->info = $info;
     }
 
-    public function save($pFilename)
+    public function save($pFilename): void
     {
         $fileHandle = parent::prepareForSave($pFilename);
 
@@ -91,19 +91,15 @@ class ExtendMpdf extends Pdf
         $header = '
 <div style="font-weight: bold; font-size: 10pt;">
 <img height="20" width="30" src="' . Config::setLogoPath() . '"/>
-    Agencija za bankarstvo FBiH
+   Areport
 </div>';
 
         $footer = '
 <table autosize="1" style="font-size: 7pt;"  width="100%">
-    <tr>
-       <td>Izvještaj pripremio/la:' . $this->info['user'] . '</td>
-        <td style="text-align: right;">Stranica: {PAGENO}/{nbpg}</td>
 
-    </tr>
     <tr>
-     <td>Datum kreiranja: {DATE d-m-Y}</td>
-     <td style="text-align: right;" >Obrazac je kreiran programom Agencije za Bankarstvo FBiH - na osnovu XBRL specifikacije</td>
+     <td>Date: {DATE d-m-Y}</td>
+     <td style="text-align: right;" >@areport</td>
     </tr>
 </table>';
         $pdf->SetHTMLHeader($header, '0');
@@ -127,10 +123,10 @@ class ExtendMpdf extends Pdf
 
 
         $pdf->WriteHTML(
-            $this->HeaderFBA() .
-            $this->generateSheetData() .
+            $this->HeaderFBA().
+            $this->generateSheetData()
             //  $this->generateHTMLFooter().
-            $this->singers()
+           // $this->singers()
         );
 
 
@@ -150,48 +146,22 @@ class ExtendMpdf extends Pdf
          <strong>{$this->info['tablename']}</strong>
       </td>
    </tr>
-   <tr>
-      <td  bgcolor="#e0ebff" width='25%'>
-         <strong>Banka: </strong>
-      </td>
-      <td style="border-bottom:1px solid black;" width='35%'>
-         {$this->info['org']}
-      </td>
-      <td bgcolor="#e0ebff" width='15%'>
-         <strong>JIB: </strong>
-      </td>
-      <td style="border-bottom:1px solid black;" width='35%'>
-         {$this->info['jib']}
-      </td>
-   </tr>
+
    <tr>
       <td bgcolor="#e0ebff" width='25%'>
-         <strong>Datum: </strong>
+         <strong>Date: </strong>
       </td>
       <td style="border-bottom:1px solid black;" width='35%'>
-         {$this->info['period']}
+
       </td>
-      <td bgcolor="#e0ebff" width='15%'>
-         <strong>Broj pon: </strong>
-      </td>
-      <td style="border-bottom:1px solid black;" width='35%'>
-          {$this->info['rep_num']}
-      </td>
-   </tr>
-                
-   <tr>
-      <td bgcolor="#e0ebff" width='25%'>
-         <strong>Vrijeme zaklj.: </strong>
-      </td>
-      <td  width='25%'>
-         {$this->info['locked']}
-      </td>
+
    </tr>
 
+
 </table>
-           
-            
-            
+
+
+
 EOT;
 
         return $heaader;

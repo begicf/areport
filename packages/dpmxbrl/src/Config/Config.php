@@ -58,7 +58,7 @@ class Config
     public static function setLogoPath()
     {
 
-        return public_path() . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . 'fba_color.png';
+        return public_path() . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . 'logo.svg';
     }
 
     public static function owners()

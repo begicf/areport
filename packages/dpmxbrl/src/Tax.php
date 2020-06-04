@@ -44,19 +44,7 @@ class Tax
         //$this->getPathXsd();
     }
 
-    public function getTax()
-    {
-        $tax = array();
 
-        foreach ($this->path as $path):
-            $table = new Set($path, $this->arr);
-            foreach ($table->load() as $key => $row):
-                $tax[$key] = $row->Xbrl;
-
-            endforeach;
-        endforeach;
-        return $tax;
-    }
 
     private function getPathXsd()
     {

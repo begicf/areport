@@ -78,12 +78,11 @@ class TableController extends Controller
     public function exportTable(Request $request)
     {
 
-dd($request->all());
         $tax = Data::getTax($request->get('table'));
 
         $taxOb = new Tax();
 
-        $taxOb->export($tax, null, 'xlsx',null)->renderOutputAll(null)->exportFormat();
+        $taxOb->export($tax, null, $request->get('export_type'),null)->renderOutputAll(null)->exportFormat();
 
 
     }
