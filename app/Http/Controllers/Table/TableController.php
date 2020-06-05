@@ -177,4 +177,11 @@ class TableController extends Controller
         endif;
 
     }
+
+    public function saveTable(Request $request)
+    {
+        dump($request->all());
+
+    }
+
 }

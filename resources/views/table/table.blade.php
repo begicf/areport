@@ -93,8 +93,9 @@
         <!--Sheets Z -->
         <div id="sheets" class="col-lg-3 p-2"></div>
         <!--Table -->
-        <div id="tab" class="overflow-auto"></div>
-
+        <form id="table_form" method="post">
+            <div id="tab" class="overflow-auto"></div>
+        </form>
 
         <div id="openY" class="form-group" style="display: none">
             <a class="btn btn-light" id="addRow">+</a>
@@ -241,7 +242,6 @@
                 }
             })
         }
-
 
 
         /* Import*/
