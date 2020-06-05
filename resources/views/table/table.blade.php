@@ -243,5 +243,44 @@
         }
 
 
+
+        /* Import*/
+        $("#import").submit(function (e) {
+
+            var formData = new FormData($(this)[0]);
+            var col = 0;
+            $('th[data-col]').each(function () {
+                col = col + 1;
+            });
+            formData.append('column', col);
+            formData.append('colspanmax', $(".xbrl-title").prop("colSpan"));
+            formData.append('rowspanmax', $(".xbrl-title").prop("rowSpan"));
+            $.ajax({
+                type: "POST",
+                url: '/table/import',
+                data: formData, /* serializes the form's elements. */
+                success: function (data) {
+
+                    <?php if (!empty($tableHtml['aspectNode'])): ?>
+                    $(".datepicker").datepicker("destroy");
+                    row(data['file']['row']);
+                    dataSet();
+                    <?php endif; ?>
+
+                    /*console.log(data->file);*/
+                    for (var i in data['file']) {
+                        if (document.getElementById(i) != null) {
+                            $('#' + i).val(data['file'][i]);
+                        }
+                    }
+                },
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+            e.preventDefault(); /* avoid to execute the actual submit of the form. */
+        });
+
+
     </script>
 @endsection

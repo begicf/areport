@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Model\Taxonomy;
 use DpmXbrl\Library\Data;
 use DpmXbrl\Library\Format;
+use DpmXbrl\ReadExcel;
 use DpmXbrl\Tax;
+use DpmXbrl\UploadXbrl;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 
@@ -82,7 +84,7 @@ class TableController extends Controller
 
         $taxOb = new Tax();
 
-        $taxOb->export($tax, null, $request->get('export_type'),null)->renderOutputAll(null)->exportFormat();
+        $taxOb->export($tax, null, $request->get('export_type'), null)->renderOutputAll(null)->exportFormat();
 
 
     }
@@ -102,5 +104,77 @@ class TableController extends Controller
         endif;
 
         return $buttonGroup;
+    }
+
+
+    public function importTable(Request $request)
+    {
+
+        $import = NULL;
+
+        $path = pathinfo($request->get('taxonomy'));
+
+
+        $methode = str_replace(".", "", $path['filename']);
+        $file_name = $_FILES['fileToUpload']['name'];
+        $tpn_name = $_FILES['fileToUpload']['tmp_name'];
+
+        $import['ext'] = pathinfo($file_name, PATHINFO_EXTENSION);
+
+        if ($import['ext'] == 'xbrl'):
+            $upload = new UploadXbrl($tpn_name);
+
+            $import['file'] = $upload->Instance();
+
+        elseif ($import['ext'] == 'xlsx'):
+
+            $upload = new ReadExcel($tpn_name, request('sheetcode'));
+
+            $args['column'] = $request->get('column');
+            $args['colspan'] = $request->get('colspanmax');
+            $args['rowspan'] = $request->get('rowspanmax');
+            $args['typ_table'] = $request->get('typ_table');
+            $import['file'] = $upload->$methode($args);
+
+        elseif ($import['ext'] == 'xml' || $import['ext'] == 'json'):
+
+            return response()->json($this->ImportXMLJSON($import['ext'], $tpn_name));
+
+        endif;
+
+
+        return $import;
+    }
+
+
+    private function ImportXMLJSON($format, $tpn_name)
+    {
+        $sheet = (request('sheetcode')) ?? '000';
+        $ext_code = request('ext_code');
+        $file = file_get_contents($tpn_name);
+
+
+        if ($format == 'xml'):
+            $xml = simplexml_load_string($file, "SimpleXMLElement", LIBXML_NOCDATA);
+            $file = json_encode($xml);
+        endif;
+
+        $arr = json_decode($file, TRUE);
+        if (empty(request('typ_table'))):
+            return ['ext' => 'xlsx', 'file' => $arr['table_' . $ext_code]['sheet_' . $sheet]];
+        else:
+            $tmp = [];
+            $r = [];
+            foreach ($arr['table_' . $ext_code]['sheet_' . $sheet] as $key => $row):
+                $k = substr($key, strpos($key, "r") + 1);
+                $r[$k] = $k;
+                $tmp[$key] = $row;
+            endforeach;
+
+            $tmp['row'] = max($r) - 1;
+
+            return ['ext' => 'xlsx', 'file' => $tmp];
+        endif;
+
     }
 }

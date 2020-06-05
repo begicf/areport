@@ -33,16 +33,17 @@ Route::group(['prefix' => 'taxonomy', 'middleware' => 'auth'], function () {
 
 //Modules
 Route::group(['prefix' => 'modules', 'middleware' => 'auth'], function () {
-    Route::get('/', 'Modules\ModulesController@index')->name('Modules');
-    Route::post('/json', 'Modules\ModulesController@json')->name('Modules');
-    Route::post('/group', 'Modules\ModulesController@group')->name('Modules');
+    Route::get('/', 'Modules\ModulesController@index');
+    Route::post('/json', 'Modules\ModulesController@json');
+    Route::post('/group', 'Modules\ModulesController@group');
 });
 
 Route::group(['prefix' => 'table', 'middleware' => 'auth'], function () {
-    Route::post('/', 'Table\TableController@table')->name('Modules');
-    Route::post('/ajax', 'Table\TableController@renderTable')->name('Table');
-    Route::post('/export', 'Table\TableController@exportTable')->name('Table Export');
-    //Route::post('/json', 'Modules\ModulesController@json')->name('Modules');
+    Route::post('/', 'Table\TableController@table');
+    Route::post('/ajax', 'Table\TableController@renderTable');
+    Route::post('/export', 'Table\TableController@exportTable');
+    Route::post('/import', 'Table\TableController@importTable');
+
 });
 
 //Route::get(['/','/home'], 'HomeController@index')->name('home');
