@@ -1,15 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="BranchesTreeState">
+    <expand />
+    <select />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="1b1e9baa-31d8-436e-af2b-53aac158d39c" name="Default Changelist" comment="Upload fix">
       <change beforePath="$PROJECT_DIR$/.idea/dpm_xbrl.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dpm_xbrl.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+<<<<<<< Updated upstream
       <change beforePath="$PROJECT_DIR$/app/Http/Controllers/Table/TableController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Controllers/Table/TableController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/database/seeds/UsersTableSeeder.php" beforeDir="false" afterPath="$PROJECT_DIR$/database/seeds/UsersTableSeeder.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/resources/views/table/table.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/table/table.blade.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/routes/web.php" beforeDir="false" afterPath="$PROJECT_DIR$/routes/web.php" afterDir="false" />
+=======
+>>>>>>> Stashed changes
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,6 +40,11 @@
       <list>
         <option value="Fuad Begic &lt;fuad.begic@gmail.com&gt;" />
       </list>
+    </option>
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="956d863dde9edb385cda8b08ae1f68ac98fdd653" />
+      </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
@@ -134,6 +146,7 @@
       <path value="$PROJECT_DIR$/vendor/laravel/ui" />
       <path value="$PROJECT_DIR$/vendor/voku/portable-ascii" />
       <path value="$PROJECT_DIR$/vendor/psr/event-dispatcher" />
+<<<<<<< Updated upstream
       <path value="$PROJECT_DIR$/vendor/ramsey/collection" />
       <path value="$PROJECT_DIR$/vendor/begicf/simple-menu" />
       <path value="$PROJECT_DIR$/vendor/brick/math" />
@@ -150,6 +163,9 @@
       <path value="$PROJECT_DIR$/vendor/symfony/polyfill-intl-grapheme" />
       <path value="$PROJECT_DIR$/vendor/symfony/string" />
       <path value="$PROJECT_DIR$/vendor/symfony/polyfill-intl-normalizer" />
+=======
+      <path value="$PROJECT_DIR$/vendor/begicf/simple-menu" />
+>>>>>>> Stashed changes
     </include_path>
   </component>
   <component name="ProjectId" id="1XCLjeNnpd95dyNhXfdi0udxAFy" />
@@ -163,12 +179,20 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/packages/dpmxbrl" />
+<<<<<<< Updated upstream
     <property name="nodejs_package_manager_path" value="yarn" />
+=======
+>>>>>>> Stashed changes
     <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/packages/dpmxbrl" />
+      <recent name="$PROJECT_DIR$/packages/dpmxbrl/src" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/public/images" />
+<<<<<<< Updated upstream
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/resources/views/taxonomy" />
       <recent name="$PROJECT_DIR$/packages/simpleMenu/images" />
@@ -177,6 +201,12 @@
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/packages/dpmxbrl" />
       <recent name="$PROJECT_DIR$/packages/dpmxbrl/src" />
+=======
+      <recent name="$PROJECT_DIR$/public" />
+      <recent name="$PROJECT_DIR$/resources/views/taxonomy" />
+      <recent name="$PROJECT_DIR$/packages/simpleMenu/images" />
+      <recent name="$PROJECT_DIR$/packages/simpleMenu/src" />
+>>>>>>> Stashed changes
     </key>
   </component>
   <component name="RunManager">
@@ -208,6 +238,7 @@
       <workItem from="1584432202754" duration="438000" />
       <workItem from="1584702725485" duration="40567000" />
       <workItem from="1585916763712" duration="65028000" />
+<<<<<<< Updated upstream
       <workItem from="1589268176060" duration="11774000" />
       <workItem from="1589787426083" duration="3706000" />
       <workItem from="1590041922617" duration="5761000" />
@@ -215,6 +246,10 @@
       <workItem from="1590999296335" duration="61131000" />
       <workItem from="1591179254917" duration="10592000" />
       <workItem from="1591340291029" duration="8563000" />
+=======
+      <workItem from="1589744383888" duration="644000" />
+      <workItem from="1590844044958" duration="1977000" />
+>>>>>>> Stashed changes
     </task>
     <task id="LOCAL-00001" summary="Upload fix">
       <created>1580663440250</created>
@@ -231,6 +266,7 @@
       <updated>1585930075209</updated>
     </task>
     <task id="LOCAL-00003" summary="Upload fix">
+<<<<<<< Updated upstream
       <created>1589284544222</created>
       <option name="number" value="00003" />
       <option name="presentableId" value="LOCAL-00003" />
@@ -271,25 +307,79 @@
       <option name="presentableId" value="LOCAL-00008" />
       <option name="project" value="LOCAL" />
       <updated>1591282010084</updated>
+=======
+      <created>1589402403603</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1589402403603</updated>
+    </task>
+    <task id="LOCAL-00004" summary="fix bug">
+      <created>1589403089858</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1589403089858</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Upload fix">
+      <created>1589403310084</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1589403310084</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Upload fix">
+      <created>1589408585518</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1589408585518</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Upload fix">
+      <created>1589744476729</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1589744476729</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Logo">
+      <created>1590845365393</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1590845365393</updated>
+>>>>>>> Stashed changes
     </task>
     <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="2" />
+<<<<<<< Updated upstream
+=======
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="oldMeFiltersMigrated" value="true" />
+>>>>>>> Stashed changes
   </component>
   <component name="VcsManagerConfiguration">
     <ignored-roots>
       <path value="$PROJECT_DIR$/packages/simpleMenu" />
     </ignored-roots>
+<<<<<<< Updated upstream
+=======
+    <MESSAGE value="fix bug" />
+>>>>>>> Stashed changes
     <MESSAGE value="Upload fix" />
-    <option name="LAST_COMMIT_MESSAGE" value="Upload fix" />
+    <MESSAGE value="Logo" />
+    <option name="LAST_COMMIT_MESSAGE" value="Logo" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="548" y="203" key="#CLI_Interpreters" timestamp="1586632276791">
-      <screen x="0" y="0" width="1920" height="1080" />
+    <state x="731" y="274" key="#CLI_Interpreters" timestamp="1589407043342">
+      <screen x="0" y="23" width="2560" height="1337" />
     </state>
     <state x="548" y="203" key="#CLI_Interpreters/0.0.1920.1080@0.0.1920.1080" timestamp="1586632276791" />
+    <state x="731" y="274" key="#CLI_Interpreters/0.23.2560.1337@0.23.2560.1337" timestamp="1589407043342" />
     <state x="650" y="130" key="#PHP" timestamp="1586632279324">
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
@@ -330,16 +420,27 @@
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
     <state x="823" y="438" key="#com.jetbrains.php.debug.validation.PhpWebServerValidationDialog#/0.0.1920.1080@0.0.1920.1080" timestamp="1586632725251" />
+<<<<<<< Updated upstream
     <state x="521" y="183" key="CommitChangelistDialog2" timestamp="1591282009703">
       <screen x="0" y="23" width="2560" height="1349" />
+=======
+    <state x="521" y="182" key="CommitChangelistDialog2" timestamp="1590845365198">
+      <screen x="0" y="23" width="2560" height="1337" />
+>>>>>>> Stashed changes
     </state>
     <state x="851" y="215" key="CommitChangelistDialog2/0.23.1920.982@0.23.1920.982" timestamp="1584560457164" />
     <state x="851" y="215" key="CommitChangelistDialog2/0.23.1920.984@0.23.1920.984" timestamp="1584566105631" />
     <state x="391" y="141" key="CommitChangelistDialog2/0.23.1920.994@0.23.1920.994" timestamp="1585930074226" />
+<<<<<<< Updated upstream
     <state x="521" y="183" key="CommitChangelistDialog2/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591282009703" />
     <state x="3081" y="191" key="CommitChangelistDialog2/0.23.2560.1349/2560.23.2560.1417@2560.23.2560.1417" timestamp="1590993026948" />
     <state x="133" y="148" width="2294" height="1100" key="DiffContextDialog" timestamp="1591261202829">
       <screen x="0" y="23" width="2560" height="1349" />
+=======
+    <state x="521" y="182" key="CommitChangelistDialog2/0.23.2560.1337@0.23.2560.1337" timestamp="1590845365198" />
+    <state x="100" y="100" width="1720" height="880" key="DiffContextDialog" timestamp="1586677793960">
+      <screen x="0" y="0" width="1920" height="1080" />
+>>>>>>> Stashed changes
     </state>
     <state x="100" y="100" width="1720" height="880" key="DiffContextDialog/0.0.1920.1080@0.0.1920.1080" timestamp="1586677793960" />
     <state x="133" y="148" width="2294" height="1100" key="DiffContextDialog/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591261202829" />
@@ -423,14 +524,28 @@
     <state width="1878" height="375" key="GridCell.Tab.2.right/0.0.1920.1080@0.0.1920.1080" timestamp="1586678163616" />
     <state width="1878" height="375" key="GridCell.Tab.2.right/0.23.1920.995@0.23.1920.995" timestamp="1586678058212" />
     <state width="1878" height="375" key="GridCell.Tab.2.right/0.23.1920.997@0.23.1920.997" timestamp="1586640673195" />
+<<<<<<< Updated upstream
     <state x="1223" y="636" key="NewPhpFileDialog" timestamp="1591084483518">
       <screen x="0" y="23" width="2560" height="1349" />
+=======
+    <state x="60" y="140" key="MergeDialog" timestamp="1589402253926">
+      <screen x="0" y="23" width="2560" height="1337" />
+    </state>
+    <state x="60" y="140" key="MergeDialog/0.23.2560.1337@0.23.2560.1337" timestamp="1589402253926" />
+    <state x="975" y="559" key="MultipleFileMergeDialog" timestamp="1589402253955">
+      <screen x="0" y="23" width="2560" height="1337" />
+    </state>
+    <state x="975" y="559" key="MultipleFileMergeDialog/0.23.2560.1337@0.23.2560.1337" timestamp="1589402253955" />
+    <state x="1223" y="630" key="NewPhpFileDialog" timestamp="1589407471065">
+      <screen x="0" y="23" width="2560" height="1337" />
+>>>>>>> Stashed changes
     </state>
     <state x="917" y="467" key="NewPhpFileDialog/0.23.1920.978@0.23.1920.978" timestamp="1584477239587" />
     <state x="917" y="472" key="NewPhpFileDialog/0.23.1920.989@0.23.1920.989" timestamp="1585809005156" />
     <state x="917" y="473" key="NewPhpFileDialog/0.23.1920.992@0.23.1920.992" timestamp="1585736727185" />
     <state x="917" y="474" key="NewPhpFileDialog/0.23.1920.994@0.23.1920.994" timestamp="1585735611336" />
     <state x="917" y="475" key="NewPhpFileDialog/0.23.1920.995@0.23.1920.995" timestamp="1585941752501" />
+<<<<<<< Updated upstream
     <state x="1223" y="636" key="NewPhpFileDialog/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591084483518" />
     <state x="800" y="331" key="RollbackChangesDialog" timestamp="1591349797263">
       <screen x="0" y="23" width="2560" height="1349" />
@@ -438,17 +553,34 @@
     <state x="800" y="331" key="RollbackChangesDialog/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591349797263" />
     <state x="812" y="329" key="SettingsEditor" timestamp="1589787444630">
       <screen x="0" y="23" width="2560" height="1349" />
+=======
+    <state x="1223" y="630" key="NewPhpFileDialog/0.23.2560.1337@0.23.2560.1337" timestamp="1589407471065" />
+    <state x="812" y="326" key="SettingsEditor" timestamp="1589744459802">
+      <screen x="0" y="23" width="2560" height="1337" />
+>>>>>>> Stashed changes
     </state>
     <state x="609" y="245" key="SettingsEditor/0.0.1920.1080@0.0.1920.1080" timestamp="1586632732799" />
     <state x="776" y="248" key="SettingsEditor/0.23.1920.989@0.23.1920.989" timestamp="1585685904605" />
     <state x="776" y="248" key="SettingsEditor/0.23.1920.991@0.23.1920.991" timestamp="1584907648137" />
     <state x="776" y="249" key="SettingsEditor/0.23.1920.992@0.23.1920.992" timestamp="1585744101624" />
     <state x="776" y="250" key="SettingsEditor/0.23.1920.995@0.23.1920.995" timestamp="1585918507780" />
+<<<<<<< Updated upstream
     <state x="812" y="329" key="SettingsEditor/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1589787444630" />
     <state x="1126" y="433" key="Vcs.Push.Dialog.v2" timestamp="1591282819684">
       <screen x="0" y="23" width="2560" height="1349" />
     </state>
     <state x="1126" y="433" key="Vcs.Push.Dialog.v2/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591282819684" />
+=======
+    <state x="812" y="326" key="SettingsEditor/0.23.2560.1337@0.23.2560.1337" timestamp="1589744459802" />
+    <state x="683" y="425" key="Vcs.Push.Dialog.v2" timestamp="1590845371147">
+      <screen x="0" y="23" width="2560" height="1337" />
+    </state>
+    <state x="683" y="425" key="Vcs.Push.Dialog.v2/0.23.2560.1337@0.23.2560.1337" timestamp="1590845371147" />
+    <state x="132" y="203" width="1903" height="964" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1589528171797">
+      <screen x="0" y="23" width="2560" height="1337" />
+    </state>
+    <state x="132" y="203" width="1903" height="964" key="com.intellij.history.integration.ui.views.FileHistoryDialog/0.23.2560.1337@0.23.2560.1337" timestamp="1589528171797" />
+>>>>>>> Stashed changes
     <state x="880" y="387" key="com.intellij.ide.util.TipDialog" timestamp="1584432267565">
       <screen x="0" y="23" width="1920" height="982" />
     </state>
@@ -457,6 +589,7 @@
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
     <state x="516" y="284" key="com.intellij.xdebugger.impl.breakpoints.ui.BreakpointsDialogFactory$2/0.0.1920.1080@0.0.1920.1080" timestamp="1586636360346" />
+<<<<<<< Updated upstream
     <state x="3488" y="440" key="git4idea.merge.GitPullDialog" timestamp="1590993062948">
       <screen x="2560" y="23" width="2560" height="1417" />
     </state>
@@ -465,6 +598,28 @@
     <state x="3488" y="440" key="git4idea.merge.GitPullDialog/0.23.2560.1349/2560.23.2560.1417@2560.23.2560.1417" timestamp="1590993062948" />
     <state x="1063" y="423" width="894" height="687" key="search.everywhere.popup" timestamp="1591341001110">
       <screen x="0" y="23" width="2560" height="1349" />
+=======
+    <state x="880" y="480" key="git4idea.merge.GitMergeDialog" timestamp="1589402144467">
+      <screen x="0" y="23" width="2560" height="1337" />
+    </state>
+    <state x="880" y="480" key="git4idea.merge.GitMergeDialog/0.23.2560.1337@0.23.2560.1337" timestamp="1589402144467" />
+    <state x="928" y="416" key="git4idea.merge.GitPullDialog" timestamp="1591423658473">
+      <screen x="0" y="23" width="2560" height="1337" />
+    </state>
+    <state x="696" y="311" key="git4idea.merge.GitPullDialog/0.23.1920.977@0.23.1920.977" timestamp="1584445721623" />
+    <state x="696" y="312" key="git4idea.merge.GitPullDialog/0.23.1920.982@0.23.1920.982" timestamp="1584560292873" />
+    <state x="928" y="416" key="git4idea.merge.GitPullDialog/0.23.2560.1337@0.23.2560.1337" timestamp="1591423658473" />
+    <state x="988" y="683" key="git4idea.remote.GitConfigureRemotesDialog" timestamp="1589402687228">
+      <screen x="0" y="23" width="2560" height="1337" />
+    </state>
+    <state x="988" y="683" key="git4idea.remote.GitConfigureRemotesDialog/0.23.2560.1337@0.23.2560.1337" timestamp="1589402687228" />
+    <state width="600" height="428" key="javadoc.popup" timestamp="1589614083152">
+      <screen x="0" y="23" width="2560" height="1337" />
+    </state>
+    <state width="600" height="428" key="javadoc.popup/0.23.2560.1337@0.23.2560.1337" timestamp="1589614083152" />
+    <state x="1063" y="420" width="894" height="681" key="search.everywhere.popup" timestamp="1589453736664">
+      <screen x="0" y="23" width="2560" height="1337" />
+>>>>>>> Stashed changes
     </state>
     <state x="797" y="314" width="670" height="497" key="search.everywhere.popup/0.23.1920.982@0.23.1920.982" timestamp="1584521611970" />
     <state x="797" y="316" width="670" height="502" key="search.everywhere.popup/0.23.1920.989@0.23.1920.989" timestamp="1585809019329" />
@@ -472,6 +627,10 @@
     <state x="797" y="318" width="670" height="506" key="search.everywhere.popup/0.23.1920.994@0.23.1920.994" timestamp="1586418593733" />
     <state x="797" y="318" width="670" height="506" key="search.everywhere.popup/0.23.1920.995@0.23.1920.995" timestamp="1585939522142" />
     <state x="797" y="318" width="670" height="506" key="search.everywhere.popup/0.23.1920.996@0.23.1920.996" timestamp="1585938268629" />
+<<<<<<< Updated upstream
     <state x="1063" y="423" width="894" height="687" key="search.everywhere.popup/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591341001110" />
+=======
+    <state x="1063" y="420" width="894" height="681" key="search.everywhere.popup/0.23.2560.1337@0.23.2560.1337" timestamp="1589453736664" />
+>>>>>>> Stashed changes
   </component>
 </project>
