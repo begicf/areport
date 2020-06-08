@@ -1,15 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1b1e9baa-31d8-436e-af2b-53aac158d39c" name="Default Changelist" comment="Upload fix">
-      <change beforePath="$PROJECT_DIR$/.idea/dpm_xbrl.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dpm_xbrl.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+    <list default="true" id="1b1e9baa-31d8-436e-af2b-53aac158d39c" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Http/Controllers/Table/TableController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Controllers/Table/TableController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/seeds/UsersTableSeeder.php" beforeDir="false" afterPath="$PROJECT_DIR$/database/seeds/UsersTableSeeder.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/views/table/table.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/table/table.blade.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routes/web.php" beforeDir="false" afterPath="$PROJECT_DIR$/routes/web.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -190,6 +183,10 @@
       <method v="2" />
     </configuration>
   </component>
+  <component name="StructureViewFactory">
+    <option name="AUTOSCROLL_MODE" value="false" />
+    <option name="AUTOSCROLL_FROM_SOURCE" value="true" />
+  </component>
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -214,7 +211,7 @@
       <workItem from="1590129800391" duration="2969000" />
       <workItem from="1590999296335" duration="61131000" />
       <workItem from="1591179254917" duration="10592000" />
-      <workItem from="1591340291029" duration="8563000" />
+      <workItem from="1591340291029" duration="12886000" />
     </task>
     <task id="LOCAL-00001" summary="Upload fix">
       <created>1580663440250</created>
@@ -272,7 +269,21 @@
       <option name="project" value="LOCAL" />
       <updated>1591282010084</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Upload fix">
+      <created>1591359074236</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1591359074236</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Upload fix">
+      <created>1591366628309</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1591366628310</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -330,13 +341,13 @@
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
     <state x="823" y="438" key="#com.jetbrains.php.debug.validation.PhpWebServerValidationDialog#/0.0.1920.1080@0.0.1920.1080" timestamp="1586632725251" />
-    <state x="521" y="183" key="CommitChangelistDialog2" timestamp="1591282009703">
+    <state x="521" y="183" key="CommitChangelistDialog2" timestamp="1591366627678">
       <screen x="0" y="23" width="2560" height="1349" />
     </state>
     <state x="851" y="215" key="CommitChangelistDialog2/0.23.1920.982@0.23.1920.982" timestamp="1584560457164" />
     <state x="851" y="215" key="CommitChangelistDialog2/0.23.1920.984@0.23.1920.984" timestamp="1584566105631" />
     <state x="391" y="141" key="CommitChangelistDialog2/0.23.1920.994@0.23.1920.994" timestamp="1585930074226" />
-    <state x="521" y="183" key="CommitChangelistDialog2/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591282009703" />
+    <state x="521" y="183" key="CommitChangelistDialog2/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591366627678" />
     <state x="3081" y="191" key="CommitChangelistDialog2/0.23.2560.1349/2560.23.2560.1417@2560.23.2560.1417" timestamp="1590993026948" />
     <state x="133" y="148" width="2294" height="1100" key="DiffContextDialog" timestamp="1591261202829">
       <screen x="0" y="23" width="2560" height="1349" />
@@ -445,10 +456,10 @@
     <state x="776" y="249" key="SettingsEditor/0.23.1920.992@0.23.1920.992" timestamp="1585744101624" />
     <state x="776" y="250" key="SettingsEditor/0.23.1920.995@0.23.1920.995" timestamp="1585918507780" />
     <state x="812" y="329" key="SettingsEditor/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1589787444630" />
-    <state x="1126" y="433" key="Vcs.Push.Dialog.v2" timestamp="1591282819684">
+    <state x="1126" y="433" key="Vcs.Push.Dialog.v2" timestamp="1591366634107">
       <screen x="0" y="23" width="2560" height="1349" />
     </state>
-    <state x="1126" y="433" key="Vcs.Push.Dialog.v2/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591282819684" />
+    <state x="1126" y="433" key="Vcs.Push.Dialog.v2/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591366634107" />
     <state x="880" y="387" key="com.intellij.ide.util.TipDialog" timestamp="1584432267565">
       <screen x="0" y="23" width="1920" height="982" />
     </state>
@@ -463,7 +474,7 @@
     <state x="696" y="311" key="git4idea.merge.GitPullDialog/0.23.1920.977@0.23.1920.977" timestamp="1584445721623" />
     <state x="696" y="312" key="git4idea.merge.GitPullDialog/0.23.1920.982@0.23.1920.982" timestamp="1584560292873" />
     <state x="3488" y="440" key="git4idea.merge.GitPullDialog/0.23.2560.1349/2560.23.2560.1417@2560.23.2560.1417" timestamp="1590993062948" />
-    <state x="1063" y="423" width="894" height="687" key="search.everywhere.popup" timestamp="1591341001110">
+    <state x="1063" y="423" width="894" height="687" key="search.everywhere.popup" timestamp="1591360793306">
       <screen x="0" y="23" width="2560" height="1349" />
     </state>
     <state x="797" y="314" width="670" height="497" key="search.everywhere.popup/0.23.1920.982@0.23.1920.982" timestamp="1584521611970" />
@@ -472,6 +483,6 @@
     <state x="797" y="318" width="670" height="506" key="search.everywhere.popup/0.23.1920.994@0.23.1920.994" timestamp="1586418593733" />
     <state x="797" y="318" width="670" height="506" key="search.everywhere.popup/0.23.1920.995@0.23.1920.995" timestamp="1585939522142" />
     <state x="797" y="318" width="670" height="506" key="search.everywhere.popup/0.23.1920.996@0.23.1920.996" timestamp="1585938268629" />
-    <state x="1063" y="423" width="894" height="687" key="search.everywhere.popup/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591341001110" />
+    <state x="1063" y="423" width="894" height="687" key="search.everywhere.popup/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591360793306" />
   </component>
 </project>
