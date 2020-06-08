@@ -212,6 +212,7 @@
       <workItem from="1590999296335" duration="61131000" />
       <workItem from="1591179254917" duration="10592000" />
       <workItem from="1591340291029" duration="12886000" />
+      <workItem from="1591598227482" duration="702000" />
     </task>
     <task id="LOCAL-00001" summary="Upload fix">
       <created>1580663440250</created>
@@ -283,7 +284,14 @@
       <option name="project" value="LOCAL" />
       <updated>1591366628310</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="Upload fix">
+      <created>1591598357158</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1591598357158</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -341,13 +349,13 @@
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
     <state x="823" y="438" key="#com.jetbrains.php.debug.validation.PhpWebServerValidationDialog#/0.0.1920.1080@0.0.1920.1080" timestamp="1586632725251" />
-    <state x="521" y="183" key="CommitChangelistDialog2" timestamp="1591366627678">
+    <state x="521" y="183" key="CommitChangelistDialog2" timestamp="1591598356641">
       <screen x="0" y="23" width="2560" height="1349" />
     </state>
     <state x="851" y="215" key="CommitChangelistDialog2/0.23.1920.982@0.23.1920.982" timestamp="1584560457164" />
     <state x="851" y="215" key="CommitChangelistDialog2/0.23.1920.984@0.23.1920.984" timestamp="1584566105631" />
     <state x="391" y="141" key="CommitChangelistDialog2/0.23.1920.994@0.23.1920.994" timestamp="1585930074226" />
-    <state x="521" y="183" key="CommitChangelistDialog2/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591366627678" />
+    <state x="521" y="183" key="CommitChangelistDialog2/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591598356641" />
     <state x="3081" y="191" key="CommitChangelistDialog2/0.23.2560.1349/2560.23.2560.1417@2560.23.2560.1417" timestamp="1590993026948" />
     <state x="133" y="148" width="2294" height="1100" key="DiffContextDialog" timestamp="1591261202829">
       <screen x="0" y="23" width="2560" height="1349" />
@@ -468,11 +476,12 @@
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
     <state x="516" y="284" key="com.intellij.xdebugger.impl.breakpoints.ui.BreakpointsDialogFactory$2/0.0.1920.1080@0.0.1920.1080" timestamp="1586636360346" />
-    <state x="3488" y="440" key="git4idea.merge.GitPullDialog" timestamp="1590993062948">
-      <screen x="2560" y="23" width="2560" height="1417" />
+    <state x="928" y="420" key="git4idea.merge.GitPullDialog" timestamp="1591598338873">
+      <screen x="0" y="23" width="2560" height="1349" />
     </state>
     <state x="696" y="311" key="git4idea.merge.GitPullDialog/0.23.1920.977@0.23.1920.977" timestamp="1584445721623" />
     <state x="696" y="312" key="git4idea.merge.GitPullDialog/0.23.1920.982@0.23.1920.982" timestamp="1584560292873" />
+    <state x="928" y="420" key="git4idea.merge.GitPullDialog/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591598338873" />
     <state x="3488" y="440" key="git4idea.merge.GitPullDialog/0.23.2560.1349/2560.23.2560.1417@2560.23.2560.1417" timestamp="1590993062948" />
     <state x="1063" y="423" width="894" height="687" key="search.everywhere.popup" timestamp="1591360793306">
       <screen x="0" y="23" width="2560" height="1349" />
