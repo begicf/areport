@@ -22,6 +22,7 @@ class CreateFactHeadersTable extends Migration
             $table->string('table_path');
             $table->string('module_path');
             $table->timestamps();
+            $table->unique(['period', 'table_path', 'module_path']);
         });
     }
 

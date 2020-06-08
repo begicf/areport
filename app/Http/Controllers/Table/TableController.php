@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Table;
 
 use App\Http\Controllers\Controller;
+use App\Model\FactHeader;
+use App\Model\FactTable;
 use App\Model\Taxonomy;
 use DpmXbrl\Library\Data;
 use DpmXbrl\Library\Format;
@@ -50,16 +52,26 @@ class TableController extends Controller
 
     }
 
+    private function getTablePath($group, $table): ?string
+    {
+
+
+        if ($table):
+            $tc = $table('tab');
+        else:
+            $tc = current($group);
+        endif;
+
+        return $tc;
+
+    }
+
     public function renderTable(Request $request)
     {
 
         $groups_array = json_decode($request->get('group'), true);
 
-        if ($request->get('tab')):
-            $tc = $request->get('tab');
-        else:
-            $tc = current($groups_array);
-        endif;
+        $tc = $this->getTablePath($groups_array, $request->get('tab'));
 
         if (file_exists($tc)):
 
@@ -180,7 +192,28 @@ class TableController extends Controller
 
     public function saveTable(Request $request)
     {
-        dump($request->all());
+
+        $taxonomy_id = Taxonomy::all()->where('active', true)->first();
+
+        $groups_array = json_decode($request->get('group'), true);
+
+        $tc = $this->getTablePath($groups_array, $request->get('tab'));
+
+
+        $fact_header = FactHeader::updateOrCreate([
+            'taxonomy_id' => $taxonomy_id->id,
+            'period' => $request->get('period'),
+            'table_path' => Format::getAfterSpecChar($tc, $taxonomy_id->folder, strlen($taxonomy_id->folder) + 1),
+            'module_path' => Format::getAfterSpecChar($request->get('module'), $taxonomy_id->folder, strlen($taxonomy_id->folder) + 1),
+        ],
+            [
+                'period' => $request->get('period'),
+                'table_path' => Format::getAfterSpecChar($tc, $taxonomy_id->folder, strlen($taxonomy_id->folder) + 1),
+                'module_path' => Format::getAfterSpecChar($request->get('module'), $taxonomy_id->folder, strlen($taxonomy_id->folder) + 1),
+            ]
+        );
+
+        FactTable::storeInstance($request->get('table_data'), $fact_header->id);
 
     }
 

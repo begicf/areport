@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1b1e9baa-31d8-436e-af2b-53aac158d39c" name="Default Changelist" comment="">
+    <list default="true" id="1b1e9baa-31d8-436e-af2b-53aac158d39c" name="Default Changelist" comment="Upload fix">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Http/Controllers/Table/TableController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Controllers/Table/TableController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Model/FactHeader.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Model/FactHeader.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Model/FactTable.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Model/FactTable.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/migrations/2020_06_05_094817_create_fact_headers_table.php" beforeDir="false" afterPath="$PROJECT_DIR$/database/migrations/2020_06_05_094817_create_fact_headers_table.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/views/table/table.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/table/table.blade.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -127,8 +132,8 @@
       <path value="$PROJECT_DIR$/vendor/laravel/ui" />
       <path value="$PROJECT_DIR$/vendor/voku/portable-ascii" />
       <path value="$PROJECT_DIR$/vendor/psr/event-dispatcher" />
-      <path value="$PROJECT_DIR$/vendor/ramsey/collection" />
       <path value="$PROJECT_DIR$/vendor/begicf/simple-menu" />
+      <path value="$PROJECT_DIR$/vendor/ramsey/collection" />
       <path value="$PROJECT_DIR$/vendor/brick/math" />
       <path value="$PROJECT_DIR$/vendor/myclabs/php-enum" />
       <path value="$PROJECT_DIR$/vendor/psr/http-message" />
@@ -212,7 +217,8 @@
       <workItem from="1590999296335" duration="61131000" />
       <workItem from="1591179254917" duration="10592000" />
       <workItem from="1591340291029" duration="12886000" />
-      <workItem from="1591598227482" duration="702000" />
+      <workItem from="1591598227482" duration="4870000" />
+      <workItem from="1591608271352" duration="5744000" />
     </task>
     <task id="LOCAL-00001" summary="Upload fix">
       <created>1580663440250</created>
@@ -291,7 +297,14 @@
       <option name="project" value="LOCAL" />
       <updated>1591598357158</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="Upload fix">
+      <created>1591599942591</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1591599942591</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -349,19 +362,19 @@
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
     <state x="823" y="438" key="#com.jetbrains.php.debug.validation.PhpWebServerValidationDialog#/0.0.1920.1080@0.0.1920.1080" timestamp="1586632725251" />
-    <state x="521" y="183" key="CommitChangelistDialog2" timestamp="1591598356641">
+    <state x="521" y="183" key="CommitChangelistDialog2" timestamp="1591608930860">
       <screen x="0" y="23" width="2560" height="1349" />
     </state>
     <state x="851" y="215" key="CommitChangelistDialog2/0.23.1920.982@0.23.1920.982" timestamp="1584560457164" />
     <state x="851" y="215" key="CommitChangelistDialog2/0.23.1920.984@0.23.1920.984" timestamp="1584566105631" />
     <state x="391" y="141" key="CommitChangelistDialog2/0.23.1920.994@0.23.1920.994" timestamp="1585930074226" />
-    <state x="521" y="183" key="CommitChangelistDialog2/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591598356641" />
+    <state x="521" y="183" key="CommitChangelistDialog2/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591608930860" />
     <state x="3081" y="191" key="CommitChangelistDialog2/0.23.2560.1349/2560.23.2560.1417@2560.23.2560.1417" timestamp="1590993026948" />
-    <state x="133" y="148" width="2294" height="1100" key="DiffContextDialog" timestamp="1591261202829">
+    <state x="133" y="148" width="2294" height="1100" key="DiffContextDialog" timestamp="1591600743598">
       <screen x="0" y="23" width="2560" height="1349" />
     </state>
     <state x="100" y="100" width="1720" height="880" key="DiffContextDialog/0.0.1920.1080@0.0.1920.1080" timestamp="1586677793960" />
-    <state x="133" y="148" width="2294" height="1100" key="DiffContextDialog/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591261202829" />
+    <state x="133" y="148" width="2294" height="1100" key="DiffContextDialog/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591600743598" />
     <state width="2200" height="298" key="GridCell.Tab.0.bottom" timestamp="1589880424019">
       <screen x="2560" y="23" width="2560" height="1417" />
     </state>
@@ -442,6 +455,10 @@
     <state width="1878" height="375" key="GridCell.Tab.2.right/0.0.1920.1080@0.0.1920.1080" timestamp="1586678163616" />
     <state width="1878" height="375" key="GridCell.Tab.2.right/0.23.1920.995@0.23.1920.995" timestamp="1586678058212" />
     <state width="1878" height="375" key="GridCell.Tab.2.right/0.23.1920.997@0.23.1920.997" timestamp="1586640673195" />
+    <state x="931" y="496" key="MultipleFileMergeDialog" timestamp="1591600009994">
+      <screen x="0" y="23" width="2560" height="1349" />
+    </state>
+    <state x="931" y="496" key="MultipleFileMergeDialog/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591600009994" />
     <state x="1223" y="636" key="NewPhpFileDialog" timestamp="1591084483518">
       <screen x="0" y="23" width="2560" height="1349" />
     </state>
@@ -476,13 +493,17 @@
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
     <state x="516" y="284" key="com.intellij.xdebugger.impl.breakpoints.ui.BreakpointsDialogFactory$2/0.0.1920.1080@0.0.1920.1080" timestamp="1586636360346" />
-    <state x="928" y="420" key="git4idea.merge.GitPullDialog" timestamp="1591598338873">
+    <state x="928" y="420" key="git4idea.merge.GitPullDialog" timestamp="1591600003384">
       <screen x="0" y="23" width="2560" height="1349" />
     </state>
     <state x="696" y="311" key="git4idea.merge.GitPullDialog/0.23.1920.977@0.23.1920.977" timestamp="1584445721623" />
     <state x="696" y="312" key="git4idea.merge.GitPullDialog/0.23.1920.982@0.23.1920.982" timestamp="1584560292873" />
-    <state x="928" y="420" key="git4idea.merge.GitPullDialog/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591598338873" />
+    <state x="928" y="420" key="git4idea.merge.GitPullDialog/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591600003384" />
     <state x="3488" y="440" key="git4idea.merge.GitPullDialog/0.23.2560.1349/2560.23.2560.1417@2560.23.2560.1417" timestamp="1590993062948" />
+    <state x="637" y="341" key="run.anything.popup" timestamp="1591614932354">
+      <screen x="0" y="23" width="2560" height="1349" />
+    </state>
+    <state x="637" y="341" key="run.anything.popup/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591614932354" />
     <state x="1063" y="423" width="894" height="687" key="search.everywhere.popup" timestamp="1591360793306">
       <screen x="0" y="23" width="2560" height="1349" />
     </state>

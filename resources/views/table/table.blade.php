@@ -94,8 +94,7 @@
         <div id="sheets" class="col-lg-3 p-2"></div>
         <!--Table -->
         <form id="table_form" method="post">
-            <input type="hidden" name="dd" value="333">
-            <div id="tab" class="overflow-auto"></div>
+
         </form>
 
         <div id="openY" class="form-group" style="display: none">
@@ -153,10 +152,28 @@
 
         }
 
-        function save() {
+        function getFormData($form) {
+            var unindexed_array = $form.serializeArray();
+            var indexed_array = {};
 
-            console.log($('form#table_form').serialize());
-           // $("#table_form").submit();
+            $.map(unindexed_array, function (n, i) {
+                indexed_array[n['name']] = n['value'];
+            });
+
+            return indexed_array;
+        }
+
+
+        function save(group, table) {
+
+            axios.post('table/save', {
+                'table_data': getFormData($("#table_form")),
+                'period': '{{$period}}',
+                'module': '{{$mod}}',
+                'group': group,
+                'tab': table,
+
+            });
 
         }
 
@@ -179,7 +196,7 @@
             $("#sheets").empty();
 
             $('#pleaseWaitDialog').modal();
-            save();
+            save(group, table);
 
             axios.post('/table/ajax', {
 
