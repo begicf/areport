@@ -2,7 +2,11 @@
 <module type="WEB_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
+<<<<<<< Updated upstream
       <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" packagePrefix="Tests\" />
+=======
+      <sourceFolder url="file://$MODULE_DIR$/spec" isTestSource="true" />
+>>>>>>> Stashed changes
       <sourceFolder url="file://$MODULE_DIR$/app" isTestSource="false" packagePrefix="App\" />
       <sourceFolder url="file://$MODULE_DIR$/packages/dpmxbrl/src" isTestSource="false" packagePrefix="DpmXbrl\" />
       <sourceFolder url="file://$MODULE_DIR$/spec" isTestSource="true" />

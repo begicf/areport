@@ -94,6 +94,7 @@
         <div id="sheets" class="col-lg-3 p-2"></div>
         <!--Table -->
         <form id="table_form" method="post">
+            <input type="hidden" name="dd" value="333">
             <div id="tab" class="overflow-auto"></div>
         </form>
 
@@ -152,6 +153,13 @@
 
         }
 
+        function save() {
+
+            console.log($('form#table_form').serialize());
+           // $("#table_form").submit();
+
+        }
+
         function changeTable(selectedOb, type = 'G') {
 
             var group;
@@ -171,6 +179,7 @@
             $("#sheets").empty();
 
             $('#pleaseWaitDialog').modal();
+            save();
 
             axios.post('/table/ajax', {
 
@@ -184,7 +193,7 @@
 
                 $('#pleaseWaitDialog').modal('hide');
 
-                $('#tab').html(response.data.table);
+                $('#table_form').html(response.data.table);
                 $('#sheets').html(response.data.sheets);
                 $('#button_group').html(response.data.groups);
                 $('#export_table_path').val(response.data.table_path);
@@ -267,8 +276,7 @@
                     dataSet();
                     <?php endif; ?>
 
-                    /*console.log(data->file);*/
-                    for (var i in data['file']) {
+                        for (var i in data['file']) {
                         if (document.getElementById(i) != null) {
                             $('#' + i).val(data['file'][i]);
                         }
