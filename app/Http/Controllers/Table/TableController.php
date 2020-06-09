@@ -12,7 +12,6 @@ use DpmXbrl\ReadExcel;
 use DpmXbrl\Tax;
 use DpmXbrl\UploadXbrl;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Input;
 
 
 class TableController extends Controller
@@ -22,12 +21,16 @@ class TableController extends Controller
     private $_period;
     private $_taxonomy;
 
+    public function __construct()
+    {
+        $this->_taxonomy = Taxonomy::all()->where('active', true)->first();
+        $this->_period = request('period');
+
+    }
 
     public function table(Request $request)
     {
 
-        $this->_taxonomy = Taxonomy::all()->where('active', true)->first();
-        $this->_period = $request->get('period');
 
         $table = array_map('json_decode', $request->get('table'));
 
@@ -57,7 +60,7 @@ class TableController extends Controller
 
 
         if ($table):
-            $tc = $table('tab');
+            $tc = $table;
         else:
             $tc = current($group);
         endif;
@@ -69,6 +72,7 @@ class TableController extends Controller
     public function renderTable(Request $request)
     {
 
+
         $groups_array = json_decode($request->get('group'), true);
 
         $tc = $this->getTablePath($groups_array, $request->get('tab'));
@@ -77,9 +81,17 @@ class TableController extends Controller
 
             $tax = Data::getTax($tc);
 
+            $table_path = Format::getAfterSpecChar($tc, $this->_taxonomy->folder, strlen($this->_taxonomy->folder) + 1);
+            $module_path =
+                Format::getAfterSpecChar($request->get('mod'), $this->_taxonomy->folder, strlen($this->_taxonomy->folder) + 1);
+
             $taxOb = new Tax();
 
-            $data = $taxOb->render()->renderHtml($tax);
+            $import['sheets'] = '000';
+            $import['file'] = FactHeader::getCRData($table_path, $this->_period, $module_path);
+            $import['ext'] = 'DB';
+
+            $data = $taxOb->render()->renderHtml($tax, $import);
             $data['groups'] = $this->makeButtonGroup($groups_array, $tc);
             $data['table_path'] = $tc;
             return response($data);
@@ -193,23 +205,21 @@ class TableController extends Controller
     public function saveTable(Request $request)
     {
 
-        $taxonomy_id = Taxonomy::all()->where('active', true)->first();
-
         $groups_array = json_decode($request->get('group'), true);
 
         $tc = $this->getTablePath($groups_array, $request->get('tab'));
 
 
         $fact_header = FactHeader::updateOrCreate([
-            'taxonomy_id' => $taxonomy_id->id,
+            'taxonomy_id' => $this->_taxonomy->id,
             'period' => $request->get('period'),
-            'table_path' => Format::getAfterSpecChar($tc, $taxonomy_id->folder, strlen($taxonomy_id->folder) + 1),
-            'module_path' => Format::getAfterSpecChar($request->get('module'), $taxonomy_id->folder, strlen($taxonomy_id->folder) + 1),
+            'table_path' => Format::getAfterSpecChar($tc, $this->_taxonomy->folder, strlen($this->_taxonomy->folder) + 1),
+            'module_path' => Format::getAfterSpecChar($request->get('module'), $this->_taxonomy->folder, strlen($this->_taxonomy->folder) + 1),
         ],
             [
                 'period' => $request->get('period'),
-                'table_path' => Format::getAfterSpecChar($tc, $taxonomy_id->folder, strlen($taxonomy_id->folder) + 1),
-                'module_path' => Format::getAfterSpecChar($request->get('module'), $taxonomy_id->folder, strlen($taxonomy_id->folder) + 1),
+                'table_path' => Format::getAfterSpecChar($tc, $this->_taxonomy->folder, strlen($this->_taxonomy->folder) + 1),
+                'module_path' => Format::getAfterSpecChar($request->get('module'), $this->_taxonomy->folder, strlen($this->_taxonomy->folder) + 1),
             ]
         );
 

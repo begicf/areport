@@ -23,6 +23,7 @@ class CreateFactTablesTable extends Migration
             $table->text('xbrl_context_key');
             $table->json('xbrl_context_key_raw');
             $table->integer('user_id');
+           // $table->unique(['fact_header_id', 'xbrl_context_key']);
             $table->timestamps();
         });
 
@@ -35,7 +36,7 @@ class CreateFactTablesTable extends Migration
      */
     public function down()
     {
-
+        Schema::dropIfExists('fact_header');
         Schema::dropIfExists('fact_table');
     }
 }
