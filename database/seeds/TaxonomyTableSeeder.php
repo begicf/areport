@@ -25,6 +25,13 @@ class TaxonomyTableSeeder extends Seeder
                     'path' => 'tax',
                     'folder' => '5ee081cb7d85e',
                     'active' => 0
+                ],
+                [
+                    'name' => 'FBA Taxonomy based on EBA 2.5 (B&H)',
+                    'original_name' => 'fba',
+                    'path' => 'tax',
+                    'folder' => 'eba',
+                    'active' => 0
                 ]
             ]
         );
