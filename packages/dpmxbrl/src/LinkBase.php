@@ -8,15 +8,19 @@
 
 namespace DpmXbrl;
 
+use DpmXbrl\Config\Config;
 use DpmXbrl\Gen\Link;
 use DpmXbrl\Gen\TableLinkbase;
 use DpmXbrl\Link\DefinitionLink;
 use DpmXbrl\Module\Presentation;
 
 /**
- * Description of LinkBase
- *
- * @author begicf
+ * Class LinkBase
+ * @category
+ * @package Areport DpmXbrl
+ * @author Fuad Begic <fuad.begic@gmail.com>
+ * Date: 12/06/2020
+ * Time: 12:14
  */
 class LinkBase implements \IteratorAggregate
 {
@@ -27,12 +31,19 @@ class LinkBase implements \IteratorAggregate
     public function __construct($baseLinks, $assertion = null)
     {
 
+
         foreach ($baseLinks as $key => $path):
 
+
+            foreach (Config::$lang as $item) {
+                if ('lab-' . $item == $key):
+                    $this->links[$key] = new Link($path);
+                endif;
+
+            }
+
             switch ($key):
-                case 'lab-en':
-                case 'lab-ba':
-                case 'lab-bs-Latn-BA':
+
                 case 'lab-codes':
                     $this->links[$key] = new Link($path);
                     break;

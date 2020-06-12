@@ -524,10 +524,10 @@ class RenderTable
             $label = $this->axis->searchLabel($sheet['to'], 'http://www.xbrl.org/2008/role/label');
             $rccode =
                 $this->axis->searchLabel($this->specification['rend']['path'] . "#" . $sheet['to'], 'http://www.eurofiling.info/xbrl/role/rc-code');
-            $selected = isset($this->sheet[$rccode]) && $this->sheet[$rccode] == 'active' ? 'selected' : '';
+            $selected = isset($this->sheet[$rccode]) && $this->sheet[$rccode] == 'active' ? 'selected data-icon=\'fas fa-file-alt\'' : '';
 
             $exist =
-                isset($this->sheet[$rccode]) && $this->sheet[$rccode] == 'found' ? "data-icon='fa-table'" : "";
+                isset($this->sheet[$rccode]) && $this->sheet[$rccode] == 'found' ? "data-icon='fas fa-file-alt'" : "";
             $html .= "<option id='$rccode' data-id='$rccode'  $selected  $exist value=" . json_encode(array_merge($sheet['dimension'], ['sheet' => $rccode])) . ">$label</option>";
             //$html .= "<option  value=" . $rccode . ">$label</option>";
             $shee++;

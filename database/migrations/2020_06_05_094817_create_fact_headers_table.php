@@ -21,6 +21,7 @@ class CreateFactHeadersTable extends Migration
             $table->timestamp('period');
             $table->string('table_path');
             $table->string('module_path');
+            $table->string('cr_sheet_code_last', 10)->nullable();
             $table->timestamps();
             $table->unique(['period', 'table_path', 'module_path']);
         });

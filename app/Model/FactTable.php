@@ -8,20 +8,20 @@ use Illuminate\Support\Facades\Auth;
 class FactTable extends Model
 {
     protected $table = 'fact_table';
-    protected $fillable = ['fact_header_id', 'cr_code', 'string_value', 'sheet_code', 'metric', 'xbrl_context_key', 'xbrl_context_key_raw', 'user_id'];
+    protected $fillable = ['fact_header_id', 'cr_code', 'string_value', 'cr_sheet_code', 'metric', 'xbrl_context_key', 'xbrl_context_key_raw', 'user_id'];
 
     /**
      * @param $req
      */
-    public static function storeInstance($req, $factheader_id)
+    public static function storeInstance($req, $factheader_id, $sheet)
     {
-        $sheet = '000';
+
 
         parse_str($req, $res);
 
-        if (isset($res['sheet'])):
-            $sheet = json_decode($res['sheet'], true);
-            $sheet = $sheet['sheet'];
+        if (isset($sheet)):
+            $sheet = (json_decode($sheet, true));
+            $cr_sheet = $sheet['sheet'];
             unset($sheet['sheet']);
         endif;
 
@@ -39,7 +39,7 @@ class FactTable extends Model
                     $metric = NULL;
                 endif;
 
-                if (isset($instance['sheet'])):
+                if (isset($sheet)):
                     $arr = array_merge($arr, $sheet);
                 endif;
 
@@ -56,16 +56,17 @@ class FactTable extends Model
                 self::updateOrCreate([
                     'fact_header_id' => $factheader_id,
                     'cr_code' => $key,
-                    'sheet_code' => $sheet,
+                    'cr_sheet_code' => $cr_sheet ?? '000'
+
+                ], [
+                    'fact_header_id' => $factheader_id,
+                    'cr_code' => $key,
+                    'cr_sheet_code' => $cr_sheet ?? '000',
                     'xbrl_context_key' => $dim,
                     'xbrl_context_key_raw' => json_encode($raw),
                     'string_value' => $row['value'],
                     'metric' => $metric,
                     'user_id' => Auth::id()
-
-                ], [
-                    'xbrl_context_key' => $dim,
-                    'fact_header_id' => $factheader_id,
                 ]);
 
 

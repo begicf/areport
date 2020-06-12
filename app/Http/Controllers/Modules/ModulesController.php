@@ -17,7 +17,7 @@ class ModulesController extends Controller
 
     public function __construct()
     {
-        $this->_taxonomy = Taxonomy::all()->where('active', true)->first();
+        $this->_taxonomy = Taxonomy::all()->where('active', '=',1)->first();
 
 
     }

@@ -23,7 +23,7 @@ class TableController extends Controller
 
     public function __construct()
     {
-        $this->_taxonomy = Taxonomy::all()->where('active', true)->first();
+        $this->_taxonomy = Taxonomy::all()->where('active', '=', 1)->first();
         $this->_period = request('period');
 
     }
@@ -55,7 +55,7 @@ class TableController extends Controller
 
     }
 
-    private function getTablePath($group, $table): ?string
+    private function getTablePath($table, $group = null): ?string
     {
 
 
@@ -75,29 +75,53 @@ class TableController extends Controller
 
         $groups_array = json_decode($request->get('group'), true);
 
-        $tc = $this->getTablePath($groups_array, $request->get('tab'));
+        $tc = $this->getTablePath($request->get('tab'), $groups_array);
 
         if (file_exists($tc)):
 
             $tax = Data::getTax($tc);
 
-            $table_path = Format::getAfterSpecChar($tc, $this->_taxonomy->folder, strlen($this->_taxonomy->folder) + 1);
-            $module_path =
-                Format::getAfterSpecChar($request->get('mod'), $this->_taxonomy->folder, strlen($this->_taxonomy->folder) + 1);
-
             $taxOb = new Tax();
 
-            $import['sheets'] = '000';
-            $import['file'] = FactHeader::getCRData($table_path, $this->_period, $module_path);
+            $data = $this->getData($tc);
+
+            $import['sheets'] = $data['sheets'] ?? '000';
+            $import['file'] = $data;
             $import['ext'] = 'DB';
 
             $data = $taxOb->render()->renderHtml($tax, $import);
+
             $data['groups'] = $this->makeButtonGroup($groups_array, $tc);
             $data['table_path'] = $tc;
             return response($data);
         else:
             abort(404);
         endif;
+
+    }
+
+    public function getData($tc = null)
+    {
+
+        if (is_null($tc)):
+            $tc = $this->getTablePath(request()->get('tab'));
+        endif;
+
+        $table_path = Format::getAfterSpecChar($tc, $this->_taxonomy->folder, strlen($this->_taxonomy->folder) + 1);
+
+        $module_path =
+            Format::getAfterSpecChar(request()->get('mod'), $this->_taxonomy->folder, strlen($this->_taxonomy->folder) + 1);
+
+        $cr_sheet = null;
+        if (request()->get('sheet')):
+            $sheet = (json_decode(request()->get('sheet'), true));
+            $cr_sheet = $sheet['sheet'];
+            unset($sheet['sheet']);
+        endif;
+
+        $data = FactHeader::getCRData($table_path, $this->_period, $module_path, $cr_sheet);
+
+        return (request()->get('json')) ? response()->json($data) : $data;
 
     }
 
@@ -205,26 +229,39 @@ class TableController extends Controller
     public function saveTable(Request $request)
     {
 
-        $groups_array = json_decode($request->get('group'), true);
 
-        $tc = $this->getTablePath($groups_array, $request->get('tab'));
+        if ($request->get('table_data')):
 
+            $tc = $request->get('tab');
 
-        $fact_header = FactHeader::updateOrCreate([
-            'taxonomy_id' => $this->_taxonomy->id,
-            'period' => $request->get('period'),
-            'table_path' => Format::getAfterSpecChar($tc, $this->_taxonomy->folder, strlen($this->_taxonomy->folder) + 1),
-            'module_path' => Format::getAfterSpecChar($request->get('module'), $this->_taxonomy->folder, strlen($this->_taxonomy->folder) + 1),
-        ],
-            [
-                'period' => $request->get('period'),
-                'table_path' => Format::getAfterSpecChar($tc, $this->_taxonomy->folder, strlen($this->_taxonomy->folder) + 1),
-                'module_path' => Format::getAfterSpecChar($request->get('module'), $this->_taxonomy->folder, strlen($this->_taxonomy->folder) + 1),
-            ]
-        );
+            if (!empty($request->get('sheet'))):
+                $cr_sheet = (json_decode($request->get('sheet'), true))['sheet'];
+            endif;
 
-        FactTable::storeInstance($request->get('table_data'), $fact_header->id);
+            $tab = Format::getAfterSpecChar($tc, $this->_taxonomy->folder, strlen($this->_taxonomy->folder) + 1);
+            $mod =
+                Format::getAfterSpecChar($request->get('module'), $this->_taxonomy->folder, strlen($this->_taxonomy->folder) + 1);
 
+            $fact_header = FactHeader::updateOrCreate(
+
+                [
+                    'period' => $request->get('period'),
+                    'table_path' => $tab,
+                    'module_path' => $mod,
+
+                ],
+                [
+                    'taxonomy_id' => $this->_taxonomy->id,
+                    'period' => $request->get('period'),
+                    'table_path' => $tab,
+                    'module_path' => $mod,
+                    'cr_sheet_code_last' => $cr_sheet ?? '000'
+                ]
+
+            );
+
+            FactTable::storeInstance($request->get('table_data'), $fact_header->id, $request->get('sheet'));
+        endif;
     }
 
 }

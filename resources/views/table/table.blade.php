@@ -153,14 +153,13 @@
         }
 
 
-
-        function save(group, table) {
+        function save(sheet = null) {
 
             axios.post('table/save', {
                 'table_data': $("#table_form").serialize(),
                 'period': '{{$period}}',
                 'module': '{{$mod}}',
-                'group': group,
+                'sheet': (sheet ? sheet : $('#sheets').find(':selected').val()),
                 'tab': $('#export_table_path').val(),
 
             });
@@ -181,12 +180,14 @@
                 table = selectedOb.value;
             }
 
+
+            $('#pleaseWaitDialog').modal();
+
+            save();
+
             $("#tab").empty();
             $("#button_group").empty();
             $("#sheets").empty();
-
-            $('#pleaseWaitDialog').modal();
-            save(group, table);
 
             axios.post('/table/ajax', {
 
@@ -272,7 +273,7 @@
             formData.append('colspanmax', $(".xbrl-title").prop("colSpan"));
             formData.append('rowspanmax', $(".xbrl-title").prop("rowSpan"));
             $.ajax({
-                type: "POST",
+                type: "post",
                 url: '/table/import',
                 data: formData, /* serializes the form's elements. */
                 success: function (data) {
@@ -295,6 +296,51 @@
             });
             e.preventDefault(); /* avoid to execute the actual submit of the form. */
         });
+
+
+        $("#sheets").on("changed.bs.select",
+            function (e, clickedIndex, isSelected, oldValue) {
+
+                save(oldValue);
+
+
+                var sheet = $(this).find(':selected').val();
+                axios.post('table/get_data', {
+
+                    period: '{{$period}}',
+                    mod: '{{$mod}}',
+                    tab: $('#export_table_path').val(),
+                    sheet: sheet
+
+                }).then(function (response) {
+
+                    //Set to empty
+                    $(".xbrl-input,.xbrl-input-open,.xbrl-input-text ").each(function () {
+
+
+                        var id = $(this).attr('id');
+                        if (typeof id !== "undefined") {
+                            $('#' + id).val('');
+                        }
+
+                    });
+
+                    var data = response.data;
+                    for (var i in data) {
+
+                        if ($('#' + i).is("[type=number]")) {
+                            $('#' + i).val(data[i].integer);
+                        } else {
+                            $('#' + i).val(data[i].string);
+                        }
+
+                    }
+
+
+                });
+
+
+            });
 
 
     </script>

@@ -141,7 +141,7 @@ class TaxonomyController extends Controller
 
             Taxonomy::create([
                 'path' => $this->path,
-                'file' => $_newName,
+                'folder' => $_newName,
                 'name' => $request->get('name'),
                 'original_name' => $_name
             ]);

@@ -9,9 +9,11 @@ namespace DpmXbrl\Config;
  */
 
 /**
- * Description of Config
- *
- * @author begicf
+ * Class Config
+ * @category
+ * Areport @package DpmXbrl\Config
+ * @author Fuad Begic <fuad.begic@gmail.com>
+ * Date: 12/06/2020
  */
 class Config
 {
@@ -21,7 +23,8 @@ class Config
 
     public static $lang = [
         '0' => 'en',
-        '1' => 'bs-Latn-BA'
+        '1' => 'bs-Latn-BA',
+        '2' => 'ba',
 
     ];
     /* Renderovanje specifikacija */

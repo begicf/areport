@@ -2,6 +2,7 @@
 
 namespace DpmXbrl\Render;
 
+use DpmXbrl\Config\Config;
 use DpmXbrl\Library\Data;
 use DpmXbrl\Library\DomToArray;
 use DpmXbrl\Library\Format;
@@ -13,9 +14,12 @@ use DpmXbrl\Library\Format;
  */
 
 /**
- * Description of Axis
- *
- * @author begicf
+ * Class Axis
+ * @category
+ * @package DpmXbrl\Render
+ * @author Fuad Begic <fuad.begic@gmail.com>
+ * Date: 12/06/2020
+ * Time: 12:16
  */
 class Axis
 {
@@ -28,11 +32,21 @@ class Axis
     {
         $this->specification = $spec;
 
-        if (!is_null($lang)):
 
-            if (strpos($lang, 'lab-') === false):
-                $lang = 'lab-' . $lang;
-            endif;
+        if (is_null($lang)):
+
+            $keys = array_keys($this->specification);
+
+            foreach (Config::$lang as $row):
+
+                $needle = 'lab-' . $row;
+                if (in_array($needle, $keys)):
+                    $lang = $needle;
+                    break;
+                endif;
+
+            endforeach;
+
             $this->lang = $lang;
         endif;
     }
