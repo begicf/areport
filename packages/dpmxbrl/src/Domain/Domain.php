@@ -87,24 +87,11 @@ class Domain
     {
 
         $_memOwner = array();
+
         if ((strpos($schema, Config::$owner) == false)):
 
-            $_lastPathDirName = Directory::getLastPathDirName($schema);
-            $ownerSchema =
-                Directory::getPath(Directory::getOwnerAbsolutePath($schema), [$_lastPathDirName]);
+            $_memOwner = Data::getTax($schema);
 
-
-            $_memOwner = array();
-
-            foreach (end($ownerSchema) as $row):
-
-                if ((strpos($row, 'mem') !== false)):
-                    if ((strpos(Directory::getLastPathDirName($row), $_lastPathDirName))):
-                        $_memOwner = Data::getTax($row);
-                    endif;
-                endif;
-
-            endforeach;
         endif;
 
 
