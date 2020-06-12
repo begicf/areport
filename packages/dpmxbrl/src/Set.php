@@ -17,9 +17,11 @@ use DpmXbrl\Render\RenderTable;
  */
 
 /**
- * Description of Set
- *
- * @author begicf
+ * Class Set
+ * @category
+ * Areport @package DpmXbrl
+ * @author Fuad Begic <fuad.begic@gmail.com>
+ * Date: 12/06/2020
  */
 class Set
 {
@@ -170,7 +172,7 @@ class Set
 
     /**
      * @param string $linkBasePath
-     * Na osnovu naziva xml fila, odreduje tip fajla.
+     * Based on the xml file name, it determines the file type.
      */
     private function getXbrlFileType($linkBasePath, $name = NULL)
     {
@@ -217,9 +219,6 @@ class Set
         return new RenderOutput();
     }
 
-    public function exportPDF()
-    {
-        return new RenderPDF();
-    }
+
 
 }

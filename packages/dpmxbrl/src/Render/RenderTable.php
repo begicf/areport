@@ -15,9 +15,11 @@ use DpmXbrl\Library\DomToArray;
 use DpmXbrl\Library\Format;
 
 /**
- * Description of RenderTable
- *
- * @author begicf
+ * Class RenderTable
+ * @category
+ * Areport @package DpmXbrl\Render
+ * @author Fuad Begic <fuad.begic@gmail.com>
+ * Date: 12/06/2020
  */
 class RenderTable
 {
@@ -76,8 +78,6 @@ class RenderTable
 
         $this->axis = new Axis($this->specification, $this->lang);
 
-//
-        //  echo "<pre>", print_r($this->specification), "</pre>";
 
         $tableNameId = key($this->specification['rend']['table']);
 
@@ -145,42 +145,10 @@ class RenderTable
         endforeach;
 
 
-        // Provjerava da li se radi o opentable ili o varijabilnoj Z osi.
-
-
-//        if (isset($this->specification['rend']['aspectNode'])):
-//            $aspectNode = key($this->specification['rend']['aspectNode']);
-//            $contents = $this->specification['rend']['aspectNode'];
-//
-//        else:
-//            $contents =
-//                $this->axis->buildYAxis($this->specification['rend']['definitionNodeSubtreeArc'], $this->breakdownTreeArc['y']['to']);
-//        endif;
-
-
-//        if (!empty($this->breakdownTreeArc['z']['to'])):
-//            $sheets =
-//                $this->axis->buildZAxis($this->specification['rend']['definitionNodeSubtreeArc'], $this->breakdownTreeArc['z']['to']);
-//            $sheetsHtml = $this->showSheets($sheets);
-//
-//        elseif (isset($this->specification['rend']['explicitDimension'])): // varijabilna Z osa
-//
-//            $explicitDimension = current($this->specification['rend']['explicitDimension']);
-//
-//
-//            $domain =
-//                Domain::getDomain($explicitDimension['linkrole'], Format::getRootName($additional['file_path']));
-//
-//            $sheetsHtml = $this->showVaribleASheets($domain, $explicitDimension['dimension']);
-//
-//
-//        endif;
-        // dd($this->specification['rend']);
-
-        //max dubina rowspan
+        // max depth rowspan
         $rowspanMax = $colspanMax = max(array_column($header, 'row')) + 1;
 
-        // dodajemo dvije kolone radi rc coda na y osi
+        // add two columns for the rc code on the y axis
         if (!empty($contents) && !isset($aspectNode)):
             $colspanMax = max(array_column($contents, 'col')) + 2;
         elseif (isset($aspectNode)):
@@ -203,11 +171,11 @@ class RenderTable
                 $prev = $header[$keys[$row - 1]];
             endif;
             $this_value = $header[$keys[$row]];
-//dump($this_value);
+
 
             if (isset($storPosition[$this_value['row']])) {
 
-                //provjer da li prethodna pozicija veca ili manja
+                // check if the previous position is higher or lower
                 if ($storPosition[$this_value['row']] >= $storPosition[$prev['row']]):
                     $col = $storPosition[$this_value['row']] + 1;
                 elseif (isset($col) && $this_value['row'] == 0 && $this_value['abstract'] == 'false'):
@@ -215,7 +183,7 @@ class RenderTable
                 endif;
 
 
-                //Sacuvaj poziciju, ako pozicija posjeduje child elelemt onda je uvacaj za broj child elemenata
+                // Save position, if the position has a child elelemt then it is an indent for the number of child elements
                 $tmpPos = NULL;
                 if (isset($this_value['leaves_element'])):
                     $tmpPos = $col + $this_value['leaves_element'] - 1;
@@ -224,20 +192,21 @@ class RenderTable
                 else:
                     $tmpPos = $col;
                 endif;
-                //   echo $tmpPos;
+
 
                 $storPosition[$this_value['row']] = $tmpPos;
             } else {
 
 
                 $tmpPos = NULL;
-                //Ako pozicija nije setovan a posjeduje child elemente setuj je na broj child elemenata plus broj kolona inace samo na broj kolona
+                // If the position is not set and has child elements, set it to the number of child elements plus the number of columns, otherwise only to the number of columns
 
                 if (isset($this_value['leaves_element'])):
-                    //ako pozicija posjeduje childe elemente i ako se parent element popunjava odnosno ima metric vrijednost
+
+                    // if the position has childe elements and if the parent element is filled or has a metric value
                     $tmpPos = $col + $this_value['leaves_element'] - 1;
                 elseif (isset($this_value['metric_element'])):
-                    //ako pozicija posjeduje childe elemente samo uzmi u obzir broj metric
+                    // if the position has childe elements just consider the number of metrics
                     $tmpPos = $col + $this_value['metric_element'] - 1;
                 else:
                     $tmpPos = $col;
@@ -524,7 +493,8 @@ class RenderTable
             $label = $this->axis->searchLabel($sheet['to'], 'http://www.xbrl.org/2008/role/label');
             $rccode =
                 $this->axis->searchLabel($this->specification['rend']['path'] . "#" . $sheet['to'], 'http://www.eurofiling.info/xbrl/role/rc-code');
-            $selected = isset($this->sheet[$rccode]) && $this->sheet[$rccode] == 'active' ? 'selected data-icon=\'fas fa-file-alt\'' : '';
+            $selected =
+                isset($this->sheet[$rccode]) && $this->sheet[$rccode] == 'active' ? 'selected data-icon=\'fas fa-file-alt\'' : '';
 
             $exist =
                 isset($this->sheet[$rccode]) && $this->sheet[$rccode] == 'found' ? "data-icon='fas fa-file-alt'" : "";

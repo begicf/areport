@@ -8,9 +8,11 @@ use DpmXbrl\Config\Config;
 use DpmXbrl\Set;
 
 /**
- *
- *
- * @author begicf
+ * Class Data
+ * @category
+ * Areport @package DpmXbrl\Library
+ * @author Fuad Begic <fuad.begic@gmail.com>
+ * Date: 12/06/2020
  */
 class Data
 {
@@ -77,7 +79,7 @@ class Data
     /**
      * @param $breakdownTreeArc
      * @param $aspectNode
-     * Pronalazi i setuje aspectNode po osama
+     * Finds and sets aspectNode by axis
      * @return array|null
      */
     public static function aspectNode($breakdownTreeArc, $aspectNode): ?array

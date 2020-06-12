@@ -19,9 +19,11 @@ use DpmXbrl\Library\DomToArray;
 use DpmXbrl\Library\Data;
 
 /**
- * Description of Modules
- *
- * @author begicf
+ * Class Mod
+ * @category
+ * Areport @package DpmXbrl
+ * @author Fuad Begic <fuad.begic@gmail.com>
+ * Date: 12/06/2020
  */
 class Mod
 {

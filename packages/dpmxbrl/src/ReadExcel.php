@@ -12,19 +12,11 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Shared\StringHelper;
 
 /**
- * Description of ReadExcel
- *
- * @author begicf
- *
- *
- * $this->arr['r10c10'] = $this->sheetData['7']['D'];
- * $this->arr['r10c20'] = $this->sheetData['7']['E'];
- * $this->arr['r10c30'] = $this->sheetData['7']['F'];
- * $this->arr['r10c40'] = $this->sheetData['7']['G'];
- * $this->arr['r10c50'] = $this->sheetData['7']['H'];
- * $this->arr['r10c60'] = $this->sheetData['7']['I'];
- * $this->arr['r10c70'] = $this->sheetData['7']['J'];
- * $this->arr['r10c71'] = $this->sheetData['7']['K'];
+ * Class ReadExcel
+ * @category
+ * Areport @package DpmXbrl
+ * @author Fuad Begic <fuad.begic@gmail.com>
+ * Date: 12/06/2020
  */
 class ReadExcel
 {
@@ -99,7 +91,7 @@ class ReadExcel
 
                         $type =
                             $this->objExcel->getActiveSheet()->getCell($cell)->getStyle()->getNumberFormat()->getFormatCode();
-//dump('c' . $X[$key] . 'r' . $this->sheetData[$Y]['A']);
+                        //dump('c' . $X[$key] . 'r' . $this->sheetData[$Y]['A']);
 
                         $value['c' . $X[$key] . 'r' . $this->sheetData[$Y]['A']] = $this->formatCell($type, $row);
                     endif;

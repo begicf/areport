@@ -9,7 +9,7 @@ use App\Model\Taxonomy;
 use DpmXbrl\Library\Data;
 use DpmXbrl\Library\Format;
 use DpmXbrl\ReadExcel;
-use DpmXbrl\Tax;
+use DpmXbrl\Render;
 use DpmXbrl\UploadXbrl;
 use Illuminate\Http\Request;
 
@@ -81,7 +81,7 @@ class TableController extends Controller
 
             $tax = Data::getTax($tc);
 
-            $taxOb = new Tax();
+            $render = new Render();
 
             $data = $this->getData($tc);
 
@@ -89,7 +89,7 @@ class TableController extends Controller
             $import['file'] = $data;
             $import['ext'] = 'DB';
 
-            $data = $taxOb->render()->renderHtml($tax, $import);
+            $data = $render->render()->renderHtml($tax, $import);
 
             $data['groups'] = $this->makeButtonGroup($groups_array, $tc);
             $data['table_path'] = $tc;
@@ -107,22 +107,31 @@ class TableController extends Controller
             $tc = $this->getTablePath(request()->get('tab'));
         endif;
 
-        $table_path = Format::getAfterSpecChar($tc, $this->_taxonomy->folder, strlen($this->_taxonomy->folder) + 1);
-
-        $module_path =
-            Format::getAfterSpecChar(request()->get('mod'), $this->_taxonomy->folder, strlen($this->_taxonomy->folder) + 1);
-
         $cr_sheet = null;
+
         if (request()->get('sheet')):
             $sheet = (json_decode(request()->get('sheet'), true));
             $cr_sheet = $sheet['sheet'];
             unset($sheet['sheet']);
         endif;
 
-        $data = FactHeader::getCRData($table_path, $this->_period, $module_path, $cr_sheet);
+        $data = FactHeader::getCRData($this->getNormalizeTable($tc), $this->_period, $this->getNormalizeModule(request()->get('mod')), $cr_sheet);
 
         return (request()->get('json')) ? response()->json($data) : $data;
 
+    }
+
+    private function getNormalizeTable($table)
+    {
+
+        return Format::getAfterSpecChar($table, $this->_taxonomy->folder, strlen($this->_taxonomy->folder) + 1);
+
+    }
+
+    private function getNormalizeModule($module)
+    {
+
+        return Format::getAfterSpecChar($module, $this->_taxonomy->folder, strlen($this->_taxonomy->folder) + 1);
     }
 
     public function exportTable(Request $request)
@@ -130,9 +139,20 @@ class TableController extends Controller
 
         $tax = Data::getTax($request->get('table'));
 
-        $taxOb = new Tax();
+        $render = new Render();
 
-        $taxOb->export($tax, null, $request->get('export_type'), null)->renderOutputAll(null)->exportFormat();
+        $import = FactHeader::getCRData(
+            $this->getNormalizeTable($request->get('table')),
+            $this->_period,
+            $this->getNormalizeModule($request->get('mod')),
+            null,
+            true
+        );
+
+
+
+
+        $render ->export($tax, null, $request->get('export_type'), null)->renderOutputAll($import)->exportFormat();
 
 
     }

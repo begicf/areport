@@ -8,9 +8,11 @@
 
 namespace DpmXbrl\Library;
 /**
- *
- *
- * @author begicf
+ * Class Normalise
+ * @category
+ * Areport @package DpmXbrl\Library
+ * @author Fuad Begic <fuad.begic@gmail.com>
+ * Date: 12/06/2020
  */
 class Normalise
 {

@@ -17,16 +17,14 @@ use DpmXbrl\Module\Presentation;
 /**
  * Class LinkBase
  * @category
- * @package Areport DpmXbrl
+ * Areport @package DpmXbrl
  * @author Fuad Begic <fuad.begic@gmail.com>
  * Date: 12/06/2020
- * Time: 12:14
  */
 class LinkBase implements \IteratorAggregate
 {
 
     private $links;
-    private $assertion;
 
     public function __construct($baseLinks, $assertion = null)
     {

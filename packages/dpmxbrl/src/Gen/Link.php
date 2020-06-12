@@ -13,9 +13,11 @@ use DpmXbrl\XbrlInterface;
  */
 
 /**
- * Description of Links
- *
- * @author begicf
+ * Class Link
+ * @category
+ * Areport @package DpmXbrl\Gen
+ * @author Fuad Begic <fuad.begic@gmail.com>
+ * Date: 12/06/2020
  */
 class Link implements XbrlInterface
 {
@@ -57,7 +59,6 @@ class Link implements XbrlInterface
                         $this->label[$element->getAttribute('xlink:label')]['role'] =
                             $element->getAttribute('xlink:role');
 
-                        //  echo "<pre>", print_r($element->getAttribute('xml:lang')), "</pre>";
 
                     endforeach;
 
@@ -107,7 +108,6 @@ class Link implements XbrlInterface
             endswitch;
         endforeach;
 
-        // koristi se kod generisanja tabele
         if (array_key_exists('gen', $this->namespace)):
 
             if (!empty($this->gen) && !empty($this->label)):
@@ -132,7 +132,7 @@ class Link implements XbrlInterface
                 endforeach;
             endif;
         else:
-            //koristi se za moudule
+
             $this->Xbrl = $this->link;
             foreach ($this->link as $key => $row):
                 $found = DomToArray::search_multdim($this->link, 'from', $key);

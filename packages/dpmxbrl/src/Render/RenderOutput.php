@@ -26,10 +26,11 @@ use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
 
 /**
- * Description of RenderExcel
- *
- * @property Axis axis
- * @author begicf ver 1.2
+ * Class RenderOutput
+ * @category
+ * Areport @package DpmXbrl\Render
+ * @author Fuad Begic <fuad.begic@gmail.com>
+ * Date: 12/06/2020
  */
 class RenderOutput
 {
@@ -44,7 +45,7 @@ class RenderOutput
     private $lang;
     private $import;
     private $spreadsheet;
-    private $_colOffset = 0; // ne radi kako treba
+    private $_colOffset = 0; // not working properly
     private $_rowOffset = 3;
     private $_aspectNode = NULL;
     private $_col = 1;
@@ -325,10 +326,10 @@ class RenderOutput
             $yAxis = $this->getYAxis();
         endif;
 
-        //max dubina rowspan
+        //max depth rowspan
         $this->_rowSpanMax = $this->_colSpanMax = max(array_column($xAxis, 'row')) + 1 + $this->_rowOffset;
 
-        // dodajemo dvije kolone radi rc coda na y osi
+        //we add two columns for rc code on the y axis
         if (isset($this->_aspectNode['y'])):
 
             $this->_colSpanMax = count($this->_aspectNode['y']) + $this->_colOffset;
@@ -364,7 +365,7 @@ class RenderOutput
 
             if (isset($storPosition[$this_value['row']])) :
 
-                //provjer da li prethodna pozicija veca ili manja
+                //check whether the previous position is higher or lower
                 if ($storPosition[$this_value['row']] >= $storPosition[$prev['row']]):
                     $this->_col = $storPosition[$this_value['row']] + 1;
                 elseif (isset($this->_col) && $this_value['row'] == 0 && $this_value['abstract'] == 'false'):
@@ -372,7 +373,7 @@ class RenderOutput
                 endif;
 
 
-                //Sacuvaj poziciju, ako pozicija posjeduje child elelemt onda je uvacaj za broj child elemenata
+                //Save the position, if the position has a child elelemt then it is a factor for the number of child elements
                 $tmpPos = NULL;
                 if (isset($this_value['leaves_element']) && $this_value['abstract'] != 'true'):
                     $tmpPos = $this->_col + $this_value['leaves_element'] - 1;
@@ -381,20 +382,19 @@ class RenderOutput
                 else:
                     $tmpPos = $this->_col;
                 endif;
-                //   echo $tmpPos;
 
                 $storPosition[$this_value['row']] = $tmpPos;
             else :
 
 
                 $tmpPos = NULL;
-                //Ako pozicija nije setovan a posjeduje child elemente setuj je na broj child elemenata plus broj kolona inace samo na broj kolona
+                //If the position is not set and has child elements, set it to the number of child elements plus the number of columns, otherwise only to the number of columns
 
                 if (isset($this_value['leaves_element']) && $this_value['abstract'] != 'true'):
-                    //ako pozicija posjeduje childe elemente i ako se parent element popunjava odnosno ima metric vrijednost
+                    //If the position has childe elements and if the parent element is filled or has a metric value
                     $tmpPos = $this->_col + $this_value['leaves_element'] - 1;
                 elseif (isset($this_value['metric_element'])):
-                    //ako pozicija posjeduje childe elemente samo uzmi u obzir broj metric
+                    //If the position possesses childe elements just consider the number metric
                     $tmpPos = $this->_col + $this_value['metric_element'] - 1;
                 else:
                     $tmpPos = $this->_col;
@@ -418,10 +418,8 @@ class RenderOutput
                 $this->spreadsheet->setActiveSheetIndex($s)->setCellValueByColumnAndRow($this->_col + $this->_colSpanMax, $this_value['row'] + 1, $lebelName);
                 $this->spreadsheet->setActiveSheetIndex($s)->getRowDimension($this_value['row'] + 1)->setRowHeight(70);
 
-
                 //    $this->spreadsheet->setActiveSheetIndex($s)->mergeCellsByColumnAndRow($this->_col + $this->_colSpanMax, $this_value['row'] + 1, $this_value['leaves_element'] + $this->_col + 1, $this_value['row'] + 1);
                 //    $this->spreadsheet->setActiveSheetIndex($s)->mergeCellsByColumnAndRow($this->_col + $this->_colSpanMax, $this_value['row'] + $this->_colSpanMax+1, $this->_col + $this->_colSpanMax, $this->_rowSpanMax);
-
 
                 $this->spreadsheet->setActiveSheetIndex($s)->getStyleByColumnAndRow($this->_col + $this->_colSpanMax, $this_value['row'] + 1, $this_value['leaves_element'] + $this->_col + 1, $this_value['row'] + 1)->applyFromArray($this->styleX());
                 $this->spreadsheet->setActiveSheetIndex($s)->getStyleByColumnAndRow($this->_col + $this->_colSpanMax, $this_value['row'] + 1, $this_value['leaves_element'] + $this->_col + 1, $this_value['row'] + 1)->getAlignment()->setWrapText(true);
@@ -434,7 +432,6 @@ class RenderOutput
 
                 //$this->spreadsheet->getActiveSheet()->getRowDimensions($this_value['row'] + 1)->setRowHeight(10);
 
-
                 $this->spreadsheet->setActiveSheetIndex($s)->setCellValueExplicitByColumnAndRow($this->_col + $this->_colSpanMax, $this->_rowSpanMax + 1, $rcCode, DataType::TYPE_STRING);
                 $this->spreadsheet->setActiveSheetIndex($s)->getStyleByColumnAndRow($this->_col + $this->_colSpanMax, $this->_rowSpanMax + 1)->applyFromArray($this->styleRC());
 
@@ -445,9 +442,7 @@ class RenderOutput
                     $this_value['leaves_element'] = $this_value['metric_element'];
                 endif;
 
-
                 $this->spreadsheet->setActiveSheetIndex($s)->setCellValueByColumnAndRow($this->_col + $this->_colSpanMax, $this_value['row'] + 1, $lebelName);
-
 
                 $rowspan =
                     (isset($this_value['leaves_element']) || ($this->_rowSpanMax - 1) == $this_value['row']) ? 1 : $this->_rowSpanMax - $this_value['row'];
@@ -460,12 +455,11 @@ class RenderOutput
                 $this->spreadsheet->setActiveSheetIndex($s)->getStyleByColumnAndRow($this->_col + $this->_colSpanMax, $this_value['row'] + 1, $colspan + $this->_col + $this->_colSpanMax, $this_value['row'] + $rowspan)->getAlignment()->setWrapText(true);
 
                 $this->spreadsheet->getActiveSheet()->getRowDimension($this_value['row'] + $rowspan)->setRowHeight(70);
-                // var_dump($rcCode);
+
                 $this->spreadsheet->setActiveSheetIndex($s)->setCellValueExplicitByColumnAndRow($this->_col + $this->_colSpanMax, $this->_rowSpanMax + 1, $rcCode, DataType::TYPE_STRING);
                 $this->spreadsheet->setActiveSheetIndex($s)->getStyleByColumnAndRow($this->_col + $this->_colSpanMax, $this->_rowSpanMax + 1)->applyFromArray($this->styleRC());
 
             endif;
-
 
         endforeach;
     }
@@ -475,8 +469,8 @@ class RenderOutput
 
 
         $z = array();
-        //Z Axis ispis
-        if (isset($this->_aspectNode['z'])): // varijabilna Z osa
+        // Z Axis print
+        if (isset($this->_aspectNode['z'])): // variable Z axis
 
 
             $explicitDimension = current($this->specification['rend']['explicitDimension']);
@@ -513,7 +507,7 @@ class RenderOutput
     {
 
 
-        //Z Axis ispis
+        //Z Axis printing
         if (isset($this->_aspectNode['z'])):
 
 
@@ -574,7 +568,7 @@ class RenderOutput
                 $this->row[$y]['id'] = $row['to'];
                 $this->row[$y]['abstract'] = $row['abstract'];
 
-//set rc-code
+                //set rc-code
                 $countSt = strlen($labelName) + $row['col'] + 5;
                 $str = str_pad($labelName, $countSt, "      ", STR_PAD_LEFT);
 
@@ -604,8 +598,8 @@ class RenderOutput
 
                 endif;
 
-//$this->spreadsheet->setActiveSheetIndex($s)->getColumnDimensionByColumn($_col)->setAutoSize(true);
-//$this->spreadsheet->setActiveSheetIndex($s)->getColumnDimensionByColumn(1 + $_col)->setAutoSize(true);
+                //$this->spreadsheet->setActiveSheetIndex($s)->getColumnDimensionByColumn($_col)->setAutoSize(true);
+                //$this->spreadsheet->setActiveSheetIndex($s)->getColumnDimensionByColumn(1 + $_col)->setAutoSize(true);
                 // $this->spreadsheet->setActiveSheetIndex($s)->getStyleByColumnAndRow(2, $key + $this->_rowSpanMax + 2)->applyFromArray($styleY);
 
 
@@ -673,7 +667,7 @@ class RenderOutput
 
         if ($this->_type != 'pdf'):
             $this->drawFooter($x + 1, $this->_rowSpanMax + $y, $s);
-            //Footer ne pripada XBRL specifikaciji
+            // Footer does not belong to the XBRL specification
         endif;
     }
 
@@ -751,14 +745,7 @@ class RenderOutput
 
                 $value = (isset($this->import[$name])) ? $this->import[$name] : "";
 
-//fix key($_dim)=='fba_dim:VDI' -- treba brisat nije xbrl specifikacija
-                if ($disabled === 'disabled' && (current($_dim) != '*' || key($_dim) == 'fba_dim:VDI')):
-                    //  $this->spreadsheet->setActiveSheetIndex($s)->setCellValueByColumnAndRow(2 + $x, $this->_rowSpanMax + $y, $value);
-                    $this->spreadsheet->setActiveSheetIndex($s)->getStyleByColumnAndRow($x, $this->_rowSpanMax + $y + 1)->applyFromArray($this->styleDisable());
-                //   $this->spreadsheet->setActiveSheetIndex($s)->getStyleByColumnAndRow(2 + $x, $this->_rowSpanMax + $y)->getNumberFormat()->setFormatCode('#,##0.00');
-
-
-                elseif (current($_dim) === '*'):
+                if (current($_dim) === '*'):
 
                     if (isset($value['string'])):
 
@@ -769,7 +756,7 @@ class RenderOutput
                             $this->spreadsheet->setActiveSheetIndex($s)->setCellValueExplicitByColumnAndRow($x, $this->_rowSpanMax + $y + 1, $con, DataType::TYPE_STRING);
 
                         else:
-                            //dump($value['string']);
+
                             $this->spreadsheet->setActiveSheetIndex($s)->setCellValueExplicitByColumnAndRow($x, $this->_rowSpanMax + $y + 1, $value['string'], DataType::TYPE_STRING);
 
 
@@ -812,7 +799,7 @@ class RenderOutput
 
         $offsetMerge = (isset($this->_aspectNode['y'])) ? count($this->col) : 2 + $this->_col;
         $this->spreadsheet->setActiveSheetIndex($s)->setCellValueByColumnAndRow(1, 1, $this->tableVerboseName())->mergeCellsByColumnAndRow(1, 1, $offsetMerge, 1);
-        $this->spreadsheet->setActiveSheetIndex($s)->setCellValueByColumnAndRow(1, 2, 'dd')->mergeCellsByColumnAndRow(1, 2, $offsetMerge, 2);
+        //$this->spreadsheet->setActiveSheetIndex($s)->setCellValueByColumnAndRow(1, 2, '')->mergeCellsByColumnAndRow(1, 2, $offsetMerge, 2);
 
     }
 
@@ -896,8 +883,7 @@ class RenderOutput
         header('Content-Type: application/pdf');
         header('Content-Disposition: inline;filename="' . $info['tablename'] . '.pdf"');
         header('Cache-Control: max-age=0');
-
-        //echo "<pre>", print_r($info), "</pre>";
+        
 
         $spreadsheet->getActiveSheet()->getPageSetup()->setPaperSize(PageSetup::PAPERSIZE_A4);
 

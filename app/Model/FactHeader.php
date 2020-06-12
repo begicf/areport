@@ -22,7 +22,7 @@ class FactHeader extends Model
      * @param null $sheet
      * @return array
      */
-    public static function getCRData($table_path, $period, $module_path, $sheet = null): ?array
+    public static function getCRData($table_path, $period, $module_path, $sheet = null, $all = null): ?array
     {
 
         $data = [];
@@ -35,18 +35,25 @@ class FactHeader extends Model
 
             $sheet = (is_null($sheet)) ? $result->cr_sheet_code_last : $sheet;
 
-            $filter = $result->facttable->where('cr_sheet_code', $sheet);
+            $filter = is_null($all) ? $result->facttable->where('cr_sheet_code', $sheet) : $result->facttable;
 
             foreach ($filter as $row):
 
-                $data[$row->cr_code]['integer'] = floatval($row->string_value);
-                $data[$row->cr_code]['string'] = $row->string_value;
+                if (is_null($all)):
+                    $data[$row->cr_code]['integer'] = floatval($row->string_value);
+                    $data[$row->cr_code]['string'] = $row->string_value;
+                else:
 
+                    $data[$row->cr_sheet_code][$row->cr_code]['integer'] = floatval($row->string_value);
+                    $data[$row->cr_sheet_code][$row->cr_code]['string'] = $row->string_value;
+                endif;
                 $r = substr($row->cr_code, strpos($row->cr_code, "r") + 1);;
 
             endforeach;
+
             $data['row'] = $r - 1;
-            $data['sheets'] = ($sheet != '000') ? self::getSheet($result) : '000';
+
+            $data['sheets'] = is_null($all) ? ($sheet != '000') ? self::getSheet($result) : '000' : '';
 
             return $data;
 

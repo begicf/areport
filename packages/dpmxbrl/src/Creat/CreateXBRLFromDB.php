@@ -15,9 +15,11 @@ use XMLWriter;
  */
 
 /**
- * Description of CreateXBRLFromDB
- *
- * @author begicf
+ * Class CreateXBRLFromDB
+ * @category
+ * Areport @package DpmXbrl\Creat
+ * @author Fuad Begic <fuad.begic@gmail.com>
+ * Date: 12/06/2020
  */
 class CreateXBRLFromDB extends XMLWriter
 {
@@ -180,7 +182,7 @@ class CreateXBRLFromDB extends XMLWriter
         $this->endElement();
     }
 
-    // UNIT 
+    // UNIT
     private function XbrlUnit()
     {
 
@@ -190,7 +192,7 @@ class CreateXBRLFromDB extends XMLWriter
 
                 if (!array_key_exists($row['metric'], $this->unit)):
 
-                    //Setuje ID elemente kod Unit-a    
+                    //Setuje ID elemente kod Unit-a
                     $this->unit[$row['metric']] = $this->setID($row['metric']);
 
 

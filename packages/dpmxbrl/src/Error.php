@@ -5,11 +5,7 @@
  * and open the template in the editor.
  */
 
-/**
- * Description of Error
- *
- * @author begicf
- */
+
 class Error {
 
     public static function isError($data, $code = null) {

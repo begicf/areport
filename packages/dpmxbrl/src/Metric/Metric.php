@@ -16,14 +16,16 @@ use DpmXbrl\Library\Format;
  */
 
 /**
- * Description of Metric
- *
- * @author begicf
+ * Class Metric
+ * @category
+ * Areport @package DpmXbrl\Metric
+ * @author Fuad Begic <fuad.begic@gmail.com>
+ * Date: 12/06/2020
  */
 class Metric
 {
 
-//put your code here
+
     private static $path;
     private static $dom;
 
@@ -142,7 +144,7 @@ class Metric
 
 
         endforeach;
-        // dump($hier);
+
 
         return $hier;
     }

@@ -9,9 +9,11 @@
 namespace DpmXbrl\Library;
 
 /**
- * Description of Format
- *
- * @author begicf
+ * Class Format
+ * @category
+ * Areport @package DpmXbrl\Library
+ * @author Fuad Begic <fuad.begic@gmail.com>
+ * Date: 12/06/2020
  */
 class Format
 {

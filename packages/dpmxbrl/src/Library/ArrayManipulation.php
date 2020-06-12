@@ -6,8 +6,9 @@ namespace DpmXbrl\Library;
 /**
  * Class ArrayManipulation
  * @category
- * @package DpmXbrl\Library
+ * Areport @package DpmXbrl\Library
  * @author Fuad Begic <fuad.begic@gmail.com>
+ * Date: 12/06/2020
  */
 class ArrayManipulation
 {

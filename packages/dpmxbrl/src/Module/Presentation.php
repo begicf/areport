@@ -6,6 +6,13 @@ use DOMXPath;
 use DpmXbrl\Library\DomToArray;
 use DpmXbrl\XbrlInterface;
 
+/**
+ * Class Presentation
+ * @category
+ * Areport @package DpmXbrl\Module
+ * @author Fuad Begic <fuad.begic@gmail.com>
+ * Date: 12/06/2020
+ */
 class Presentation implements XbrlInterface
 {
 
@@ -53,8 +60,7 @@ class Presentation implements XbrlInterface
 
                     $xpath->registerNamespace($prefix, $value);
                     $presentationLink = $xpath->query("//link:presentationLink ", $context);
-                    // var_dump($presentationLink);
-                    // die();
+
                     if ($presentationLink->length):
 
                         foreach ($presentationLink as $element):

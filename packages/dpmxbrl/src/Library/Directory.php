@@ -12,10 +12,9 @@ use RecursiveCallbackFilterIterator;
 /**
  * Class Directory
  * @category
- * @package DpmXbrl\Library
+ * Areport @package DpmXbrl\Library
  * @author Fuad Begic <fuad.begic@gmail.com>
- * Date: 08/04/2020
- * Time: 11:37
+ * Date: 12/06/2020
  */
 class Directory
 {
@@ -66,7 +65,7 @@ class Directory
     }
 
     /**
-     * Pretraga direktorija rekurzivno glob metoda
+     * Directory search recursive globe method
      * @param $pattern
      * @return string|null
      */
@@ -84,7 +83,7 @@ class Directory
     }
 
     /**
-     * Pretraga direktorija rekurzivno Iterator
+     * Directory Search Recursive Iterator
      * @param $directory
      * @param $pattern
      * @return string|null
@@ -109,7 +108,7 @@ class Directory
 
 
     /**
-     * Pretraga direktorija rekurzivno Iterator exclude some directory
+     * Directory search recursive Iterator exclude some directory
      * @param $directory
      * @param $pattern
      * @param int $maxDepth

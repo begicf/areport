@@ -13,9 +13,11 @@ use DpmXbrl\XbrlInterface;
  */
 
 /**
- * Description of Linkbase
- *
- * @author begicf
+ * Class TableLinkbase
+ * @category
+ * Areport @package DpmXbrl\Gen
+ * @author Fuad Begic <fuad.begic@gmail.com>
+ * Date: 12/06/2020
  */
 class TableLinkbase implements XbrlInterface {
 
@@ -172,7 +174,7 @@ class TableLinkbase implements XbrlInterface {
 
         $dimensionFilters = $xpath->query("//df:explicitDimension", $context);
 
-        // Z osa, samo jedna dimenzija
+        // Z axis, only one dimension
         foreach ($dimensionFilters as $element):
 
             $dimArr = [];

@@ -18,55 +18,20 @@ use DpmXbrl\Render\RenderTable;
 use Exception;
 
 /**
- * Description of Tax
- *
- * @author begicf
+ * Class Tax
+ * @category
+ * Areport @package DpmXbrl
+ * @author Fuad Begic <fuad.begic@gmail.com>
+ * Date: 12/06/2020
  */
-class Tax
+class Render
 {
 
     //put your code here
     private $tax;
     private $filename;
     private $path = array();
-    private $arr = null;
 
-    /**
-     *
-     * @param type $filename - naziv tabele
-     */
-    public function __construct($filename = NULL)
-    {
-
-        //$this->tax = DomToArray::getPath(Config::publicDir(), ['tab' => 'tab' . DIRECTORY_SEPARATOR]);
-       // $this->filename = $filename;
-
-        //$this->getPathXsd();
-    }
-
-
-
-    private function getPathXsd()
-    {
-
-        if (!is_null($this->filename)):
-
-            foreach ($this->tax['tab'] as $row):
-
-                if (strpos($row, $this->filename) !== false) {
-                    try {
-                        if (strpos($row, Config::$owner) !== false) {
-                            $this->path[] = $row;
-                        }
-                    } catch (Exception $e) {
-
-                        echo "err";
-                    }
-                }
-            endforeach;
-
-        endif;
-    }
 
     public function getTableID($tax)
     {
@@ -82,15 +47,10 @@ class Tax
 
     public function render()
     {
-
         return new RenderTable();
     }
 
-    public function exportDB()
-    {
 
-        return new RenderExport();
-    }
 
     public function export($tax, $lang, $type, $additionalData)
     {
@@ -101,9 +61,6 @@ class Tax
         return new RenderOutput($tax, $lang, $type, $additionalData);
     }
 
-    public function exportPDF()
-    {
-        return new RenderPDF();
-    }
+
 
 }

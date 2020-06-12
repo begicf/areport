@@ -16,14 +16,16 @@ use DpmXbrl\XbrlInterface;
  */
 
 /**
- * Description of DefXbrl
- *
- * @author begicf
+ * Class DefinitionLink
+ * @category
+ * Areport @package DpmXbrl\Link
+ * @author Fuad Begic <fuad.begic@gmail.com>
+ * Date: 12/06/2020
  */
 class DefinitionLink implements XbrlInterface
 {
 
-    //Setuje elemente u sljedeci niz
+    //Sets the elements to the next sequence
 
     private $def;
     private $hyp;
@@ -95,7 +97,7 @@ class DefinitionLink implements XbrlInterface
         endforeach;
 
         $this->Xbrl = $this->hyp;
-        //  echo "<pre>", print_r( $this->Xbrl), "</pre>";
+
     }
 
     private function buildHyp(array $elements, $from = 0, $loc, $prev = '')
@@ -200,7 +202,12 @@ class DefinitionLink implements XbrlInterface
         return $branch;
     }
 
-    // povezuje nazive lokalnih linkovanja sa globalnim
+
+    /**
+     * associates local link names with global ones
+     * @param $elements
+     * @return array
+     */
     private function reduceLocLable($elements)
     {
 

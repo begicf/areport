@@ -11,9 +11,11 @@ namespace DpmXbrl\Library;
 use DpmXbrl\Config\Config;
 
 /**
- * Description of DomToArray
- *
- * @author begicf
+ * Class DomToArray
+ * @category
+ * Areport @package DpmXbrl\Library
+ * @author Fuad Begic <fuad.begic@gmail.com>
+ * Date: 12/06/2020
  */
 class DomToArray
 {
@@ -202,39 +204,5 @@ class DomToArray
         return false;
     }
 
-    /*
-      public static function getRootTax($url) {
 
-      $tmpUrl = parse_url($url);
-      $rootTax = strtok(substr(self::$path, strlen(Config::publicDir())), '/');
-      $path = Config::publicDir() . $rootTax . DIRECTORY_SEPARATOR . $tmpUrl['host'] . DIRECTORY_SEPARATOR . $tmpUrl['path'];
-
-      echo $path;
-      die();
-      return $path;
-      }
-
-      public static function _normalise($path, $encoding = "UTF-8") {
-
-      // Attempt to avoid path encoding problems.
-      $path = iconv($encoding, "$encoding//IGNORE//TRANSLIT", $path);
-      // Process the components
-      $parts = explode('/', $path);
-      $safe = array();
-      foreach ($parts as $idx => $part) {
-      if (empty($part) || ('.' == $part)) {
-      continue;
-      } elseif ('..' == $part) {
-      array_pop($safe);
-      continue;
-      } else {
-      $safe[] = $part;
-      }
-      }
-
-      // Return the "clean" path
-      $path = implode(DIRECTORY_SEPARATOR, $safe);
-      return $path;
-      }
-     */
 }

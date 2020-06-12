@@ -16,17 +16,16 @@ use DpmXbrl\Library\Format;
 /**
  * Class Axis
  * @category
- * @package DpmXbrl\Render
+ * Areport @package DpmXbrl\Render
  * @author Fuad Begic <fuad.begic@gmail.com>
  * Date: 12/06/2020
- * Time: 12:16
  */
 class Axis
 {
 
     //put your code here
     private $specification;
-    private $lang = 'lab-en';
+    private $lang;
 
     public function __construct($spec, $lang = NULL)
     {
@@ -89,16 +88,16 @@ class Axis
                     $count_leaves = count(array_column($children, 'leaves_element'));
                     $element['all_element'] = count($children);
 
-                    //brojac childe elemenata koji sadrze matric
+                    //a counter of childe elements containing a metric
                     $tmpC = 0;
                     foreach ($children as $c):
 
                         if ($c['metric'] != 'false'):
-                            // echo $c['metric']." ".PHP_EOL;
+;
                             $tmpC = $tmpC + 1;
                         endif;
                     endforeach;
-                    //echo $tmpC . PHP_EOL;
+
                     $element['metric_element'] = $tmpC;
 
 
@@ -413,9 +412,13 @@ class Axis
         return $dim;
     }
 
-    /* Postoji bug u ovoj fukciji odnosi se na izvještaj c_08.01.b */
-    /* Provjera vezu sa tax Definition odnosno da li se polja koriste ili ne */
 
+
+    /**
+     * Check the link to the tax definition or whether the fields are used or not
+     * @param $dim
+     * @return bool
+     */
     public function checkDef($dim)
     {
 
@@ -530,7 +533,6 @@ class Axis
         endif;
 
 
-        // $merge=array();
         if (isset($y['dimensionAspect']) && isset($x['dimension'])):
             $merge = array_merge($metric, (array)$x['dimension']);
         elseif (isset($x['dimension']) && isset($y['dimension'])):
@@ -548,8 +550,6 @@ class Axis
             $merge = $metric;
         endif;
 
-
-        //  echo "<pre>", print_r($merge), "</pre>";
         foreach ($allDim as $key => $row):
             if (!key_exists($key, $merge)):
                 $merge[$key] = $row . ':x0';

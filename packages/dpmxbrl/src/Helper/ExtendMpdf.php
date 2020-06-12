@@ -8,6 +8,13 @@ use PhpOffice\PhpSpreadsheet\Exception as PhpSpreadsheetException;
 use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
 use PhpOffice\PhpSpreadsheet\Writer\Pdf;
 
+/**
+ * Class ExtendMpdf
+ * @category
+ * Areport @package DpmXbrl\Helper
+ * @author Fuad Begic <fuad.begic@gmail.com>
+ * Date: 12/06/2020
+ */
 class ExtendMpdf extends Pdf
 {
 

@@ -15,14 +15,16 @@ use DpmXbrl\Library\Normalise;
  */
 
 /**
- * Description of Metric
- *
- * @author begicf
+ * Class Dimension
+ * @category
+ * Areport @package DpmXbrl\Dimension
+ * @author Fuad Begic <fuad.begic@gmail.com>
+ * Date: 12/06/2020
  */
 class Dimension
 {
 
-//put your code here
+
     private static $path;
     private static $dom;
 
@@ -40,7 +42,6 @@ class Dimension
     {
 
 
-        //uslov nije dobro definisam potrebno ga je zamjenit
         if ((strpos($path, "http") !== false) or (strpos($path, "https") !== false)):
 
             $path =

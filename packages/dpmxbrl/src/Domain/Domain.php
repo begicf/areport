@@ -16,9 +16,11 @@ use DpmXbrl\Library\Format;
  */
 
 /**
- *
- *
- * @author begicf
+ * Class Domain
+ * @category
+ * Areport @package DpmXbrl\Domain
+ * @author Fuad Begic <fuad.begic@gmail.com>
+ * Date: 12/06/2020
  */
 class Domain
 {
