@@ -118,6 +118,7 @@
 
     <script type="text/javascript">
 
+        var aspectNode = null;
 
         window.onload = function () {
             const group = document.querySelector('#group');
@@ -210,6 +211,7 @@
 
 
                 if (response.data.aspectNode == true) {
+                    aspectNode = response.data.aspectNode;
 
                     $("#openY").show();
 
@@ -278,13 +280,13 @@
                 data: formData, /* serializes the form's elements. */
                 success: function (data) {
 
-                    <?php if (!empty($tableHtml['aspectNode'])): ?>
-                    $(".datepicker").datepicker("destroy");
-                    row(data['file']['row']);
-                    dataSet();
-                    <?php endif; ?>
+                    if (aspectNode == true) {
+                        //$(".datepicker").datepicker("destroy");
+                        row(data['file']['row']);
+                        dataSet();
+                    }
 
-                        for (var i in data['file']) {
+                    for (var i in data['file']) {
                         if (document.getElementById(i) != null) {
                             $('#' + i).val(data['file'][i]);
                         }
@@ -297,6 +299,36 @@
             e.preventDefault(); /* avoid to execute the actual submit of the form. */
         });
 
+
+        function row(len) {
+
+
+            $("#table tbody").find("tr:gt(0)").remove();
+            rowCount = 2
+
+
+            for (i = 0; i < len; i++) {
+
+                $('#table tbody>tr:last').clone(true).each(function () {
+
+                    $(this).find('td input, td select').each(function () {
+                        var tmpName = $(this).attr('name');
+                        var name = $(this).attr('name').replace(/(c\d*r)\d*([^]*)/, "$1" + rowCount + "$2");
+                        var id = name.substring(0, name.indexOf('['));
+                        $(this).attr('name', name);
+                        if ($(this).attr('type') != 'hidden') {
+                            $(this).val('');
+                            $(this).attr('id', id);
+                        }
+                    });
+                }).insertAfter('#table tbody>tr:last');
+                /* $('#table tbody>tr:last').each(function () {
+                 this.reset();
+                 });*/
+                rowCount++;
+            }
+
+        }
 
         $("#sheets").on("changed.bs.select",
             function (e, clickedIndex, isSelected, oldValue) {
@@ -324,6 +356,11 @@
                         }
 
                     });
+
+
+                    if (aspectNode == true) {
+                        row(response.data.row);
+                    }
 
                     var data = response.data;
                     for (var i in data) {

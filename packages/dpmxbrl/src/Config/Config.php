@@ -17,9 +17,8 @@ namespace DpmXbrl\Config;
  */
 class Config
 {
-    /* Preferencija jezika u upotrebi */
 
-    public static $monetaryItem = 'BAM';
+    public static $monetaryItem = 'EUR';
 
     public static $lang = [
         '0' => 'en',
@@ -27,7 +26,7 @@ class Config
         '2' => 'ba',
 
     ];
-    /* Renderovanje specifikacija */
+
     public static $confSet = [
         'lab-codes' => 'lab-codes',
         'rend' => 'rend',
@@ -35,7 +34,7 @@ class Config
         'pre' => 'pre',
         'tab' => 'tab'
     ];
-    /* Koristi se radi poboljsanja performansi kod Modula, nije potrebno sve specifikacije da renderuje */
+
     public static $moduleSet = [
         'pre' => 'pre',
         'rend' => 'rend',
@@ -47,14 +46,14 @@ class Config
     ];
     public static $owner = 'www.eba.europa.eu';
 
-    /* Setuj absolut path na root direktorij */
+
 
     public static function publicDir()
     {
         return storage_path('app/public/tax/');
     }
 
-    /* Setuj prefix za ownera */
+
 
     public static $prefixOwner = 'fba';
 
@@ -84,7 +83,7 @@ class Config
 
     public static function tmpPdfDir()
     {
-        // Default sys_get_temp_dir();
+
         return storage_path() . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR;
 
     }
