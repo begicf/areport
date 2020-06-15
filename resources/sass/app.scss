@@ -6,6 +6,10 @@
 
 // Bootstrap
 @import '~bootstrap/scss/bootstrap';
+
+//Jquery UI
+@import "~jquery-ui/themes/base/all.css";
+
 // Bootstrap table
 @import "~bootstrap-table/dist/bootstrap-table.min.css";
 
@@ -19,3 +23,6 @@
 
 // Bootstrap - Select
 @import "~bootstrap-select/dist/css/bootstrap-select.min.css";
+
+// Botstrap - Table
+@import "~bootstrap-table/dist/bootstrap-table.min.css";

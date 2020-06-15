@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Model\FactHeader;
 use App\Model\FactTable;
 use App\Model\Taxonomy;
+use Carbon\Carbon;
 use DpmXbrl\Library\Data;
 use DpmXbrl\Library\Format;
 use DpmXbrl\ReadExcel;
@@ -24,13 +25,14 @@ class TableController extends Controller
     public function __construct()
     {
         $this->_taxonomy = Taxonomy::all()->where('active', '=', 1)->first();
-        $this->_period = request('period');
+
+        $this->_period = Carbon::parse(request('period'))->format('Y-m-d');
+
 
     }
 
     public function table(Request $request)
     {
-
 
         $table = array_map('json_decode', $request->get('table'));
 
@@ -48,7 +50,8 @@ class TableController extends Controller
             'table' => $table,
             'groups' => $_groups,
             'period' => $this->_period,
-            'mod' => $request->get('mod'),
+            'mod' => $request->get('module_path'),
+            'module_name' => $request->get('module_name'),
             'group' => $request->get('mod')
         ]);
 
@@ -115,7 +118,8 @@ class TableController extends Controller
             unset($sheet['sheet']);
         endif;
 
-        $data = FactHeader::getCRData($this->getNormalizeTable($tc), $this->_period, $this->getNormalizeModule(request()->get('mod')), $cr_sheet);
+        $data =
+            FactHeader::getCRData($this->getNormalizeTable($tc), $this->_period, $this->getNormalizeModule(request()->get('mod')), $cr_sheet);
 
         return (request()->get('json')) ? response()->json($data) : $data;
 
@@ -150,9 +154,7 @@ class TableController extends Controller
         );
 
 
-
-
-        $render ->export($tax, null, $request->get('export_type'), null)->renderOutputAll($import)->exportFormat();
+        $render->export($tax, null, $request->get('export_type'), null)->renderOutputAll($import)->exportFormat();
 
 
     }
@@ -258,9 +260,9 @@ class TableController extends Controller
                 $cr_sheet = (json_decode($request->get('sheet'), true))['sheet'];
             endif;
 
-            $tab = Format::getAfterSpecChar($tc, $this->_taxonomy->folder, strlen($this->_taxonomy->folder) + 1);
-            $mod =
-                Format::getAfterSpecChar($request->get('module'), $this->_taxonomy->folder, strlen($this->_taxonomy->folder) + 1);
+            $tab = $this->getNormalizeTable($tc);
+            $mod = $this->getNormalizeModule($request->get('module'));
+
 
             $fact_header = FactHeader::updateOrCreate(
 
@@ -275,6 +277,7 @@ class TableController extends Controller
                     'period' => $request->get('period'),
                     'table_path' => $tab,
                     'module_path' => $mod,
+                    'module_name' => $request->get('module_name'),
                     'cr_sheet_code_last' => $cr_sheet ?? '000'
                 ]
 

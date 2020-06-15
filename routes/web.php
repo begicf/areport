@@ -11,15 +11,14 @@
 |
 */
 
-use Illuminate\Support\Facades\DB;
-
 Route::get('/', function () {
     return view('welcome');
 });
 
 
 Auth::routes();
-Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/home', 'Areport\HomeController@index')->name('home');
+Route::post('/areport/json', 'Areport\HomeController@json')->name('json');
 
 //Taxonomy
 Route::group(['prefix' => 'taxonomy', 'middleware' => 'auth'], function () {
@@ -48,4 +47,4 @@ Route::group(['prefix' => 'table', 'middleware' => 'auth'], function () {
 
 });
 
-//Route::get(['/','/home'], 'HomeController@index')->name('home');
+

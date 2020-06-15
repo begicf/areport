@@ -97,17 +97,19 @@
                                         "icon": "fas fa-external-link-alt",
                                         "action": function () {
 
-                                            $('#table').val($node.data);
-                                            $('#lang').val($node.original.lang);
-                                            $('#mod').val($node.original.mod);
-                                            $('#table_xsd').val($node.original.table_xsd);
-                                            $('#ext_code').val($node.original.ext_code);
+
 
                                             $.ajax({
                                                 url: 'modules/group',
                                                 type: 'post',
-                                                data: {module: $node.original.mod},
+                                                data: {
+                                                    module: $node.original.mod,
+                                                    module_name: $node.text
+                                                },
                                             }).done(function (response) {
+
+                                                $('#module_name').val($node.text);
+                                                $('#module_path').val($node.original.mod);
 
                                                 var optionsHTML = [];
 

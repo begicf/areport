@@ -8,8 +8,13 @@ try {
     window.Popper = require('popper.js').default;
     window.$ = window.jQuery = require('jquery');
 
+    require('jquery-ui/ui/widgets/datepicker');
     require('bootstrap');
+    require('bootstrap-table/dist/bootstrap-table.min');
     require('multiselect-two-sides/dist/js/multiselect.min')
     require('jstree/dist/jstree.min')
     require('bootstrap-select/dist/js/bootstrap-select.min')
 } catch (e) {}
+
+
+
