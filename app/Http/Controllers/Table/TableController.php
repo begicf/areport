@@ -33,16 +33,17 @@ class TableController extends Controller
 
     public function table(Request $request)
     {
+        if (is_null($request->get('view'))):
+            $table = array_map('json_decode', $request->get('table'));
 
-        $table = array_map('json_decode', $request->get('table'));
+            $groups = array_column($table, 'group');
 
-        $groups = array_column($table, 'group');
+            $tables = array_map(function ($arr) {
+                return $arr->group = json_encode($arr->table);
+            }, $table);
 
-        $tables = array_map(function ($arr) {
-            return $arr->group = json_encode($arr->table);
-        }, $table);
-
-        $_groups = array_combine($groups, $tables);
+            $_groups = array_combine($groups, $tables);
+        endif;
 
         return view('table.table', [
 
