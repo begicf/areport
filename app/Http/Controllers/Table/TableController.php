@@ -208,6 +208,7 @@ class TableController extends Controller
         $import['ext'] = pathinfo($file_name, PATHINFO_EXTENSION);
 
         if ($import['ext'] == 'xbrl'):
+
             $upload = new UploadXbrl($tpn_name);
 
             $import['file'] = $upload->Instance();

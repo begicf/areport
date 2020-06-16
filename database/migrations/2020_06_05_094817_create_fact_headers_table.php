@@ -19,13 +19,9 @@ class CreateFactHeadersTable extends Migration
             $table->id();
             $table->bigInteger('taxonomy_id')->unsigned();
             $table->bigInteger('module_id')->unsigned();
-            // $table->timestamp('period');
             $table->string('table_path');
-            //$table->string('module_path');
-            //$table->string('module_name');
             $table->string('cr_sheet_code_last', 10)->nullable();
             $table->timestamps();
-            // $table->unique(['period', 'table_path', 'module_path']);
             $table->unique(['module_id', 'table_path']);
         });
     }

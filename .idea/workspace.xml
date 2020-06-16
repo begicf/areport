@@ -1,14 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1b1e9baa-31d8-436e-af2b-53aac158d39c" name="Default Changelist" comment="Upload fix">
+    <list default="true" id="1b1e9baa-31d8-436e-af2b-53aac158d39c" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Http/Controllers/Areport/HomeController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Controllers/Areport/HomeController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/Http/Controllers/Table/TableController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Controllers/Table/TableController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/Model/FactHeader.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Model/FactHeader.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/database/migrations/2020_06_05_094817_create_fact_headers_table.php" beforeDir="false" afterPath="$PROJECT_DIR$/database/migrations/2020_06_05_094817_create_fact_headers_table.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/migrations/2020_06_05_102310_alter_fact_header_table.php" beforeDir="false" afterPath="$PROJECT_DIR$/database/migrations/2020_06_05_102310_alter_fact_header_table.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/views/areport/home.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/areport/home.blade.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/resources/views/table/table.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/table/table.blade.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -225,7 +222,7 @@
       <workItem from="1591711627845" duration="43720000" />
       <workItem from="1591953121506" duration="14308000" />
       <workItem from="1592203864370" duration="7033000" />
-      <workItem from="1592213637916" duration="24844000" />
+      <workItem from="1592213637916" duration="29485000" />
     </task>
     <task id="LOCAL-00001" summary="Upload fix">
       <created>1580663440250</created>
@@ -360,7 +357,14 @@
       <option name="project" value="LOCAL" />
       <updated>1592245565497</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="Upload fix">
+      <created>1592311732920</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1592311732920</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -432,13 +436,13 @@
     </state>
     <state x="823" y="438" key="#com.jetbrains.php.debug.validation.PhpWebServerValidationDialog#/0.0.1920.1080@0.0.1920.1080" timestamp="1586632725251" />
     <state x="3657" y="598" width="554" height="341" key="#com.jetbrains.php.debug.validation.PhpWebServerValidationDialog#/0.23.2560.1349/2560.23.2560.1417@2560.23.2560.1417" timestamp="1591792509156" />
-    <state x="521" y="183" key="CommitChangelistDialog2" timestamp="1592245564658">
+    <state x="521" y="183" key="CommitChangelistDialog2" timestamp="1592311732194">
       <screen x="0" y="23" width="2560" height="1349" />
     </state>
     <state x="851" y="215" key="CommitChangelistDialog2/0.23.1920.982@0.23.1920.982" timestamp="1584560457164" />
     <state x="851" y="215" key="CommitChangelistDialog2/0.23.1920.984@0.23.1920.984" timestamp="1584566105631" />
     <state x="391" y="141" key="CommitChangelistDialog2/0.23.1920.994@0.23.1920.994" timestamp="1585930074226" />
-    <state x="521" y="183" key="CommitChangelistDialog2/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1592245564658" />
+    <state x="521" y="183" key="CommitChangelistDialog2/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1592311732194" />
     <state x="3081" y="191" key="CommitChangelistDialog2/0.23.2560.1349/2560.23.2560.1417@2560.23.2560.1417" timestamp="1591971923262" />
     <state x="133" y="148" width="2294" height="1100" key="DiffContextDialog" timestamp="1591967389132">
       <screen x="0" y="23" width="2560" height="1349" />

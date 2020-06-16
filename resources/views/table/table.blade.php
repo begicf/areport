@@ -160,7 +160,6 @@
                 'table_data': $("#table_form").serialize(),
                 'period': '{{$period}}',
                 'module': '{{$mod}}',
-                'groups':'{{json_encode($groups)}}',
                 'module_name': '{{$module_name}}',
                 'sheet': (sheet ? sheet : $('#sheets').find(':selected').val()),
                 'tab': $('#export_table_path').val(),

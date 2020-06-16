@@ -19,7 +19,7 @@ class FactHeader extends Model
     public function factModule()
     {
 
-        return $this->belongsTo('App\Model\FactModule','module_id','id');
+        return $this->belongsTo('App\Model\FactModule', 'id');
 
     }
 
@@ -35,44 +35,48 @@ class FactHeader extends Model
 
         $data = [];
         $r = 0;
-        dump($table_path, $period, $module_path);
 
-        $fact_module = self::whereHas('factModule', function ($query) use ($period, $module_path) {
-            $query->period = $period;
-            $query->module_path = $module_path;
-        })->first();
+        $fact_module = FactModule::where([
+            ['period', '=', $period],
+            ['module_path', '=', $module_path]
+        ])->first();
 
 
-        dd($fact_module);
+        if (!is_null($fact_module)):
 
-        $result = $fact_module::with('factTable')->where(['table_path', '=', $table_path])->first();
+            $result =
+                self::with('factTable')->where([
+                    ['table_path', '=', $table_path],
+                    ['module_id', '=', $fact_module->id]
+                ])->first();
 
-        if (isset($result->factTable)):
+            if (isset($result->factTable)):
 
-            $sheet = (is_null($sheet)) ? $result->cr_sheet_code_last : $sheet;
+                $sheet = (is_null($sheet)) ? $result->cr_sheet_code_last : $sheet;
 
-            $filter = is_null($all) ? $result->factTable->where('cr_sheet_code', $sheet) : $result->factTable;
+                $filter = is_null($all) ? $result->factTable->where('cr_sheet_code', $sheet) : $result->factTable;
 
-            foreach ($filter as $row):
+                foreach ($filter as $row):
 
-                if (is_null($all)):
-                    $data[$row->cr_code]['integer'] = floatval($row->string_value);
-                    $data[$row->cr_code]['string'] = $row->string_value;
-                else:
+                    if (is_null($all)):
+                        $data[$row->cr_code]['integer'] = floatval($row->string_value);
+                        $data[$row->cr_code]['string'] = $row->string_value;
+                    else:
 
-                    $data[$row->cr_sheet_code][$row->cr_code]['integer'] = floatval($row->string_value);
-                    $data[$row->cr_sheet_code][$row->cr_code]['string'] = $row->string_value;
-                endif;
-                $r = substr($row->cr_code, strpos($row->cr_code, "r") + 1);;
+                        $data[$row->cr_sheet_code][$row->cr_code]['integer'] = floatval($row->string_value);
+                        $data[$row->cr_sheet_code][$row->cr_code]['string'] = $row->string_value;
+                    endif;
+                    $r = substr($row->cr_code, strpos($row->cr_code, "r") + 1);;
 
-            endforeach;
+                endforeach;
 
-            $data['row'] = $r - 1;
+                $data['row'] = $r - 1;
 
-            $data['sheets'] = is_null($all) ? ($sheet != '000') ? self::getSheet($result) : '000' : '';
+                $data['sheets'] = is_null($all) ? ($sheet != '000') ? self::getSheet($result) : '000' : '';
 
-            return $data;
+                return $data;
 
+            endif;
         endif;
         return $data;
 
