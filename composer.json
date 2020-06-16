@@ -13,9 +13,8 @@
         "fideloper/proxy": "^4.0",
         "laravel/framework": "^7.0",
         "laravel/tinker": "^2.0",
-        "laravel/ui": "^2.0",
-        "mpdf/mpdf": "^8.0",
-        "phpoffice/phpspreadsheet": "^1.13"
+        "laravel/ui": "^2.0"
+
     },
     "require-dev": {
         "facade/ignition": "^2.0",

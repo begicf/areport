@@ -12,7 +12,6 @@ use DpmXbrl\Library\Data;
 use DpmXbrl\Library\Format;
 use DpmXbrl\ReadExcel;
 use DpmXbrl\Render;
-use DpmXbrl\UploadXbrl;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 
@@ -112,7 +111,7 @@ class TableController extends Controller
             $data['table_path'] = $tc;
             return response($data);
         else:
-            abort(404);
+            return abort(404);
         endif;
 
     }
@@ -298,7 +297,6 @@ class TableController extends Controller
                     'table_path' => $tab,
                 ],
                 [
-                    'taxonomy_id' => $this->_taxonomy->id,
                     'module_id' => $fact_module->id,
                     'table_path' => $tab,
                     'cr_sheet_code_last' => $cr_sheet ?? '000'
@@ -320,9 +318,11 @@ class TableController extends Controller
                 [
                     'period' => \request('period'),
                     'module_path' => $mod,
+                    'taxonomy_id' => $this->_taxonomy->id,
                 ],
                 [
                     'period' => \request('period'),
+                    'taxonomy_id' => $this->_taxonomy->id,
                     'module_name' => \request('module_name'),
                     'module_path' => $mod,
                     'groups' => json_encode(Session::get('groups'))

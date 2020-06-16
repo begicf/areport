@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class FactHeader extends Model
 {
     protected $table = 'fact_header';
-    protected $fillable = ['taxonomy_id', 'module_id', 'table_path', 'module_path', 'module_name', 'period', 'cr_sheet_code_last'];
+    protected $fillable = ['module_id', 'table_path', 'module_path', 'module_name', 'period', 'cr_sheet_code_last'];
 
 
     public function factTable()

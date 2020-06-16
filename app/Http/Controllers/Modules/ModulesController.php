@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Modules;
 
 use App\Http\Controllers\Controller;
+use App\Model\FactModule;
 use App\Model\Taxonomy;
+use DpmXbrl\Config\Config;
 use DpmXbrl\Library\ArrayManipulation;
 use DpmXbrl\Library\Data;
 use DpmXbrl\Library\Format;
@@ -17,7 +19,7 @@ class ModulesController extends Controller
 
     public function __construct()
     {
-        $this->_taxonomy = Taxonomy::all()->where('active', '=',1)->first();
+        $this->_taxonomy = Taxonomy::all()->where('active', '=', 1)->first();
 
 
     }
@@ -36,7 +38,20 @@ class ModulesController extends Controller
     public function group(Request $request)
     {
 
-        $module = Data::getTax($request->get('module'));
+
+        if (is_file($request->get('module'))):
+
+            $module = Data::getTax($request->get('module'));
+
+        else:
+            $tax = FactModule::where('module_path', '=', $request->get('module'))->with('taxonomy')->first();
+
+            $module = Data::getTax(Config::publicDir() . DIRECTORY_SEPARATOR . $tax->taxonomy->folder . DIRECTORY_SEPARATOR . $request->get('module'));
+
+        endif;
+
+
+
 
         $parent = ArrayManipulation::searchHref($module['pre'], key($module['elements']));
 
