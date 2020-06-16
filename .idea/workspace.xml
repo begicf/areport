@@ -3,10 +3,12 @@
   <component name="ChangeListManager">
     <list default="true" id="1b1e9baa-31d8-436e-af2b-53aac158d39c" name="Default Changelist" comment="Upload fix">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Http/Controllers/Areport/HomeController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Controllers/Areport/HomeController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/Http/Controllers/Table/TableController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Controllers/Table/TableController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/Model/FactHeader.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Model/FactHeader.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Model/FactTable.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Model/FactTable.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/database/migrations/2020_06_05_094817_create_fact_headers_table.php" beforeDir="false" afterPath="$PROJECT_DIR$/database/migrations/2020_06_05_094817_create_fact_headers_table.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/migrations/2020_06_05_102310_alter_fact_header_table.php" beforeDir="false" afterPath="$PROJECT_DIR$/database/migrations/2020_06_05_102310_alter_fact_header_table.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/views/areport/home.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/areport/home.blade.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/resources/views/table/table.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/table/table.blade.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -37,11 +39,11 @@
   <component name="PhpDebugGeneral" listening_started="true" />
   <component name="PhpServers">
     <servers>
-      <server host="dpm.local.ba" id="125f6c55-cb2f-4c4a-bb9b-5bd262bc2bc8" name="DPM" port="9000" use_path_mappings="true" />
-      <server host="dpm.local.ba" id="132a1f45-22cc-438b-86e9-eaa21c824568" name="dpm.local.ba" />
+      <server host="areport.local.net" id="125f6c55-cb2f-4c4a-bb9b-5bd262bc2bc8" name="Areport" port="9000" use_path_mappings="true" />
+      <server host="areport.local.net" id="132a1f45-22cc-438b-86e9-eaa21c824568" name="areport.local.net" />
     </servers>
   </component>
-  <component name="PhpWebServerValidation" path_to_validation_script="$PROJECT_DIR$" selected_validation_type="LOCAL" web_path_to_validation_script="http://dpm.local.ba" />
+  <component name="PhpWebServerValidation" path_to_validation_script="$PROJECT_DIR$" selected_validation_type="LOCAL" web_path_to_validation_script="http://areport.local.net:80" />
   <component name="PhpWorkspaceProjectConfiguration" interpreter_name="PHP 7.4">
     <include_path>
       <path value="$PROJECT_DIR$/vendor/sebastian/object-enumerator" />
@@ -162,35 +164,34 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/packages/dpmxbrl" />
     <property name="nodejs_package_manager_path" value="yarn" />
-    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
+    <property name="settings.editor.selected.configurable" value="fileTemplates" />
   </component>
   <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/public/images" />
-      <recent name="$PROJECT_DIR$" />
-      <recent name="$PROJECT_DIR$/resources/views/taxonomy" />
-      <recent name="$PROJECT_DIR$/packages/simpleMenu/images" />
-      <recent name="$PROJECT_DIR$/packages/simpleMenu/src" />
-    </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/packages/dpmxbrl" />
       <recent name="$PROJECT_DIR$/packages/dpmxbrl/src" />
     </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/app/Model" />
+      <recent name="$PROJECT_DIR$/public/images" />
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/resources/views/taxonomy" />
+      <recent name="$PROJECT_DIR$/packages/simpleMenu/images" />
+    </key>
   </component>
   <component name="RunManager">
-    <configuration name="phpunit.xml" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
-      <CommandLine>
-        <PhpTestInterpreterSettings>
-          <option name="interpreterName" value="PHP 7.4" />
-        </PhpTestInterpreterSettings>
-      </CommandLine>
-      <TestRunner configuration_file="$PROJECT_DIR$/phpunit.xml" scope="XML" />
+    <configuration default="true" type="PhpBuiltInWebServerConfigurationType" factoryName="PHP Built-in Web Server" document_root="$PROJECT_DIR$" host="areport.local.net">
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="PhpHttpRequestRunConfigurationType" factoryName="PHP HTTP Request" server_name="areport.local.net">
+      <method v="2" />
+    </configuration>
+    <configuration name="Areport" type="PhpWebAppRunConfigurationType" factoryName="PHP Web Application" browser="a7bb68e0-33c0-4d6f-a81a-aac1fdb870c8" server_name="areport.local.net">
       <method v="2" />
     </configuration>
   </component>
   <component name="StructureViewFactory">
     <option name="AUTOSCROLL_MODE" value="false" />
-    <option name="AUTOSCROLL_FROM_SOURCE" value="true" />
   </component>
   <component name="SvnConfiguration">
     <configuration />
@@ -219,6 +220,12 @@
       <workItem from="1591340291029" duration="12886000" />
       <workItem from="1591598227482" duration="4870000" />
       <workItem from="1591608271352" duration="5744000" />
+      <workItem from="1591619493216" duration="8015000" />
+      <workItem from="1591688676438" duration="7388000" />
+      <workItem from="1591711627845" duration="43720000" />
+      <workItem from="1591953121506" duration="14308000" />
+      <workItem from="1592203864370" duration="7033000" />
+      <workItem from="1592213637916" duration="24844000" />
     </task>
     <task id="LOCAL-00001" summary="Upload fix">
       <created>1580663440250</created>
@@ -304,7 +311,56 @@
       <option name="project" value="LOCAL" />
       <updated>1591599942591</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Upload fix">
+      <created>1591711233054</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1591711233055</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Upload fix">
+      <created>1591962996786</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1591962996787</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Upload fix">
+      <created>1591964861820</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1591964861820</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Upload fix">
+      <created>1591970513317</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1591970513317</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Upload fix">
+      <created>1591971923592</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1591971923593</updated>
+    </task>
+    <task id="LOCAL-00018" summary="Upload fix">
+      <created>1592229975186</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1592229975186</updated>
+    </task>
+    <task id="LOCAL-00019" summary="Upload fix">
+      <created>1592245565497</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1592245565497</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -318,22 +374,33 @@
     <option name="LAST_COMMIT_MESSAGE" value="Upload fix" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="548" y="203" key="#CLI_Interpreters" timestamp="1586632276791">
-      <screen x="0" y="0" width="1920" height="1080" />
+    <state x="3291" y="289" key="#CLI_Interpreters" timestamp="1591792251933">
+      <screen x="2560" y="23" width="2560" height="1417" />
     </state>
     <state x="548" y="203" key="#CLI_Interpreters/0.0.1920.1080@0.0.1920.1080" timestamp="1586632276791" />
+    <state x="3291" y="289" key="#CLI_Interpreters/0.23.2560.1349/2560.23.2560.1417@2560.23.2560.1417" timestamp="1591792251933" />
+    <state x="808" y="416" key="#Inspections" timestamp="1592294162079">
+      <screen x="0" y="23" width="2560" height="1349" />
+    </state>
+    <state x="808" y="416" key="#Inspections/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1592294162079" />
     <state x="650" y="130" key="#PHP" timestamp="1586632279324">
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
     <state x="650" y="130" key="#PHP/0.0.1920.1080@0.0.1920.1080" timestamp="1586632279324" />
+    <state x="3248" y="289" key="#Servers" timestamp="1591791618493">
+      <screen x="2560" y="23" width="2560" height="1417" />
+    </state>
+    <state x="3248" y="289" key="#Servers/0.23.2560.1349/2560.23.2560.1417@2560.23.2560.1417" timestamp="1591791618493" />
     <state x="691" y="382" key="#TODO" timestamp="1591125153364">
       <screen x="0" y="23" width="2560" height="1349" />
     </state>
     <state x="691" y="382" key="#TODO/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591125153364" />
-    <state x="424" y="203" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1586632557125">
-      <screen x="0" y="0" width="1920" height="1080" />
+    <state x="620" y="382" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1591792545109">
+      <screen x="0" y="23" width="2560" height="1349" />
     </state>
     <state x="424" y="203" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1080@0.0.1920.1080" timestamp="1586632557125" />
+    <state x="620" y="382" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591792545109" />
+    <state x="3125" y="289" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.2560.1349/2560.23.2560.1417@2560.23.2560.1417" timestamp="1591792487560" />
     <state x="1011" y="562" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1589281444852">
       <screen x="0" y="23" width="2560" height="1349" />
     </state>
@@ -342,39 +409,42 @@
       <screen x="0" y="23" width="1920" height="995" />
     </state>
     <state x="526" y="306" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog/0.23.1920.995@0.23.1920.995" timestamp="1585916615352" />
-    <state x="661" y="23" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1585944583603">
-      <screen x="0" y="23" width="1920" height="994" />
+    <state x="881" y="23" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1591969885988">
+      <screen x="0" y="23" width="2560" height="1349" />
     </state>
     <state x="1090" y="23" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.23.1920.982@0.23.1920.982" timestamp="1584560863860" />
     <state x="1090" y="23" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.23.1920.992@0.23.1920.992" timestamp="1585736937779" />
     <state x="661" y="23" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.23.1920.994@0.23.1920.994" timestamp="1585944583603" />
-    <state x="648" y="306" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1585685702137">
-      <screen x="0" y="23" width="1920" height="989" />
+    <state x="881" y="23" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591969885988" />
+    <state x="864" y="409" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1592290631432">
+      <screen x="0" y="23" width="2560" height="1349" />
     </state>
     <state x="648" y="304" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.23.1920.982@0.23.1920.982" timestamp="1584560357254" />
     <state x="648" y="306" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.23.1920.989@0.23.1920.989" timestamp="1585685702137" />
+    <state x="864" y="409" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1592290631432" />
     <state x="711" y="555" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog" timestamp="1591341101650">
       <screen x="0" y="23" width="2560" height="1349" />
     </state>
     <state x="533" y="415" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog/0.23.1920.994@0.23.1920.994" timestamp="1585985573866" />
     <state x="711" y="555" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591341101650" />
-    <state x="823" y="438" key="#com.jetbrains.php.debug.validation.PhpWebServerValidationDialog#" timestamp="1586632725251">
-      <screen x="0" y="0" width="1920" height="1080" />
+    <state x="3657" y="598" width="554" height="341" key="#com.jetbrains.php.debug.validation.PhpWebServerValidationDialog#" timestamp="1591792509156">
+      <screen x="2560" y="23" width="2560" height="1417" />
     </state>
     <state x="823" y="438" key="#com.jetbrains.php.debug.validation.PhpWebServerValidationDialog#/0.0.1920.1080@0.0.1920.1080" timestamp="1586632725251" />
-    <state x="521" y="183" key="CommitChangelistDialog2" timestamp="1591608930860">
+    <state x="3657" y="598" width="554" height="341" key="#com.jetbrains.php.debug.validation.PhpWebServerValidationDialog#/0.23.2560.1349/2560.23.2560.1417@2560.23.2560.1417" timestamp="1591792509156" />
+    <state x="521" y="183" key="CommitChangelistDialog2" timestamp="1592245564658">
       <screen x="0" y="23" width="2560" height="1349" />
     </state>
     <state x="851" y="215" key="CommitChangelistDialog2/0.23.1920.982@0.23.1920.982" timestamp="1584560457164" />
     <state x="851" y="215" key="CommitChangelistDialog2/0.23.1920.984@0.23.1920.984" timestamp="1584566105631" />
     <state x="391" y="141" key="CommitChangelistDialog2/0.23.1920.994@0.23.1920.994" timestamp="1585930074226" />
-    <state x="521" y="183" key="CommitChangelistDialog2/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591608930860" />
-    <state x="3081" y="191" key="CommitChangelistDialog2/0.23.2560.1349/2560.23.2560.1417@2560.23.2560.1417" timestamp="1590993026948" />
-    <state x="133" y="148" width="2294" height="1100" key="DiffContextDialog" timestamp="1591600743598">
+    <state x="521" y="183" key="CommitChangelistDialog2/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1592245564658" />
+    <state x="3081" y="191" key="CommitChangelistDialog2/0.23.2560.1349/2560.23.2560.1417@2560.23.2560.1417" timestamp="1591971923262" />
+    <state x="133" y="148" width="2294" height="1100" key="DiffContextDialog" timestamp="1591967389132">
       <screen x="0" y="23" width="2560" height="1349" />
     </state>
     <state x="100" y="100" width="1720" height="880" key="DiffContextDialog/0.0.1920.1080@0.0.1920.1080" timestamp="1586677793960" />
-    <state x="133" y="148" width="2294" height="1100" key="DiffContextDialog/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591600743598" />
+    <state x="133" y="148" width="2294" height="1100" key="DiffContextDialog/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591967389132" />
     <state width="2200" height="298" key="GridCell.Tab.0.bottom" timestamp="1589880424019">
       <screen x="2560" y="23" width="2560" height="1417" />
     </state>
@@ -459,7 +529,7 @@
       <screen x="0" y="23" width="2560" height="1349" />
     </state>
     <state x="931" y="496" key="MultipleFileMergeDialog/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591600009994" />
-    <state x="1223" y="636" key="NewPhpFileDialog" timestamp="1591084483518">
+    <state x="1223" y="636" key="NewPhpFileDialog" timestamp="1592212871653">
       <screen x="0" y="23" width="2560" height="1349" />
     </state>
     <state x="917" y="467" key="NewPhpFileDialog/0.23.1920.978@0.23.1920.978" timestamp="1584477239587" />
@@ -467,13 +537,13 @@
     <state x="917" y="473" key="NewPhpFileDialog/0.23.1920.992@0.23.1920.992" timestamp="1585736727185" />
     <state x="917" y="474" key="NewPhpFileDialog/0.23.1920.994@0.23.1920.994" timestamp="1585735611336" />
     <state x="917" y="475" key="NewPhpFileDialog/0.23.1920.995@0.23.1920.995" timestamp="1585941752501" />
-    <state x="1223" y="636" key="NewPhpFileDialog/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591084483518" />
-    <state x="800" y="331" key="RollbackChangesDialog" timestamp="1591349797263">
+    <state x="1223" y="636" key="NewPhpFileDialog/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1592212871653" />
+    <state x="800" y="331" key="RollbackChangesDialog" timestamp="1591967424951">
       <screen x="0" y="23" width="2560" height="1349" />
     </state>
-    <state x="800" y="331" key="RollbackChangesDialog/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591349797263" />
-    <state x="812" y="329" key="SettingsEditor" timestamp="1589787444630">
-      <screen x="0" y="23" width="2560" height="1349" />
+    <state x="800" y="331" key="RollbackChangesDialog/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591967424951" />
+    <state x="3194" y="393" key="SettingsEditor" timestamp="1591962304561">
+      <screen x="2560" y="23" width="2560" height="1417" />
     </state>
     <state x="609" y="245" key="SettingsEditor/0.0.1920.1080@0.0.1920.1080" timestamp="1586632732799" />
     <state x="776" y="248" key="SettingsEditor/0.23.1920.989@0.23.1920.989" timestamp="1585685904605" />
@@ -481,30 +551,44 @@
     <state x="776" y="249" key="SettingsEditor/0.23.1920.992@0.23.1920.992" timestamp="1585744101624" />
     <state x="776" y="250" key="SettingsEditor/0.23.1920.995@0.23.1920.995" timestamp="1585918507780" />
     <state x="812" y="329" key="SettingsEditor/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1589787444630" />
-    <state x="1126" y="433" key="Vcs.Push.Dialog.v2" timestamp="1591366634107">
+    <state x="3194" y="393" key="SettingsEditor/0.23.2560.1349/2560.23.2560.1417@2560.23.2560.1417" timestamp="1591962304561" />
+    <state width="550" height="445" key="SwitcherDM" timestamp="1592225269989">
       <screen x="0" y="23" width="2560" height="1349" />
     </state>
-    <state x="1126" y="433" key="Vcs.Push.Dialog.v2/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591366634107" />
+    <state width="550" height="445" key="SwitcherDM/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1592225269989" />
+    <state x="1126" y="433" key="Vcs.Push.Dialog.v2" timestamp="1592245603805">
+      <screen x="0" y="23" width="2560" height="1349" />
+    </state>
+    <state x="1126" y="433" key="Vcs.Push.Dialog.v2/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1592245603805" />
+    <state x="3686" y="454" key="Vcs.Push.Dialog.v2/0.23.2560.1349/2560.23.2560.1417@2560.23.2560.1417" timestamp="1591971995917" />
+    <state x="2820" y="249" width="1993" height="982" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1592203720915">
+      <screen x="2560" y="23" width="2560" height="1417" />
+    </state>
+    <state x="2820" y="249" width="1993" height="982" key="com.intellij.history.integration.ui.views.FileHistoryDialog/0.23.2560.1349/2560.23.2560.1417@2560.23.2560.1417" timestamp="1592203720915" />
     <state x="880" y="387" key="com.intellij.ide.util.TipDialog" timestamp="1584432267565">
       <screen x="0" y="23" width="1920" height="982" />
     </state>
     <state x="880" y="387" key="com.intellij.ide.util.TipDialog/0.23.1920.982@0.23.1920.982" timestamp="1584432267565" />
+    <state x="978" y="652" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1592293875684">
+      <screen x="0" y="23" width="2560" height="1349" />
+    </state>
+    <state x="978" y="652" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1592293875684" />
     <state x="516" y="284" key="com.intellij.xdebugger.impl.breakpoints.ui.BreakpointsDialogFactory$2" timestamp="1586636360346">
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
     <state x="516" y="284" key="com.intellij.xdebugger.impl.breakpoints.ui.BreakpointsDialogFactory$2/0.0.1920.1080@0.0.1920.1080" timestamp="1586636360346" />
-    <state x="928" y="420" key="git4idea.merge.GitPullDialog" timestamp="1591600003384">
+    <state x="928" y="420" key="git4idea.merge.GitPullDialog" timestamp="1592204697549">
       <screen x="0" y="23" width="2560" height="1349" />
     </state>
     <state x="696" y="311" key="git4idea.merge.GitPullDialog/0.23.1920.977@0.23.1920.977" timestamp="1584445721623" />
     <state x="696" y="312" key="git4idea.merge.GitPullDialog/0.23.1920.982@0.23.1920.982" timestamp="1584560292873" />
-    <state x="928" y="420" key="git4idea.merge.GitPullDialog/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591600003384" />
-    <state x="3488" y="440" key="git4idea.merge.GitPullDialog/0.23.2560.1349/2560.23.2560.1417@2560.23.2560.1417" timestamp="1590993062948" />
+    <state x="928" y="420" key="git4idea.merge.GitPullDialog/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1592204697549" />
+    <state x="3488" y="440" key="git4idea.merge.GitPullDialog/0.23.2560.1349/2560.23.2560.1417@2560.23.2560.1417" timestamp="1592202016564" />
     <state x="637" y="341" key="run.anything.popup" timestamp="1591614932354">
       <screen x="0" y="23" width="2560" height="1349" />
     </state>
     <state x="637" y="341" key="run.anything.popup/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591614932354" />
-    <state x="1063" y="423" width="894" height="687" key="search.everywhere.popup" timestamp="1591360793306">
+    <state x="1063" y="423" width="894" height="687" key="search.everywhere.popup" timestamp="1592290704417">
       <screen x="0" y="23" width="2560" height="1349" />
     </state>
     <state x="797" y="314" width="670" height="497" key="search.everywhere.popup/0.23.1920.982@0.23.1920.982" timestamp="1584521611970" />
@@ -513,6 +597,7 @@
     <state x="797" y="318" width="670" height="506" key="search.everywhere.popup/0.23.1920.994@0.23.1920.994" timestamp="1586418593733" />
     <state x="797" y="318" width="670" height="506" key="search.everywhere.popup/0.23.1920.995@0.23.1920.995" timestamp="1585939522142" />
     <state x="797" y="318" width="670" height="506" key="search.everywhere.popup/0.23.1920.996@0.23.1920.996" timestamp="1585938268629" />
-    <state x="1063" y="423" width="894" height="687" key="search.everywhere.popup/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1591360793306" />
+    <state x="1063" y="423" width="894" height="687" key="search.everywhere.popup/0.23.2560.1349/2560.23.2560.1417@0.23.2560.1349" timestamp="1592290704417" />
+    <state x="3623" y="443" width="894" height="722" key="search.everywhere.popup/0.23.2560.1349/2560.23.2560.1417@2560.23.2560.1417" timestamp="1592213944462" />
   </component>
 </project>

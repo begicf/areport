@@ -15,6 +15,7 @@ class AlterFactHeaderTable extends Migration
     {
         Schema::table('fact_header', function (Blueprint $table) {
             $table->foreign('taxonomy_id')->references('id')->on('taxonomies');
+            $table->foreign('module_id')->references('id')->on('fact_module');
         });
     }
 

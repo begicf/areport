@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Table;
 
 use App\Http\Controllers\Controller;
 use App\Model\FactHeader;
+use App\Model\FactModule;
 use App\Model\FactTable;
 use App\Model\Taxonomy;
 use Carbon\Carbon;
@@ -13,6 +14,7 @@ use DpmXbrl\ReadExcel;
 use DpmXbrl\Render;
 use DpmXbrl\UploadXbrl;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 
 
 class TableController extends Controller
@@ -34,6 +36,7 @@ class TableController extends Controller
     public function table(Request $request)
     {
         if (is_null($request->get('view'))):
+
             $table = array_map('json_decode', $request->get('table'));
 
             $groups = array_column($table, 'group');
@@ -43,15 +46,25 @@ class TableController extends Controller
             }, $table);
 
             $_groups = array_combine($groups, $tables);
+
+            $module_path = $request->get('module_path');
+            Session::flash('groups', $_groups);
+
+
+        else:
+
+            $fact_module = FactModule::find($request->get('id'));
+            $_groups = json_decode($fact_module->groups);
+            $module_path = $fact_module->module_path;
+
         endif;
 
         return view('table.table', [
 
             'taxonomy' => $this->_tablePath,
-            'table' => $table,
             'groups' => $_groups,
             'period' => $this->_period,
-            'mod' => $request->get('module_path'),
+            'mod' => $module_path,
             'module_name' => $request->get('module_name'),
             'group' => $request->get('mod')
         ]);
@@ -135,8 +148,10 @@ class TableController extends Controller
 
     private function getNormalizeModule($module)
     {
-
-        return Format::getAfterSpecChar($module, $this->_taxonomy->folder, strlen($this->_taxonomy->folder) + 1);
+        if (strpos($module, $this->_taxonomy->folder)):
+            return Format::getAfterSpecChar($module, $this->_taxonomy->folder, strlen($this->_taxonomy->folder) + 1);
+        endif;
+        return $module;
     }
 
     public function exportTable(Request $request)
@@ -253,6 +268,10 @@ class TableController extends Controller
     {
 
 
+        $mod = $this->getNormalizeModule($request->get('module'));
+
+        $this->saveModule();
+
         if ($request->get('table_data')):
 
             $tc = $request->get('tab');
@@ -262,23 +281,25 @@ class TableController extends Controller
             endif;
 
             $tab = $this->getNormalizeTable($tc);
-            $mod = $this->getNormalizeModule($request->get('module'));
 
+
+            $fact_module = FactModule::where(
+                [['period', $this->_period], ['module_path', $mod]])->first();
+
+            if (empty($fact_module->id)):
+                throw new \Exception('An error has occurred! Fetching Fact Module! ');
+            endif;
 
             $fact_header = FactHeader::updateOrCreate(
 
                 [
-                    'period' => $request->get('period'),
+                    'module_id' => $fact_module->id,
                     'table_path' => $tab,
-                    'module_path' => $mod,
-
                 ],
                 [
                     'taxonomy_id' => $this->_taxonomy->id,
-                    'period' => $request->get('period'),
+                    'module_id' => $fact_module->id,
                     'table_path' => $tab,
-                    'module_path' => $mod,
-                    'module_name' => $request->get('module_name'),
                     'cr_sheet_code_last' => $cr_sheet ?? '000'
                 ]
 
@@ -286,6 +307,29 @@ class TableController extends Controller
 
             FactTable::storeInstance($request->get('table_data'), $fact_header->id, $request->get('sheet'));
         endif;
+    }
+
+    private function saveModule()
+    {
+
+        $mod = $this->getNormalizeModule(\request('module'));
+
+        if (Session::has('groups')):
+            FactModule::updateOrCreate(
+                [
+                    'period' => \request('period'),
+                    'module_path' => $mod,
+                ],
+                [
+                    'period' => \request('period'),
+                    'module_name' => \request('module_name'),
+                    'module_path' => $mod,
+                    'groups' => json_encode(Session::get('groups'))
+                ]);
+
+        endif;
+
+
     }
 
 }

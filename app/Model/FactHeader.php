@@ -7,22 +7,20 @@ use Illuminate\Database\Eloquent\Model;
 class FactHeader extends Model
 {
     protected $table = 'fact_header';
-    protected $fillable = ['taxonomy_id', 'table_path', 'module_path', 'module_name', 'period', 'cr_sheet_code_last'];
-
-    protected $casts = [
-        'period' => 'date:d-m-Y',
-    ];
+    protected $fillable = ['taxonomy_id', 'module_id', 'table_path', 'module_path', 'module_name', 'period', 'cr_sheet_code_last'];
 
 
-    public function setDateAttribute($value)
-    {
-        $this->attributes['period'] = (new Carbon($value))->format('d-m-Y');
-    }
-
-    public function facttable()
+    public function factTable()
     {
 
         return $this->hasMany('App\Model\FactTable', 'fact_header_id', 'id');
+    }
+
+    public function factModule()
+    {
+
+        return $this->belongsTo('App\Model\FactModule','module_id','id');
+
     }
 
     /**
@@ -37,15 +35,23 @@ class FactHeader extends Model
 
         $data = [];
         $r = 0;
+        dump($table_path, $period, $module_path);
 
-        $result =
-            self::with('facttable')->where(['table_path' => $table_path, 'period' => $period, 'module_path' => $module_path])->first();
+        $fact_module = self::whereHas('factModule', function ($query) use ($period, $module_path) {
+            $query->period = $period;
+            $query->module_path = $module_path;
+        })->first();
 
-        if (isset($result->facttable)):
+
+        dd($fact_module);
+
+        $result = $fact_module::with('factTable')->where(['table_path', '=', $table_path])->first();
+
+        if (isset($result->factTable)):
 
             $sheet = (is_null($sheet)) ? $result->cr_sheet_code_last : $sheet;
 
-            $filter = is_null($all) ? $result->facttable->where('cr_sheet_code', $sheet) : $result->facttable;
+            $filter = is_null($all) ? $result->factTable->where('cr_sheet_code', $sheet) : $result->factTable;
 
             foreach ($filter as $row):
 
@@ -81,7 +87,7 @@ class FactHeader extends Model
     {
         $data = [];
 
-        foreach ($result->facttable as $row):
+        foreach ($result->factTable as $row):
 
             $data[$row->cr_sheet_code] = 'found';
         endforeach;

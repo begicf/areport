@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Areport;
 
 use App\Http\Controllers\Controller;
 use App\Model\FactHeader;
+use App\Model\FactModule;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -31,17 +32,14 @@ class HomeController extends Controller
 
     public function json(Request $request)
     {
-        $data = FactHeader::query();
+        $data = FactModule::query();
 
-        $data->selectRaw('period,module_name,module_path');
 
         if ($request->sort):
             $data->orderBy($request->sort, $request->order);
         endif;
 
         $data->offset($request->offset)->limit($request->limit);
-
-        $data->groupBy(['period', 'module_path', 'module_name']);
 
 
         $result = $data->get()->toArray();
