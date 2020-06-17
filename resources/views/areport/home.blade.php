@@ -21,7 +21,7 @@
             <tr>
 
                 <th data-field="period" data-width="200" data-sortable="true" data-align="center">Period</th>
-                <th data-field="module_name" data-width="400" data-align="center" data-sortable="true">Modul</th>
+                <th data-field="module_name" data-width="400" data-sortable="true">Modul</th>
                 <th data-field="module_path" data-align="center" data-sortable="true">Modul path</th>
                 <th data-field="open" data-width="200" data-align="center" data-formatter="actionOpen">Open</th>
             </tr>

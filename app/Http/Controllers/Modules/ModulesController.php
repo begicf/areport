@@ -5,12 +5,12 @@ namespace App\Http\Controllers\Modules;
 use App\Http\Controllers\Controller;
 use App\Model\FactModule;
 use App\Model\Taxonomy;
-use DpmXbrl\Config\Config;
-use DpmXbrl\Library\ArrayManipulation;
-use DpmXbrl\Library\Data;
-use DpmXbrl\Library\Format;
+use AReportDpmXBRL\Config\Config;
+use AReportDpmXBRL\Library\ArrayManipulation;
+use AReportDpmXBRL\Library\Data;
+use AReportDpmXBRL\Library\Format;
+use AReportDpmXBRL\ModuleTree;
 use Illuminate\Http\Request;
-use DpmXbrl\Mod;
 
 
 class ModulesController extends Controller
@@ -51,11 +51,9 @@ class ModulesController extends Controller
         endif;
 
 
-
-
         $parent = ArrayManipulation::searchHref($module['pre'], key($module['elements']));
 
-        $groups = Mod::getGroupTable($module['pre'], key($parent));
+        $groups = ModuleTree::getGroupTable($module['pre'], key($parent));
 
         $_g = [];
 
@@ -80,7 +78,8 @@ class ModulesController extends Controller
     public function json(Request $request)
     {
 
-        $mod = new Mod(storage_path('app/public/') . $this->_taxonomy->path . DIRECTORY_SEPARATOR . $this->_taxonomy->folder);
+        $mod =
+            new ModuleTree(storage_path('app/public/') . $this->_taxonomy->path . DIRECTORY_SEPARATOR . $this->_taxonomy->folder);
 
         $id = $request->get('id');
 

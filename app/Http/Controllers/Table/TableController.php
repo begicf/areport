@@ -8,10 +8,10 @@ use App\Model\FactModule;
 use App\Model\FactTable;
 use App\Model\Taxonomy;
 use Carbon\Carbon;
-use DpmXbrl\Library\Data;
-use DpmXbrl\Library\Format;
-use DpmXbrl\ReadExcel;
-use DpmXbrl\Render;
+use AReportDpmXBRL\Library\Data;
+use AReportDpmXBRL\Library\Format;
+use AReportDpmXBRL\ReadExcel;
+use AReportDpmXBRL\Render;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 
