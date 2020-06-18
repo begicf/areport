@@ -9,7 +9,9 @@
                 </button>
 
             </div>
+
             <form class="form-horizontal" action="table" method="POST">
+                <input type="hidden" name="view_table" id="view_table">
                 {{ csrf_field() }}
                 <div class="container">
                     <div class="row">
@@ -64,4 +66,7 @@
 
     $('#multiselect').multiselect();
     $('#datepicker').datepicker({dateFormat: 'dd-mm-yy'}).val();
+
+    $('#datepicker').datepicker("setDate", new Date("{{$period ?? ''}}"));
+
 </script>

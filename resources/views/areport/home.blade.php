@@ -2,10 +2,12 @@
 
 @section('content')
 
-    @include('flash.flash-message')
+
 
 
     <div class="col-lg-12">
+        @include('flash.flash-message')
+
         <table id="table"
                data-toggle="table"
                data-height="750"
@@ -44,7 +46,7 @@
                 "<input type='hidden' name='_token' value='{{ csrf_token() }}'>" +
                 "<input type='hidden' name = 'period' value='" + row.period + "'/>\n" +
                 "<input type='hidden' name = 'id' value='" + row.id + "'/>\n" +
-                "<button name='view' value='true'  class='btn btn-sm btn-primary' type='submit'><span class='fas fa-layer-group' aria-hidden='true'></span> Open</button>" +
+                "<button name='view_home' value='true'  class='btn btn-sm btn-primary' type='submit'><span class='fas fa-layer-group' aria-hidden='true'></span> Open</button>" +
                 "</form>";
 
         }

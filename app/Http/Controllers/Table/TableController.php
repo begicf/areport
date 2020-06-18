@@ -7,11 +7,11 @@ use App\Model\FactHeader;
 use App\Model\FactModule;
 use App\Model\FactTable;
 use App\Model\Taxonomy;
-use Carbon\Carbon;
 use AReportDpmXBRL\Library\Data;
 use AReportDpmXBRL\Library\Format;
 use AReportDpmXBRL\ReadExcel;
 use AReportDpmXBRL\Render;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 
@@ -34,7 +34,20 @@ class TableController extends Controller
 
     public function table(Request $request)
     {
-        if (is_null($request->get('view'))):
+
+
+        if ($request->get('view_home')):
+
+            $fact_module = FactModule::find($request->get('id'));
+            $_groups = json_decode($fact_module->groups);
+            $module_path = $fact_module->module_path;
+
+        elseif ($request->get('view_table')):
+
+            dd($request->all());
+
+        elseif ($request->get('table')):
+
 
             $table = array_map('json_decode', $request->get('table'));
 
@@ -49,12 +62,9 @@ class TableController extends Controller
             $module_path = $request->get('module_path');
             Session::flash('groups', $_groups);
 
-
         else:
 
-            $fact_module = FactModule::find($request->get('id'));
-            $_groups = json_decode($fact_module->groups);
-            $module_path = $fact_module->module_path;
+            return redirect('/home')->with('warning', 'Please chose the table group!');
 
         endif;
 
@@ -180,10 +190,10 @@ class TableController extends Controller
 
         if (is_array($array) && count($array) > 1):
 
-            $buttonGroup = "<div class='btn-group' role='group' aria-label='Basic example'>";
+            $buttonGroup = "<div class='btn - group' role='group' aria-label='Basic example'>";
             foreach ($array as $key => $row):
                 $active = ($row == $table) ? 'active' : '';
-                $buttonGroup .= "<button type='button' onclick='changeTable(this,\"T\")' value='$row'  class='btn btn-primary $active'>" . Format::getAfterSpecChar($key, '_t', 2) . "</button>";
+                $buttonGroup .= "<button type='button' onclick='changeTable(this, \"T\")' value='$row'  class='btn btn-primary $active'>" . Format::getAfterSpecChar($key, '_t', 2) . "</button>";
             endforeach;
             $buttonGroup .= "</div>";
         endif;

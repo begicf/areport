@@ -125,31 +125,48 @@
             changeTable(group)
         }
 
+
+        function intersection(o1, o2) {
+            return Object.keys(o1).concat(Object.keys(o2)).sort().reduce(function (r, a, i, aa) {
+                if (i && aa[i - 1] === a) {
+                    r.push(a);
+                }
+                return r;
+            }, []);
+        }
+
         function module() {
 
 
-            $("#period").val('{{$period}}');
 
-            axios.post('modules/group', {
+        axios.post('modules/group', {
 
-                module: '{{$mod}}'
-            }).then(function (response) {
+            module: '{{$mod}}',
 
-                var optionsHTML = [];
+        }).then(function (response) {
 
-                for (var k in response.data) {
+            var optionsHTML = [];
 
-                    optionsHTML.push("<option value='" + response[k] + "'>" + k + "</option>")
-                }
+            $('#view_table').val('1');
+            $groups = {!! json_encode($groups) !!};
+            console.log($groups);
+            console.log(response.data);
 
-                $('#multiselect option').remove();
-                $('#multiselect_to option').remove();
+            console.log(intersection($groups,response.data));
+            for (var k in response.data) {
+
+                console.log(k);
+
+                optionsHTML.push("<option value='" + response.data[k] + "'>" + k + "</option>")
+            }
+            $('#multiselect option').remove();
+            $('#multiselect_to option').remove();
 
 
-                $('#multiselect').append(optionsHTML);
-                $('#module').modal();
+            $('#multiselect').append(optionsHTML);
+            $('#module').modal();
 
-            })
+        })
 
         }
 
