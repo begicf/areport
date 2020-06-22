@@ -6,7 +6,7 @@
  * and open the template in the editor.
  */
 
-namespace AReportDpmXBRL;
+namespace AReportDpmXBRL\Helper;
 
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Shared\StringHelper;
@@ -14,7 +14,7 @@ use PhpOffice\PhpSpreadsheet\Shared\StringHelper;
 /**
  * Class ReadExcel
  * @category
- * Areport @package DpmXbrl
+ * Areport @package AReportDpmXBRL\Config
  * @author Fuad Begic <fuad.begic@gmail.com>
  * Date: 12/06/2020
  */

@@ -17,7 +17,7 @@ use AReportDpmXBRL\Library\Format;
 /**
  * Class RenderTable
  * @category
- * Areport @package DpmXbrl\Render
+ * Areport @package AReportDpmXBRL\Config
  * @author Fuad Begic <fuad.begic@gmail.com>
  * Date: 12/06/2020
  */
@@ -56,7 +56,6 @@ class RenderTable
 
     public function renderHtml($xbrl, $import = NULL, $lang = NULL, $additional = array())
     {
-
 
         $this->specification = $xbrl;
         $this->roleType = array_keys($this->specification['def']);
