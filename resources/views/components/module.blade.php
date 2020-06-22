@@ -11,7 +11,6 @@
             </div>
 
             <form class="form-horizontal" action="table" method="POST">
-                <input type="hidden" name="view_table" id="view_table">
                 {{ csrf_field() }}
                 <div class="container">
                     <div class="row">

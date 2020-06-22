@@ -6,16 +6,16 @@
  * and open the template in the editor.
  */
 
-namespace AReportDpmXBRL;
+namespace DpmXbrl;
 
-use AReportDpmXBRL\Config\Config;
-
-use AReportDpmXBRL\Render\Axis;
-use AReportDpmXBRL\Render\RenderExport;
-use AReportDpmXBRL\Render\RenderOutput;
-use AReportDpmXBRL\Render\RenderPDF;
-use AReportDpmXBRL\Render\RenderTable;
-
+use DpmXbrl\Config\Config;
+use DpmXbrl\Library\DomToArray;
+use DpmXbrl\Render\Axis;
+use DpmXbrl\Render\RenderExport;
+use DpmXbrl\Render\RenderOutput;
+use DpmXbrl\Render\RenderPDF;
+use DpmXbrl\Render\RenderTable;
+use Exception;
 
 /**
  * Class Tax
@@ -28,10 +28,7 @@ class Render
 {
 
     //put your code here
-    private $tax;
     private $filename;
-    private $path = array();
-
 
     public function getTableID($tax)
     {
@@ -50,6 +47,7 @@ class Render
         return new RenderTable();
     }
 
+
     public function export($tax, $lang, $type, $additionalData)
     {
 
@@ -58,7 +56,6 @@ class Render
         endif;
         return new RenderOutput($tax, $lang, $type, $additionalData);
     }
-
 
 
 }

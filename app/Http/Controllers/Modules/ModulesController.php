@@ -42,12 +42,13 @@ class ModulesController extends Controller
         if (is_file($request->get('module'))):
 
             $module = Data::getTax($request->get('module'));
-
+            $dir = dirname($request->get('module'));
         else:
             $tax = FactModule::where('module_path', '=', $request->get('module'))->with('taxonomy')->first();
+            $path = Config::publicDir() . DIRECTORY_SEPARATOR . $tax->taxonomy->folder . DIRECTORY_SEPARATOR . $request->get('module');
 
-            $module = Data::getTax(Config::publicDir() . DIRECTORY_SEPARATOR . $tax->taxonomy->folder . DIRECTORY_SEPARATOR . $request->get('module'));
-
+            $module = Data::getTax($path);
+            $dir = dirname($path);
         endif;
 
 
@@ -59,15 +60,15 @@ class ModulesController extends Controller
 
         foreach ($groups as $key => $group) {
             $tmp = [];
-            $tmp['group'] = $key;
+
             foreach ($group as $row) {
 
                 $k = Format::getAfterSpecChar($row['href'], '#');
-                $tmp['table'][$k] =
-                    dirname($request->get('module')) . DIRECTORY_SEPARATOR . (explode("-rend", $row['href']))[0] . '.xsd';
+                $tmp[$k] =
+                    $dir . DIRECTORY_SEPARATOR . (explode("-rend", $row['href']))[0] . '.xsd';
             }
 
-            $_g[$key][] = json_encode($tmp);
+            $_g[$key] = json_encode($tmp);
 
         }
 

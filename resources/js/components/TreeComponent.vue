@@ -98,7 +98,6 @@
                                         "action": function () {
 
 
-
                                             $.ajax({
                                                 url: 'modules/group',
                                                 type: 'post',
@@ -115,7 +114,7 @@
 
                                                 for (var k in response) {
 
-                                                    optionsHTML.push("<option value='" + response[k] + "'>" + k + "</option>")
+                                                   git
                                                 }
 
                                                 $('#multiselect option').remove();
