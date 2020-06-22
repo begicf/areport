@@ -9,7 +9,7 @@ use App\Model\FactTable;
 use App\Model\Taxonomy;
 use AReportDpmXBRL\Library\Data;
 use AReportDpmXBRL\Library\Format;
-use AReportDpmXBRL\ReadExcel;
+use AReportDpmXBRL\Helper\ReadExcel;
 use AReportDpmXBRL\Render;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -155,9 +155,10 @@ class TableController extends Controller
 
     private function getNormalizeTable($table)
     {
-
-        return Format::getAfterSpecChar($table, $this->_taxonomy->folder, strlen($this->_taxonomy->folder) + 1);
-
+        if (strpos($table, $this->_taxonomy->folder)):
+            return Format::getAfterSpecChar($table, $this->_taxonomy->folder, strlen($this->_taxonomy->folder) + 1);
+        endif;
+        return $table;
     }
 
     private function getNormalizeModule($module)
@@ -176,20 +177,21 @@ class TableController extends Controller
         $render = new Render();
 
         $import = FactHeader::getCRData(
-            $this->getNormalizeTable($request->get('table')),
+            $this->getNormalizeTable($this->getNormalizeTable($request->get('table'))),
             $this->_period,
-            $this->getNormalizeModule($request->get('mod')),
+            $this->getNormalizeModule($this->getNormalizeModule($request->get('mod'))),
             null,
             true
         );
 
-        $additional['period']=$this->_period;
+        $additional['period'] = $this->_period;
 
-        if ($request->get('export_type') == 'xslx'):
+        //if ($request->get('export_type') == 'xlsx'):
+
             $render->export($tax, null, $request->get('export_type'), $additional)->renderOutputAll($import)->exportFormat();
-        else:
-            $render->export($tax, null, $request->get('export_type'), $additional)->renderOutput($import)->exportFormat();
-        endif;
+        //else:
+           // $render->export($tax, null, $request->get('export_type'), $additional)->renderOutput($import)->exportFormat();
+        //endif;
 
 
     }
