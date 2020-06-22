@@ -6,7 +6,6 @@
  * and open the template in the editor.
  */
 
-<<<<<<< HEAD
 namespace AReportDpmXBRL;
 
 use AReportDpmXBRL\Config\Config;
@@ -15,18 +14,7 @@ use AReportDpmXBRL\Render\RenderExport;
 use AReportDpmXBRL\Render\RenderOutput;
 use AReportDpmXBRL\Render\RenderPDF;
 use AReportDpmXBRL\Render\RenderTable;
-=======
-namespace DpmXbrl;
->>>>>>> defc386bf8b29862e82a93c4a54ff0edf544180c
 
-use DpmXbrl\Config\Config;
-use DpmXbrl\Library\DomToArray;
-use DpmXbrl\Render\Axis;
-use DpmXbrl\Render\RenderExport;
-use DpmXbrl\Render\RenderOutput;
-use DpmXbrl\Render\RenderPDF;
-use DpmXbrl\Render\RenderTable;
-use Exception;
 
 /**
  * Class Tax
@@ -39,22 +27,20 @@ class Render
 {
 
     //put your code here
+    private $tax;
     private $filename;
-<<<<<<< HEAD
     private $lang = null;
     private $path = [];
     private $additionalData = [];
 
 
-    public function __construct($tax, $lang, $additionalData)
+    public function __construct($tax= null, $lang=null, $additionalData=null)
     {
         $this->tax = $tax;
         $this->lang = $lang;
         $this->additionalData = $additionalData;
     }
 
-=======
->>>>>>> defc386bf8b29862e82a93c4a54ff0edf544180c
 
     public function getTableID($tax)
     {
