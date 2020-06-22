@@ -126,47 +126,54 @@
         }
 
 
-        function intersection(o1, o2) {
-            return Object.keys(o1).concat(Object.keys(o2)).sort().reduce(function (r, a, i, aa) {
-                if (i && aa[i - 1] === a) {
-                    r.push(a);
-                }
-                return r;
-            }, []);
-        }
-
         function module() {
 
 
+            axios.post('modules/group', {
 
-        axios.post('modules/group', {
+                module: '{{$mod}}',
 
-            module: '{{$mod}}',
+            }).then(function (response) {
 
-        }).then(function (response) {
+                var optionsHTML = [];
+                var optionsHTMLTo = [];
 
-            var optionsHTML = [];
+                $("#module_name").val('{{$module_name}}');
+                $("#module_path").val('{{$mod}}');
 
-            $('#view_table').val('1');
-            $groups = {!! json_encode($groups) !!};
-            console.log($groups);
-            console.log(response.data);
+                $groups = {!! json_encode($groups) !!};
 
-            console.log(intersection($groups,response.data));
-            for (var k in response.data) {
+                var arr1 = Object.keys(response.data);
+                var arr2 = Object.keys($groups);
 
-                console.log(k);
-
-                optionsHTML.push("<option value='" + response.data[k] + "'>" + k + "</option>")
-            }
-            $('#multiselect option').remove();
-            $('#multiselect_to option').remove();
+                let difference = arr1.filter(x => !arr2.includes(x));
 
 
-            $('#multiselect').append(optionsHTML);
-            $('#module').modal();
+                for (var k in response.data) {
+                    if (difference.includes(k)) {
+                        var temp = {};
+                        temp[k] = response.data[k];
 
-        })
+                        optionsHTML.push("<option value=" + '{' + '"' + k + '"' + ':' + response.data[k] + '}' + ">" + k + "</option>")
+                    }
+                }
+
+                for (var k in $groups) {
+
+                    optionsHTMLTo.push("<option value='" + $groups[k] + "'>" + k + "</option>")
+
+                }
+
+
+                $('#multiselect option').remove();
+                $('#multiselect_to option').remove();
+
+
+                $('#multiselect').append(optionsHTML);
+                $('#multiselect_to').append(optionsHTMLTo);
+                $('#module').modal();
+
+            })
 
         }
 

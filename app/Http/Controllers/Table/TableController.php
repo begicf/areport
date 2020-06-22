@@ -14,6 +14,8 @@ use AReportDpmXBRL\Render;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
+use RecursiveIteratorIterator;
+use RecursiveArrayIterator;
 
 
 class TableController extends Controller
@@ -41,6 +43,7 @@ class TableController extends Controller
             $fact_module = FactModule::find($request->get('id'));
             $_groups = json_decode($fact_module->groups);
             $module_path = $fact_module->module_path;
+            $module_name= $fact_module->module_name;
 
         elseif ($request->get('view_table')):
 
@@ -48,18 +51,19 @@ class TableController extends Controller
 
         elseif ($request->get('table')):
 
+            $_groups = [];
 
-            $table = array_map('json_decode', $request->get('table'));
+            foreach ($request->get('table') as $item):
 
-            $groups = array_column($table, 'group');
+                $tmp=json_decode($item,true);
 
-            $tables = array_map(function ($arr) {
-                return $arr->group = json_encode($arr->table);
-            }, $table);
+                $_groups[key($tmp)]=json_encode($tmp);
 
-            $_groups = array_combine($groups, $tables);
+            endforeach;
 
             $module_path = $request->get('module_path');
+            $module_name = $request->get('module_name');
+
             Session::flash('groups', $_groups);
 
         else:
@@ -74,7 +78,7 @@ class TableController extends Controller
             'groups' => $_groups,
             'period' => $this->_period,
             'mod' => $module_path,
-            'module_name' => $request->get('module_name'),
+            'module_name' => $module_name,
             'group' => $request->get('mod')
         ]);
 
@@ -88,7 +92,10 @@ class TableController extends Controller
         if ($table):
             $tc = $table;
         else:
-            $tc = current($group);
+
+
+            $tc = current(current($group));
+
         endif;
 
         return $tc;
