@@ -38,17 +38,21 @@
                                     <input id="export_table_path" name="table" type="hidden">
 
                                     <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                        <button class="dropdown-item" name="export_type" value="xlsx" type="submit"><i
-                                                class="text-success fas fa-file-excel"></i>
+                                        <button class="dropdown-item" name="export_type" value="xlsx" type="submit">
+                                            <i class="text-success fas fa-file-excel"></i>
                                             Export to .xlsx
                                         </button>
-                                        <button class="dropdown-item" name="export_type" value="pdf" type="submit"><i
-                                                class="text-danger fas fa-file-pdf"></i>
+                                        <button class="dropdown-item" name="export_type" value="pdf" type="submit">
+                                            <i class="text-danger fas fa-file-pdf"></i>
                                             Export to .pdf
                                         </button>
-                                        <button class="dropdown-item" name="export_type" value="html" type="submit"><i
-                                                class="text-primary fas fa-file-code"></i>
+                                        <button class="dropdown-item" name="export_type" value="html" type="submit">
+                                            <i class="text-primary fas fa-file-code"></i>
                                             Export to .html
+                                        </button>
+                                        <button class="dropdown-item" name="export_type" value="xbrl" type="submit">
+                                            <i class="fas fa-file-alt"></i>
+                                            Export to .xbrl instance
                                         </button>
                                     </div>
                                 </form>
