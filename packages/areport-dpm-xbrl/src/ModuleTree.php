@@ -311,7 +311,7 @@ class ModuleTree
         foreach ($modules['mod'] as $key => $mod):
 
             $module[$key] = Data::getTax($mod);
-            $module[$key]['mod_path'] = Normalise::_normalise($mod);
+            $module[$key]['mod_path'] = Normalise::taxPath($mod);
 
         endforeach;
 

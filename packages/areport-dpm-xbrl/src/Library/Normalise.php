@@ -6,7 +6,7 @@
  * and open the template in the editor.
  */
 
-namespace DpmXbrl\Library;
+namespace AReportDpmXBRL\Library;
 /**
  * Class Normalise
  * @category
@@ -17,6 +17,17 @@ namespace DpmXbrl\Library;
 class Normalise
 {
 
+    public static function taxPath($path)
+    {
+
+        //need improvements
+        if (strpos($path, 'public' . DIRECTORY_SEPARATOR . 'tax')):
+            $tmp_path = substr($path, strpos($path, 'public' . DIRECTORY_SEPARATOR . 'tax') + 11);
+            return self::_normalise($tmp_path);
+        else:
+            return self::_normalise($path);
+        endif;
+    }
 
     public static function _normalise($path, $encoding = "UTF-8")
     {
