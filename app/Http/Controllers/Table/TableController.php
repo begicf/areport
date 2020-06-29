@@ -9,13 +9,11 @@ use App\Model\FactTable;
 use App\Model\Taxonomy;
 use AReportDpmXBRL\Library\Data;
 use AReportDpmXBRL\Library\Format;
-use AReportDpmXBRL\ReadExcel;
+use AReportDpmXBRL\Helper\ReadExcel;
 use AReportDpmXBRL\Render;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
-use RecursiveIteratorIterator;
-use RecursiveArrayIterator;
 
 
 class TableController extends Controller
@@ -43,7 +41,7 @@ class TableController extends Controller
             $fact_module = FactModule::find($request->get('id'));
             $_groups = json_decode($fact_module->groups);
             $module_path = $fact_module->module_path;
-            $module_name= $fact_module->module_name;
+            $module_name = $fact_module->module_name;
 
         elseif ($request->get('view_table')):
 
@@ -55,9 +53,9 @@ class TableController extends Controller
 
             foreach ($request->get('table') as $item):
 
-                $tmp=json_decode($item,true);
+                $tmp = json_decode($item, true);
 
-                $_groups[key($tmp)]=json_encode($tmp);
+                $_groups[key($tmp)] = json_encode($tmp);
 
             endforeach;
 
@@ -157,9 +155,10 @@ class TableController extends Controller
 
     private function getNormalizeTable($table)
     {
-
-        return Format::getAfterSpecChar($table, $this->_taxonomy->folder, strlen($this->_taxonomy->folder) + 1);
-
+        if (strpos($table, $this->_taxonomy->folder)):
+            return Format::getAfterSpecChar($table, $this->_taxonomy->folder, strlen($this->_taxonomy->folder) + 1);
+        endif;
+        return $table;
     }
 
     private function getNormalizeModule($module)
@@ -178,15 +177,21 @@ class TableController extends Controller
         $render = new Render();
 
         $import = FactHeader::getCRData(
-            $this->getNormalizeTable($request->get('table')),
+            $this->getNormalizeTable($this->getNormalizeTable($request->get('table'))),
             $this->_period,
-            $this->getNormalizeModule($request->get('mod')),
+            $this->getNormalizeModule($this->getNormalizeModule($request->get('mod'))),
             null,
             true
         );
 
+        $additional['period'] = $this->_period;
 
-        $render->export($tax, null, $request->get('export_type'), null)->renderOutputAll($import)->exportFormat();
+        //if ($request->get('export_type') == 'xlsx'):
+
+            $render->export($tax, null, $request->get('export_type'), $additional)->renderOutputAll($import)->exportFormat();
+        //else:
+           // $render->export($tax, null, $request->get('export_type'), $additional)->renderOutput($import)->exportFormat();
+        //endif;
 
 
     }

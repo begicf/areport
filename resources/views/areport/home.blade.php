@@ -2,9 +2,6 @@
 
 @section('content')
 
-
-
-
     <div class="col-lg-12">
         @include('flash.flash-message')
 
@@ -31,7 +28,6 @@
         </table>
 
     </div>
-
 
 
     <script>
