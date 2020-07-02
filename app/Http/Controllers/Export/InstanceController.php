@@ -7,6 +7,7 @@ use App\Model\FactHeader;
 use App\Model\FactModule;
 use AReportDpmXBRL\Creat\CreateXBRLFromDB;
 
+
 class InstanceController extends Controller
 {
 
@@ -57,8 +58,10 @@ class InstanceController extends Controller
         $instance =
             new CreateXBRLFromDB(request('period'), request('mod'), $data, $find, $fact_module->taxonomy->folder);
         $file = $instance->writeXbrl();
-        dump($file);
-        dump(\request()->all());
+
+        return response()->streamDownload(function () use ($file) {
+            echo $file;
+        }, 'areport.xbrl', ['Content-Type' => 'text/xml']);
 
 
     }
