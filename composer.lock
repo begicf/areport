@@ -4,8 +4,54 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0cfb559401ff695e3bbb0ccea5b57df6",
+    "content-hash": "81c0bea73897bfeb1518b17b4c632062",
     "packages": [
+        {
+            "name": "begicf/areport-dpm-xbrl",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/begicf/areport-dpm-xbrl.git",
+                "reference": "e58ed3fd80825a51b574380da40e0ecc074ff095"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/begicf/areport-dpm-xbrl/zipball/e58ed3fd80825a51b574380da40e0ecc074ff095",
+                "reference": "e58ed3fd80825a51b574380da40e0ecc074ff095",
+                "shasum": ""
+            },
+            "require": {
+                "mpdf/mpdf": "^8.0",
+                "php": "^7.2.5",
+                "phpoffice/phpspreadsheet": "^1.13"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "AReportDpmXBRL\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Fuad Begic",
+                    "email": "fuad.begic@gmail.com"
+                }
+            ],
+            "description": "AreportDpmXBRL is a package for parsing XBRL taxonomy which is created by EU standards",
+            "homepage": "https://areport.net",
+            "keywords": [
+                "DPM",
+                "adaptiv",
+                "packaging",
+                "report",
+                "xbrl"
+            ],
+            "time": "2020-07-01T19:26:12+00:00"
+        },
         {
             "name": "begicf/simple-menu",
             "version": "dev-master",
@@ -6893,6 +6939,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "begicf/areport-dpm-xbrl": 20,
         "begicf/simple-menu": 20
     },
     "prefer-stable": true,
