@@ -50,7 +50,7 @@
                                             <i class="text-primary fas fa-file-code"></i>
                                             Export to .html
                                         </button>
-                                        <button class="dropdown-item" name="export_type" value="xbrl" type="submit">
+                                        <button class="dropdown-item" formaction="/instance/export" type="submit">
                                             <i class="fas fa-file-alt"></i>
                                             Export to .xbrl instance
                                         </button>

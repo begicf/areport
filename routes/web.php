@@ -47,4 +47,11 @@ Route::group(['prefix' => 'table', 'middleware' => 'auth'], function () {
 
 });
 
+//Export instance
+Route::group(['prefix' => 'instance', 'middleware' => 'auth'], function () {
+    Route::post('/export', 'Export\InstanceController@exportInstance');
+
+});
+
+
 

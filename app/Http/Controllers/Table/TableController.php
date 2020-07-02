@@ -43,10 +43,6 @@ class TableController extends Controller
             $module_path = $fact_module->module_path;
             $module_name = $fact_module->module_name;
 
-        elseif ($request->get('view_table')):
-
-            dd($request->all());
-
         elseif ($request->get('table')):
 
             $_groups = [];
@@ -90,7 +86,6 @@ class TableController extends Controller
         if ($table):
             $tc = $table;
         else:
-
 
             $tc = current(current($group));
 
@@ -188,9 +183,9 @@ class TableController extends Controller
 
         //if ($request->get('export_type') == 'xlsx'):
 
-            $render->export($tax, null, $request->get('export_type'), $additional)->renderOutputAll($import)->exportFormat();
+        $render->export($tax, null, $request->get('export_type'), $additional)->renderOutputAll($import)->exportFormat();
         //else:
-           // $render->export($tax, null, $request->get('export_type'), $additional)->renderOutput($import)->exportFormat();
+        // $render->export($tax, null, $request->get('export_type'), $additional)->renderOutput($import)->exportFormat();
         //endif;
 
 

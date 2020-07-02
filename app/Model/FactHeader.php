@@ -24,6 +24,45 @@ class FactHeader extends Model
     }
 
     /**
+     * @param $module_path
+     * @param $period
+     */
+    public static function prepareDataForXbrl($fact_module_id, $period): array
+    {
+
+
+        $results =
+            self::with('factTable')->where([
+                ['module_id', '=', $fact_module_id]
+            ])->get();
+
+        $context = [];
+        $i = 0;
+
+        foreach ($results as $result) :
+
+            if (isset($result->factTable)):
+
+                foreach ($result->factTable as $row):
+                    $context[$row->id]['context'] = $row->xbrl_context_key_raw;
+                    $context[$row->id]['period'] = $period;
+                    $context[$row->id]['metric'] = $row->metric;
+                    $context[$row->id]['numeric_value'] = $row->string_value;
+                    $context[$row->id]['sheetcode'] = $row->cr_sheet_code;
+                    $context[$row->id]['string_value'] = $row->string_value;
+                    $context[$row->id]['cr_code'] = $row->cr_code;
+                    $i++;
+                endforeach;
+            endif;
+
+        endforeach;
+
+
+        return $context;
+
+    }
+
+    /**
      * @param $table_path
      * @param $period
      * @param $module_path
