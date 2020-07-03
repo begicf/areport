@@ -7,9 +7,9 @@ use App\Model\FactHeader;
 use App\Model\FactModule;
 use App\Model\FactTable;
 use App\Model\Taxonomy;
+use AReportDpmXBRL\Helper\ReadExcel;
 use AReportDpmXBRL\Library\Data;
 use AReportDpmXBRL\Library\Format;
-use AReportDpmXBRL\Helper\ReadExcel;
 use AReportDpmXBRL\Render;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -180,13 +180,13 @@ class TableController extends Controller
         );
 
         $additional['period'] = $this->_period;
+        if ($request->get('export_type') == 'xlsx'):
 
-        //if ($request->get('export_type') == 'xlsx'):
+            $render->export($tax, null, $request->get('export_type'), $additional)->renderOutputAll($import)->exportFormat();
+        else:
 
-        $render->export($tax, null, $request->get('export_type'), $additional)->renderOutputAll($import)->exportFormat();
-        //else:
-        // $render->export($tax, null, $request->get('export_type'), $additional)->renderOutput($import)->exportFormat();
-        //endif;
+            $render->export($tax, null, $request->get('export_type'), $additional)->renderOutput($import)->exportFormat();
+        endif;
 
 
     }
