@@ -9,7 +9,7 @@
     "license": "MIT",
     "require": {
         "php": "^7.2",
-
+        "begicf/areport-dpm-xbrl": "dev-master",
         "begicf/simple-menu": "dev-master",
         "fideloper/proxy": "^4.0",
         "laravel/framework": "^7.0",
@@ -46,8 +46,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/",
-            "AReportDpmXBRL\\": "packages/areport-dpm-xbrl/src/"
+            "Tests\\": "tests/"
         }
     },
     "minimum-stability": "dev",
