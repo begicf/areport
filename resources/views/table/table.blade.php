@@ -130,6 +130,16 @@
         }
 
 
+        function dataSet() {
+            $('.datepicker').datepicker({
+                autoclose: true,
+                dateFormat: "dd-mm-yy",
+
+            });
+
+
+        }
+
         function module() {
 
 
@@ -303,6 +313,7 @@
             formData.append('column', col);
             formData.append('colspanmax', $(".xbrl-title").prop("colSpan"));
             formData.append('rowspanmax', $(".xbrl-title").prop("rowSpan"));
+            formData.append('typ_table', aspectNode);
             $.ajax({
                 type: "post",
                 url: '/table/import',
@@ -310,7 +321,8 @@
                 success: function (data) {
 
                     if (aspectNode == true) {
-                        //$(".datepicker").datepicker("destroy");
+console.log(data['file']['row']);
+                        $(".datepicker").datepicker("destroy");
                         row(data['file']['row']);
                         dataSet();
                     }
