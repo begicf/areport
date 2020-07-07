@@ -5,11 +5,17 @@ namespace App\Http\Controllers\Export;
 use App\Http\Controllers\Controller;
 use App\Model\FactHeader;
 use App\Model\FactModule;
+use App\Model\Taxonomy;
 use AReportDpmXBRL\Creat\CreateXBRLFromDB;
+use AReportDpmXBRL\Library\Format;
 
 
 class InstanceController extends Controller
 {
+    public function __construct()
+    {
+        $this->_taxonomy = Taxonomy::all()->where('active', '=', 1)->first();
+    }
 
     private function json_decode_array($input)
     {
@@ -38,12 +44,23 @@ class InstanceController extends Controller
         return $result;
     }
 
+
+    private function getNormalizeModule($module)
+    {
+        if (strpos($module, $this->_taxonomy->folder)):
+            return Format::getAfterSpecChar($module, $this->_taxonomy->folder, strlen($this->_taxonomy->folder) + 1);
+        endif;
+        return $module;
+    }
+
     public function exportInstance()
     {
 
+        $module=$this->getNormalizeModule(request('mod'));
+
         $fact_module = FactModule::where([
             ['period', '=', request('period')],
-            ['module_path', '=', request('mod')]
+            ['module_path', '=', $module]
         ])->with(['taxonomy', 'factHeader'])->first();
 
         $find = [];
@@ -56,7 +73,7 @@ class InstanceController extends Controller
 
 
         $instance =
-            new CreateXBRLFromDB(request('period'), request('mod'), $data, $find, $fact_module->taxonomy->folder);
+            new CreateXBRLFromDB(request('period'), $module, $data, $find, $fact_module->taxonomy->folder);
         $file = $instance->writeXbrl();
 
         return response()->streamDownload(function () use ($file) {
