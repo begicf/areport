@@ -180,13 +180,10 @@ class TableController extends Controller
         );
 
         $additional['period'] = $this->_period;
-        if ($request->get('export_type') == 'xlsx'):
 
-            $render->export($tax, null, $request->get('export_type'), $additional)->renderOutputAll($import)->exportFormat();
-        else:
+        $render->export($tax, null, $request->get('export_type'), $additional)->renderOutputAll($import)->exportFormat();
 
-            $render->export($tax, null, $request->get('export_type'), $additional)->renderOutput($import)->exportFormat();
-        endif;
+
 
 
     }
