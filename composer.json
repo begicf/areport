@@ -9,14 +9,14 @@
     "license": "MIT",
     "require": {
         "php": "^7.2",
-        "begicf/areport-dpm-xbrl": "dev-master",
+
         "begicf/simple-menu": "dev-master",
         "fideloper/proxy": "^4.0",
         "laravel/framework": "^7.0",
         "laravel/tinker": "^2.0",
         "laravel/ui": "^2.0",
         "mpdf/mpdf": "^8.0.4",
-        "phpoffice/phpspreadsheet": "^1.13"
+        "phpoffice/phpspreadsheet": "1.12"
     },
     "require-dev": {
         "facade/ignition": "^2.0",
@@ -37,7 +37,8 @@
     },
     "autoload": {
         "psr-4": {
-            "App\\": "app/"
+            "App\\": "app/",
+            "AReportDpmXBRL\\": "packages/areport-dpm-xbrl/src/"
         },
         "classmap": [
             "database/seeds",

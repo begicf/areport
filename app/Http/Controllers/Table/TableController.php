@@ -107,7 +107,7 @@ class TableController extends Controller
 
             $tax = Data::getTax($tc);
 
-            $render = new Render();
+            $render = new Render($tax);
 
             $data = $this->getData($tc);
 
@@ -115,7 +115,7 @@ class TableController extends Controller
             $import['file'] = $data;
             $import['ext'] = 'DB';
 
-            $data = $render->render()->renderHtml($tax, $import);
+            $data = $render->renderHtmlForm($import);
 
             $data['groups'] = $this->makeButtonGroup($groups_array, $tc);
             $data['table_path'] = $tc;
@@ -169,8 +169,6 @@ class TableController extends Controller
 
         $tax = Data::getTax($request->get('table'));
 
-        $render = new Render();
-
         $import = FactHeader::getCRData(
             $this->getNormalizeTable($this->getNormalizeTable($request->get('table'))),
             $this->_period,
@@ -181,9 +179,11 @@ class TableController extends Controller
 
         $additional['period'] = $this->_period;
 
-        $render->export($tax, null, $request->get('export_type'), $additional)->renderOutputAll($import)->exportFormat();
+        $render = new Render($tax, null, $additional);
 
 
+
+        $render->export($request->get('export_type'))->renderOutputAll($import)->exportFormat();
 
 
     }
