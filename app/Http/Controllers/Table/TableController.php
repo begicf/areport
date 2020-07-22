@@ -192,10 +192,10 @@ class TableController extends Controller
     {
         $buttonGroup = null;
 
-        if (is_array($array) && count($array) > 1):
+        if (is_array($array) && count(current($array)) > 1):
 
             $buttonGroup = "<div class='btn - group' role='group' aria-label='Basic example'>";
-            foreach ($array as $key => $row):
+            foreach (current($array) as $key => $row):
                 $active = ($row == $table) ? 'active' : '';
                 $buttonGroup .= "<button type='button' onclick='changeTable(this, \"T\")' value='$row'  class='btn btn-primary $active'>" . Format::getAfterSpecChar($key, '_t', 2) . "</button>";
             endforeach;
