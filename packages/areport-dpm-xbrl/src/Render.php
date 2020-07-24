@@ -9,15 +9,15 @@
 namespace AReportDpmXBRL;
 
 use AReportDpmXBRL\Config\Config;
-use AReportDpmXBRL\Render\Axis;
 use AReportDpmXBRL\Render\RenderExport;
 use AReportDpmXBRL\Render\RenderOutput;
 use AReportDpmXBRL\Render\RenderPDF;
 use AReportDpmXBRL\Render\RenderTable;
+use AReportDpmXBRL\Render\RenderTrait\RTrait;
 
 
 /**
- * Class Tax
+ * Class Render
  * @category
  * Areport @package AReportDpmXBRL\Config
  * @author Fuad Begic <fuad.begic@gmail.com>
@@ -25,48 +25,45 @@ use AReportDpmXBRL\Render\RenderTable;
  */
 class Render
 {
+    use RTrait;
 
-    //put your code here
-    private $tax;
     private $filename;
-    private $lang = null;
-    private $path = [];
-    private $additionalData = [];
 
-
-    public function __construct($tax= null, $lang=null, $additionalData=null)
+    /**
+     * @return array|mixed
+     */
+    public function getTableID()
     {
-        $this->tax = $tax;
-        $this->lang = $lang;
-        $this->additionalData = $additionalData;
-    }
+        $tableNameId = key($this->specification['rend']['table']);
 
-
-    public function getTableID($tax)
-    {
-        $tableNameId = key($tax['rend']['table']);
-
-        $tableLabelName = $tax['rend']['table'][$tableNameId]['label'];
-        $axis = new Axis($tax);
+        $tableLabelName = $this->specification['rend']['table'][$tableNameId]['label'];
 
         $tableID =
-            $axis->searchLabel($tax['rend']['path'] . "#" . $tableLabelName, 'http://www.eba.europa.eu/xbrl/role/dpm-db-id');
+            $this->searchLabel($this->specification['rend']['path'] . "#" . $tableLabelName, 'http://www.eba.europa.eu/xbrl/role/dpm-db-id');
         return $tableID;
     }
 
-    public function render()
+    /**
+     * @param $import
+     * @return array
+     */
+    public function renderHtmlForm($import, $ZSelect = null)
     {
-        return new RenderTable();
+        return (new RenderTable($this->specification, $this->lang, $this->additionalData))->renderHtml($import, $ZSelect);
     }
 
-
-    public function export($tax, $lang, $type, $additionalData)
+    /**
+     * @param $type
+     * @return RenderOutput
+     */
+    public function export($type)
     {
 
-        if (!isset($additionalData['file_path'])):
-            $additionalData['file_path'] = Config::publicDir() . $this->filename;
+        if (!isset($this->additionalData['file_path'])):
+            $this->additionalData['file_path'] = Config::publicDir() . $this->filename;
         endif;
-        return new RenderOutput($tax, $lang, $type, $additionalData);
+        return new RenderOutput($this->specification, $this->lang, $type, $this->additionalData);
+
     }
 
 

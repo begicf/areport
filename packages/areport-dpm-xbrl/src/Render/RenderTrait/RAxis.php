@@ -1,8 +1,7 @@
 <?php
 
-namespace AReportDpmXBRL\Render;
+namespace AReportDpmXBRL\Render\RenderTrait;
 
-use AReportDpmXBRL\Config\Config;
 use AReportDpmXBRL\Library\Data;
 use AReportDpmXBRL\Library\DomToArray;
 use AReportDpmXBRL\Library\Format;
@@ -20,35 +19,9 @@ use AReportDpmXBRL\Library\Format;
  * @author Fuad Begic <fuad.begic@gmail.com>
  * Date: 12/06/2020
  */
-class Axis
+trait RAxis
 {
-
-    //put your code here
-    private $specification;
-    private $lang;
-
-    public function __construct($spec, $lang = NULL)
-    {
-        $this->specification = $spec;
-
-
-        if (is_null($lang)):
-
-            $keys = array_keys($this->specification);
-
-            foreach (Config::$lang as $row):
-
-                $needle = 'lab-' . $row;
-                if (in_array($needle, $keys)):
-                    $lang = $needle;
-                    break;
-                endif;
-
-            endforeach;
-
-            $this->lang = $lang;
-        endif;
-    }
+    private $tmp = [];
 
     public function buildXAxis(array $elements, $parentId = 0, $n = 0, $node = array())
     {
@@ -93,7 +66,7 @@ class Axis
                     foreach ($children as $c):
 
                         if ($c['metric'] != 'false'):
-;
+                            ;
                             $tmpC = $tmpC + 1;
                         endif;
                     endforeach;
@@ -284,7 +257,6 @@ class Axis
         switch ($role):
             case 'http://www.xbrl.org/2008/role/label':
 
-
                 $found =
                     Data::searchLabel($this->specification[$this->lang], 'href', Format::getAfterSpecChar($value, '_'));
 
@@ -403,7 +375,7 @@ class Axis
                 break;
             if (isset($row['dimension']) && is_array($row['dimension'])):
                 foreach ($row['dimension'] as $key => $r):
-                    if (!in_array($key, $dim) and $row['abstract'] != 'ture' and $row['concept'] != "false"):
+                    if (!in_array($key, $dim) and $row['abstract'] == 'false'):
                         $dim[$key] = strstr($r, ':', true);
                     endif;
                 endforeach;
@@ -411,7 +383,6 @@ class Axis
         endforeach;
         return $dim;
     }
-
 
 
     /**
@@ -465,28 +436,29 @@ class Axis
 
         endforeach;
 
+        if (empty($this->tmp)):
+            foreach ($this->specification['def'] as $key => &$val):
 
-        foreach ($this->specification['def'] as $key => $val):
-            $tmpDom = $dom;
-            if (isset($tmpDom['metric']) && isset($val[$tmpDom['metric']])):
-                unset($tmpDom['metric']);
-                foreach ($val as $keyVal => $row):
-                    if (array_key_exists($keyVal, $tmpDom)):
-
-                        unset($tmpDom[$keyVal]);
-
-                    endif;
-                endforeach;
-
-
-                if (empty($tmpDom)):
-                    return $val[$metric];
+                if (count($val) > 2):
+                    foreach ($val as $keyVal => $row):
+                        $this->tmp[$key][$keyVal] = $row;
+                    endforeach;
                 endif;
 
+            endforeach;
+        endif;
+
+        foreach ($this->tmp as $index => $item) {
+            if (isset($dom['metric'])&&isset($item[$dom['metric']])):
+
+                $dif = array_diff_key($item, $dom);
+
+                if (count($dif) == (count($item) - count($dom) + 1)):
+                    return $item[$dom['metric']];
+                endif;
             endif;
+        }
 
-
-        endforeach;
 
         return false;
     }
@@ -508,13 +480,13 @@ class Axis
 
         endforeach;
 
-
     }
 
-    public function mergeDimensions($x, $y, $typ = null)
+    public function mergeDimensions($x, $y, $typ = null, $z = null)
     {
 
         $allDim = $this->getAllDimensions();
+
         $metric = array();
 
         if (!empty($x)):
@@ -528,15 +500,19 @@ class Axis
 
         if (isset($x['metric']) && $x['metric'] != 'false'):
             $metric = ['metric' => $x['metric']];
-        elseif (isset($y['metric'])):
+        elseif (isset($y['metric']) && $y['metric'] != 'false'):
             $metric = ['metric' => $y['metric']];
+        elseif (isset($z['metric']) && $z['metric'] != 'false'):
+            $metric = ['metric' => $z['metric']];
         endif;
 
 
         if (isset($y['dimensionAspect']) && isset($x['dimension'])):
             $merge = array_merge($metric, (array)$x['dimension']);
-        elseif (isset($x['dimension']) && isset($y['dimension'])):
+        elseif (isset($x['dimension']) && isset($y['dimension']) && is_null($z)):
             $merge = array_merge($metric, (array)$x['dimension'], (array)$y['dimension']);
+        elseif (isset($x['dimension']) && isset($y['dimension']) && $z['dimension']):
+            $merge = array_merge($metric, (array)$x['dimension'], (array)$y['dimension'], (array)$z['dimension']);
         elseif (isset($y['dimensionAspect'])):
             if (is_array($typ)):
                 return json_encode(array_merge(array($y['dimensionAspect'] => "*"), $typ));
