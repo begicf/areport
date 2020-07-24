@@ -15,7 +15,7 @@
                                 class="fas fa-table"></i></button>
                     </div>
                     <div class="btn-group mr-4" role="group" aria-label="Second group">
-                        <select id="group" onchange="changeTable(this,'G',event)" class="form-control">
+                        <select id="group" onchange="changeTable(this,'G')" class="form-control">
                             @foreach($groups as $key=>$row)
                                 <option value="{{$row}}">
                                     {{$key}}
@@ -42,10 +42,10 @@
                                             <i class="text-success fas fa-file-excel"></i>
                                             Export to .xlsx
                                         </button>
-{{--                                        <button class="dropdown-item" name="export_type" value="pdf" type="submit">--}}
-{{--                                            <i class="text-danger fas fa-file-pdf"></i>--}}
-{{--                                            Export to .pdf--}}
-{{--                                        </button>--}}
+                                        {{--                                        <button class="dropdown-item" name="export_type" value="pdf" type="submit">--}}
+                                        {{--                                            <i class="text-danger fas fa-file-pdf"></i>--}}
+                                        {{--                                            Export to .pdf--}}
+                                        {{--                                        </button>--}}
                                         <button class="dropdown-item" name="export_type" value="html" type="submit">
                                             <i class="text-primary fas fa-file-code"></i>
                                             Export to .html
@@ -206,7 +206,7 @@
 
         }
 
-        function changeTable(selectedOb, type = 'G') {
+        function changeTable(selectedOb, type = 'G', sheet = null) {
 
             var group;
             var table = null;
@@ -223,8 +223,9 @@
 
             $('#pleaseWaitDialog').modal();
 
-            save();
-
+            if (sheet == null) {
+                save();
+            }
             $("#tab").empty();
             $("#button_group").empty();
             $("#sheets").empty();
@@ -234,7 +235,8 @@
                     'group': group,
                     'tab': table,
                     'mod': '{{$mod}}',
-                    'period': '{{$period}}'
+                    'period': '{{$period}}',
+                    'sheet': sheet
                 }
             ).then(function (response) {
 
@@ -321,7 +323,7 @@
                 success: function (data) {
 
                     if (aspectNode == true) {
-console.log(data['file']['row']);
+                        console.log(data['file']['row']);
                         $(".datepicker").datepicker("destroy");
                         row(data['file']['row']);
                         dataSet();
@@ -377,45 +379,58 @@ console.log(data['file']['row']);
                 save(oldValue);
 
 
-                var sheet = $(this).find(':selected').val();
-                axios.post('table/get_data', {
-
-                    period: '{{$period}}',
-                    mod: '{{$mod}}',
-                    tab: $('#export_table_path').val(),
-                    sheet: sheet
-
-                }).then(function (response) {
-
-                    //Set to empty
-                    $(".xbrl-input,.xbrl-input-open,.xbrl-input-text ").each(function () {
+                $(".xbrl-input,.xbrl-input-open,.xbrl-input-text ").each(function () {
 
 
-                        var id = $(this).attr('id');
-                        if (typeof id !== "undefined") {
-                            $('#' + id).val('');
-                        }
-
-                    });
-
-
-                    if (aspectNode == true) {
-                        row(response.data.row);
+                    var id = $(this).attr('id');
+                    if (typeof id !== "undefined") {
+                        $('#' + id).val('');
                     }
-
-                    var data = response.data;
-                    for (var i in data) {
-
-                        if ($('#' + i).is("[type=number]")) {
-                            $('#' + i).val(data[i].integer);
-                        } else {
-                            $('#' + i).val(data[i].string);
-                        }
-
-                    }
-
 
                 });
+
+                const group = document.querySelector('#group');
+                changeTable(group, 'G', $("#sheet").val());
+
+                {{--var sheet = $(this).find(':selected').val();--}}
+                {{--axios.post('table/get_data', {--}}
+
+                {{--    period: '{{$period}}',--}}
+                {{--    mod: '{{$mod}}',--}}
+                {{--    tab: $('#export_table_path').val(),--}}
+                {{--    sheet: sheet--}}
+
+                {{--}).then(function (response) {--}}
+
+                {{--    //Set to empty--}}
+                //     $(".xbrl-input,.xbrl-input-open,.xbrl-input-text ").each(function () {
+                //
+                //
+                //         var id = $(this).attr('id');
+                //         if (typeof id !== "undefined") {
+                //             $('#' + id).val('');
+                //         }
+                //
+                //     });
+                //
+
+                {{--    if (aspectNode == true) {--}}
+                {{--        row(response.data.row);--}}
+                {{--    }--}}
+
+                {{--    var data = response.data;--}}
+                {{--    for (var i in data) {--}}
+
+                {{--        if ($('#' + i).is("[type=number]")) {--}}
+                {{--            $('#' + i).val(data[i].integer);--}}
+                {{--        } else {--}}
+                {{--            $('#' + i).val(data[i].string);--}}
+                {{--        }--}}
+
+                {{--    }--}}
+
+
+                {{--});--}}
 
 
             });

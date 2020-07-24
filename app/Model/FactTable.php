@@ -22,7 +22,7 @@ class FactTable extends Model
         if (isset($sheet)):
             $sheet = (json_decode($sheet, true));
             $cr_sheet = $sheet['sheet'];
-            unset($sheet['sheet']);
+            unset($sheet['sheet'],$sheet['metric'],$sheet['order']);
         endif;
 
 

@@ -115,7 +115,7 @@ class TableController extends Controller
             $import['file'] = $data;
             $import['ext'] = 'DB';
 
-            $data = $render->renderHtmlForm($import);
+            $data = $render->renderHtmlForm($import, $request->get('sheet'));
 
             $data['groups'] = $this->makeButtonGroup($groups_array, $tc);
             $data['table_path'] = $tc;
@@ -180,7 +180,6 @@ class TableController extends Controller
         $additional['period'] = $this->_period;
 
         $render = new Render($tax, null, $additional);
-
 
 
         $render->export($request->get('export_type'))->renderOutputAll($import)->exportFormat();
