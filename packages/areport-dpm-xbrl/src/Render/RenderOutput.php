@@ -588,7 +588,7 @@ class RenderOutput
 
     private function drawFixContent($s, $XAxis, $YAxis, $ZAxis, $ZSelect)
     {
-
+        $z = null;
         $x = $y = 1;
         if (isset($ZAxis)):
             $z = $this->getCurrentZAxis($ZAxis, $ZSelect);
