@@ -215,7 +215,12 @@
 
             if (type == 'G') {
                 group = selectedOb.value;
-            } else {
+            }
+            else if(type == 'S'){
+                group = document.querySelector('#group').value;
+                table=selectedOb
+            }
+            else {
                 group = document.querySelector('#group').value;
                 table = selectedOb.value;
             }
@@ -389,8 +394,19 @@
 
                 });
 
-                const group = document.querySelector('#group');
-                changeTable(group, 'G', $("#sheet").val());
+                var gr = 'G';
+                var group = document.querySelector('#group');
+
+                if ($('#button_group').children().length > 0) {
+                    gr = 'S'
+                    $('#button_group .active').each(function(){
+                        group= $(this).val();
+                    });
+
+                }
+
+
+                changeTable(group, gr, $("#sheet").val());
 
                 {{--var sheet = $(this).find(':selected').val();--}}
                 {{--axios.post('table/get_data', {--}}
