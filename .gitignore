@@ -3,6 +3,7 @@
 /public/storage
 /storage/*.key
 /vendor
+/packages 
 .env
 .env.backup
 .phpunit.result.cache
@@ -11,4 +12,4 @@ Homestead.yaml
 npm-debug.log
 yarn-error.log
 .idea
-/packages/areport-dpm-xbrl/vendor/
+/packages/
