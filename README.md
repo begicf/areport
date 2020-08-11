@@ -1,7 +1,7 @@
-##About Areport
-Areport is an web application, which allows you to create an XBRL instance.
+## About Areport
+Areport is a web application, which allows you to create an XBRL instance based on XBRL taxonomy which is created by DPM Architect.
 
-##Configuration
+## Configuration
 ### php.ini
 max_execution_time = 6000
 
