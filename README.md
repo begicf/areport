@@ -2,6 +2,8 @@
 Areport is a web application, which allows you to create an XBRL instance based on XBRL taxonomy which is created by DPM Architect.
 This standard is recommended and implemented by EU regulators such as EBA and EIOPA.
 
+[DEMO](https://demo.areport.net/) 
+
 Key futures:
 - Web based solution
 - XBRL table specification present through HTML forms
