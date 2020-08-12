@@ -29,3 +29,6 @@ To create database table, run this command
 ```
 php artisan migrate:refresh --seed
 ```
+## Tutorial
+
+[Video](https://www.youtube.com/watch?v=WdV35ywmjjM&feature=youtu.be)
