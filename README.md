@@ -33,6 +33,8 @@ To be able to upload large taxonomy package you need to set following parameters
 
 ```
 git clone https://github.com/begicf/areport.git
+
+composer update
 ```
 - Set [env](https://laravel.com/docs/7.x/configuration#environment-variable-types) file
 
