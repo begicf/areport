@@ -182,7 +182,7 @@ class TableController extends Controller
         $render = new Render($tax, null, $additional);
 
 
-        $render->export($request->get('export_type'))->renderOutputAll($import)->exportFormat();
+        $render->export($request->get('export_type'))->renderOutputAll($import);
 
 
     }
