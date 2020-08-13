@@ -37,7 +37,10 @@ git clone https://github.com/begicf/areport.git
 composer update
 ```
 - Set [env](https://laravel.com/docs/7.x/configuration#environment-variable-types) file
-
+- To enable upload, in .env file set 
+```
+UPLOAD=1
+```
 To create database table, run this command
 ```
 php artisan migrate:refresh
