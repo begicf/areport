@@ -40,7 +40,7 @@ composer update
 
 To create database table, run this command
 ```
-php artisan migrate:refresh --seed
+php artisan migrate:refresh
 ```
 ## Tutorial
 
