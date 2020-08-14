@@ -71,7 +71,7 @@ class TableController extends Controller
             'taxonomy' => $this->_tablePath,
             'groups' => $_groups,
             'period' => $this->_period,
-            'mod' => $module_path,
+            'mod' => preg_replace('/\\\\/','\\\\\\\\',$module_path),
             'module_name' => $module_name,
             'group' => $request->get('mod')
         ]);
