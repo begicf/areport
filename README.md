@@ -39,9 +39,11 @@ git clone https://github.com/begicf/areport.git
 composer update
 ```
 - Set [env](https://laravel.com/docs/7.x/configuration#environment-variable-types) file
-- To enable upload, in .env file set 
+- additional .env variables
 ```
-UPLOAD=1
+UPLOAD=1 #to enable update
+LEI_CODE=12345678912345678912 #to set LEI CODE
+
 ```
 To create database table, run this command
 ```
