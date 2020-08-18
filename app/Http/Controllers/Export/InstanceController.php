@@ -56,7 +56,7 @@ class InstanceController extends Controller
     public function exportInstance()
     {
 
-        $module=$this->getNormalizeModule(request('mod'));
+        $module = $this->getNormalizeModule(request('mod'));
 
         $fact_module = FactModule::where([
             ['period', '=', request('period')],
@@ -73,12 +73,12 @@ class InstanceController extends Controller
 
 
         $instance =
-            new CreateXBRLFromDB(request('period'), $module, $data, $find, $fact_module->taxonomy->folder);
+            new CreateXBRLFromDB(request('period'), env('LEI_CODE', '12345678912345678912'), $module, $data, $find, $fact_module->taxonomy->folder);
         $file = $instance->writeXbrl();
 
         return response()->streamDownload(function () use ($file) {
             echo $file;
-        }, 'areport.xbrl', ['Content-Type' => 'text/xml']);
+        }, 'areport_'.date("dmYHis").'.xbrl', ['Content-Type' => 'text/xml']);
 
 
     }
