@@ -96,6 +96,8 @@
         <div id="button_group" class="col-lg-12 p-2"></div>
         <!--Sheets Z -->
         <div id="sheets" class="col-lg-3 p-2"></div>
+
+        <input type="hidden" id="tableCode" name="tableCode">
         <!--Table -->
         <form id="table_form" method="post">
 
@@ -117,12 +119,10 @@
 
 
 
-
-
-
     <script type="text/javascript">
 
         var aspectNode = null;
+        var tableCode = null;
 
         window.onload = function () {
             const group = document.querySelector('#group');
@@ -215,12 +215,10 @@
 
             if (type == 'G') {
                 group = selectedOb.value;
-            }
-            else if(type == 'S'){
+            } else if (type == 'S') {
                 group = document.querySelector('#group').value;
-                table=selectedOb
-            }
-            else {
+                table = selectedOb
+            } else {
                 group = document.querySelector('#group').value;
                 table = selectedOb.value;
             }
@@ -247,6 +245,7 @@
 
 
                 $('#pleaseWaitDialog').modal('hide');
+                tableCode = response.data.tableCode;
 
                 $('#table_form').html(response.data.table);
                 $('#sheets').html(response.data.sheets);
@@ -321,6 +320,7 @@
             formData.append('colspanmax', $(".xbrl-title").prop("colSpan"));
             formData.append('rowspanmax', $(".xbrl-title").prop("rowSpan"));
             formData.append('typ_table', aspectNode);
+            formData.append('table_code', tableCode);
             $.ajax({
                 type: "post",
                 url: '/table/import',
@@ -399,8 +399,8 @@
 
                 if ($('#button_group').children().length > 0) {
                     gr = 'S'
-                    $('#button_group .active').each(function(){
-                        group= $(this).val();
+                    $('#button_group .active').each(function () {
+                        group = $(this).val();
                     });
 
                 }

@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Session;
 class TableController extends Controller
 {
 
-    private $_tablePath;
+
     private $_period;
     private $_taxonomy;
 
@@ -68,10 +68,9 @@ class TableController extends Controller
 
         return view('table.table', [
 
-            'taxonomy' => $this->_tablePath,
             'groups' => $_groups,
             'period' => $this->_period,
-            'mod' => preg_replace('/\\\\/','\\\\\\\\',$module_path),
+            'mod' => preg_replace('/\\\\/', '\\\\\\\\', $module_path),
             'module_name' => $module_name,
             'group' => $request->get('mod')
         ]);
@@ -82,13 +81,10 @@ class TableController extends Controller
     private function getTablePath($table, $group = null): ?string
     {
 
-
         if ($table):
             $tc = $table;
         else:
-
             $tc = current(current($group));
-
         endif;
 
         return $tc;
@@ -116,6 +112,7 @@ class TableController extends Controller
             $import['ext'] = 'DB';
 
             $data = $render->renderHtmlForm($import, $request->get('sheet'));
+            $data['tableCode'] = $render->getCode();
 
             $data['groups'] = $this->makeButtonGroup($groups_array, $tc);
             $data['table_path'] = $tc;
@@ -249,7 +246,7 @@ class TableController extends Controller
     private function ImportXMLJSON($format, $tpn_name)
     {
         $sheet = (request('sheetcode')) ?? '000';
-        $ext_code = request('ext_code');
+        $table_code = request('table_code');
         $file = file_get_contents($tpn_name);
 
 
@@ -260,11 +257,12 @@ class TableController extends Controller
 
         $arr = json_decode($file, TRUE);
         if (empty(request('typ_table'))):
-            return ['ext' => 'xlsx', 'file' => $arr['table_' . $ext_code]['sheet_' . $sheet]];
+            return ['ext' => 'xlsx', 'file' => $arr['table_' . $table_code]['sheet_' . $sheet]];
         else:
             $tmp = [];
             $r = [];
-            foreach ($arr['table_' . $ext_code]['sheet_' . $sheet] as $key => $row):
+
+            foreach ($arr['table_' . $table_code]['sheet_' . $sheet] as $key => $row):
                 $k = substr($key, strpos($key, "r") + 1);
                 $r[$k] = $k;
                 $tmp[$key] = $row;
