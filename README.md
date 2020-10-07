@@ -47,6 +47,56 @@ To create database table, run this command
 ```
 php artisan migrate:refresh
 ```
+## Import *.xml example
+Import xml file in HTML Table Form - RC Notation
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<data>
+  <table_C_01.00>
+    <sheet_000>
+      <c010r010>1</c010r010>
+      <c010r015>2</c010r015>
+      <c010r020>3</c010r020>
+      <c010r030>4</c010r030>
+      <c010r040>5</c010r040>
+    </sheet_000>
+  </table_C_01.00>
+  <table_C_02.00>
+    <sheet_000>
+      <c010r010>6</c010r010>
+      <c010r020>7</c010r020>
+      <c010r030>8</c010r030>
+      <c010r040>9</c010r040>
+      <c010r050>10</c010r050>
+    </sheet_000>
+  </table_C_02.00>
+</data>
+
+```
+## Import *.json example - RC Notation
+Import json file in HTML Table Form - RC Notation
+```json
+{
+    "table_C_01.00": {
+      "sheet_000": {
+        "c010r010": "1",
+        "c010r015": "2",
+        "c010r020": "3",
+        "c010r030": "4",
+        "c010r040": "5"
+      }
+    },
+    "table_C_02.00": {
+      "sheet_000": {
+        "c010r010": "6",
+        "c010r020": "7",
+        "c010r030": "8",
+        "c010r040": "9",
+        "c010r040": "10"
+      }
+    }
+  }
+```
 ## Tutorial
 
 [Video](https://www.youtube.com/watch?v=WdV35ywmjjM&feature=youtu.be)
