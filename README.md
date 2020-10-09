@@ -73,7 +73,7 @@ Import xml file in HTML Table Form - RC Notation
 </data>
 
 ```
-## Import *.json example - RC Notation
+## Import *.json example
 Import json file in HTML Table Form - RC Notation
 ```json
 {

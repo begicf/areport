@@ -9,7 +9,7 @@
             <div class="card-body">
 
                 <form class="form" action="/taxonomy/upload" method="post" enctype="multipart/form-data">
-                    {{--                    {{ csrf_field() }}--}}
+                                        {{ csrf_field() }}
                     <div class="form-group">
                         <label for="tax">Taxonomy name</label>
                         <input type="text" name="name" class="form-control" id="tax" aria-describedby="TaxonomyName"

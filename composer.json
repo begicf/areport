@@ -1,15 +1,25 @@
 {
-    "name": "laravel/laravel",
+    "name": "begicf/areport",
+    "authors": [
+        {
+            "name": "Fuad Begic",
+            "email": "fuad.begic@gmail.com"
+        }
+    ],
     "type": "project",
-    "description": "The Laravel Framework.",
+    "description": "Areport is data entry tool,which allows you to create an XBRL instance.",
     "keywords": [
+        "areport",
+        "report",
+        "DPM",
+        "XBRL",
         "framework",
         "laravel"
     ],
     "license": "MIT",
     "require": {
         "php": "^7.2",
-	"begicf/areport-dpm-xbrl": "dev-master",
+        "begicf/areport-dpm-xbrl": "dev-master",
         "begicf/simple-menu": "dev-master",
         "fideloper/proxy": "^4.0",
         "laravel/framework": "^7.0",
