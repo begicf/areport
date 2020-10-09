@@ -42,10 +42,10 @@
                                             <i class="text-success fas fa-file-excel"></i>
                                             Export to .xlsx
                                         </button>
-                                        {{--                                        <button class="dropdown-item" name="export_type" value="pdf" type="submit">--}}
-                                        {{--                                            <i class="text-danger fas fa-file-pdf"></i>--}}
-                                        {{--                                            Export to .pdf--}}
-                                        {{--                                        </button>--}}
+                                                                                <button class="dropdown-item" name="export_type" value="pdf" type="submit">
+                                                                                    <i class="text-danger fas fa-file-pdf"></i>
+                                                                                    Export to .pdf
+                                                                                </button>
                                         <button class="dropdown-item" name="export_type" value="html" type="submit">
                                             <i class="text-primary fas fa-file-code"></i>
                                             Export to .html
