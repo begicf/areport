@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "48abd7cd9f63385271164578724a9da3",
+    "content-hash": "88a275e909f3a90e59e1a40a74770c4b",
     "packages": [
         {
             "name": "begicf/areport-dpm-xbrl",
