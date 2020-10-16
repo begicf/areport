@@ -28,6 +28,8 @@ To be able to upload large taxonomy package you need to set following parameters
 - max_execution_time = 6000
 - upload_max_filesize = 4000M
 - post_max_size = 4000M
+- max_input_vars = 4000 
+
 
 ## Installation
 
@@ -45,7 +47,7 @@ LEI_CODE=12345678912345678912 #to set LEI CODE
 ```
 To create database table, run this command
 ```
-php artisan migrate:refresh
+php artisan migrate:fresh --seed
 ```
 ## Import *.xml example
 Import xml file in HTML Table Form - RC Notation
