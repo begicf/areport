@@ -12,21 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/begicf/areport-dpm-xbrl.git",
-<<<<<<< HEAD
                 "reference": "96db98e"
             },
             "dist": {
                 "type": "zip",
                 "url": "https://api.github.com/repos/begicf/areport-dpm-xbrl/zipball/96db98e",
                 "reference": "96db98e",
-=======
-                "reference": "a53617b6d7c2c134b0cb675bc08b7b051fe31503"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/begicf/areport-dpm-xbrl/zipball/a53617b6d7c2c134b0cb675bc08b7b051fe31503",
-                "reference": "a53617b6d7c2c134b0cb675bc08b7b051fe31503",
->>>>>>> 1b414ebad941e709a5e87c6b2d2150d70d4b5df2
                 "shasum": ""
             },
             "require": {
@@ -59,11 +50,7 @@
                 "report",
                 "xbrl"
             ],
-<<<<<<< HEAD
             "time": "2020-10-09T10:06:11+00:00"
-=======
-            "time": "2020-11-12T08:23:52+00:00"
->>>>>>> 1b414ebad941e709a5e87c6b2d2150d70d4b5df2
         },
         {
             "name": "begicf/simple-menu",
@@ -2727,11 +2714,7 @@
                     "type": "tidelift"
                 }
             ],
-<<<<<<< HEAD
-            "time": "2020-09-18T14:27:32+00:00"
-=======
             "time": "2020-10-24T12:01:57+00:00"
->>>>>>> 1b414ebad941e709a5e87c6b2d2150d70d4b5df2
         },
         {
             "name": "symfony/css-selector",
@@ -5269,7 +5252,6 @@
                 "faker",
                 "fixtures"
             ],
-            "abandoned": true,
             "time": "2019-12-12T13:22:17+00:00"
         },
         {
@@ -5469,11 +5451,7 @@
                     "type": "patreon"
                 }
             ],
-<<<<<<< HEAD
-            "time": "2020-04-04T19:56:08+00:00"
-=======
             "time": "2020-10-29T15:12:23+00:00"
->>>>>>> 1b414ebad941e709a5e87c6b2d2150d70d4b5df2
         },
         {
             "name": "phar-io/manifest",
