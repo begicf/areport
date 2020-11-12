@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6fa706a52833e88e928991bd2627d32a",
+    "content-hash": "dd2f474a5ab4a2843c4a4f6ea94123d7",
     "packages": [
         {
             "name": "begicf/areport-dpm-xbrl",
@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/begicf/areport-dpm-xbrl.git",
-                "reference": "96db98e"
+                "reference": "a53617b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/begicf/areport-dpm-xbrl/zipball/96db98e",
-                "reference": "96db98e",
+                "url": "https://api.github.com/repos/begicf/areport-dpm-xbrl/zipball/a53617b",
+                "reference": "a53617b",
                 "shasum": ""
             },
             "require": {
@@ -50,7 +50,7 @@
                 "report",
                 "xbrl"
             ],
-            "time": "2020-10-09T10:06:11+00:00"
+            "time": "2020-11-12T08:23:52+00:00"
         },
         {
             "name": "begicf/simple-menu",
@@ -5252,6 +5252,7 @@
                 "faker",
                 "fixtures"
             ],
+            "abandoned": true,
             "time": "2019-12-12T13:22:17+00:00"
         },
         {
