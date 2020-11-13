@@ -19,7 +19,7 @@
     "license": "MIT",
     "require": {
         "php": "^7.2",
-        "begicf/areport-dpm-xbrl": "dev-master#a53617b",
+        "begicf/areport-dpm-xbrl": "dev-master#f8d4dcf",
         "begicf/simple-menu": "dev-master",
         "fideloper/proxy": "^4.0",
         "laravel/framework": "^7.0",
