@@ -45,7 +45,7 @@ class HomeController extends Controller
         $result = $data->get()->toArray();
 
 
-        return response()->json(['total' => count($result), 'rows' => $result]);
+        return response()->json(['total' => FactModule::count(), 'rows' => $result]);
 
     }
 }
