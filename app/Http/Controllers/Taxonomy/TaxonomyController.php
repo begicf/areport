@@ -145,9 +145,9 @@ class TaxonomyController extends Controller
                 'name' => $request->get('name'),
                 'original_name' => $_name
             ]);
-
+                return back()->with('success', 'Upload Seccessful.');
         endif;
 
-        return back()->with('success', 'Upload Seccessful.');
+
     }
 }
