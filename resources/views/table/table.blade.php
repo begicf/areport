@@ -6,7 +6,7 @@
 
         <div class="row p-2">
 
-            <div class="col-12 col-md-9">
+            <div class="col-lg-9 col-md-6 mt-1">
 
 
                 <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
@@ -42,10 +42,10 @@
                                             <i class="text-success fas fa-file-excel"></i>
                                             Export to .xlsx
                                         </button>
-                                                                                <button class="dropdown-item" name="export_type" value="pdf" type="submit">
-                                                                                    <i class="text-danger fas fa-file-pdf"></i>
-                                                                                    Export to .pdf
-                                                                                </button>
+                                        <button class="dropdown-item" name="export_type" value="pdf" type="submit">
+                                            <i class="text-danger fas fa-file-pdf"></i>
+                                            Export to .pdf
+                                        </button>
                                         <button class="dropdown-item" name="export_type" value="html" type="submit">
                                             <i class="text-primary fas fa-file-code"></i>
                                             Export to .html
@@ -66,7 +66,7 @@
             </div>
 
 
-            <div class="col-6 col-md-3">
+            <div class="col-lg-3 col-md-6 col-sm-12 mt-1">
 
 
                 <div class="card">
@@ -99,10 +99,11 @@
 
         <input type="hidden" id="tableCode" name="tableCode">
         <!--Table -->
-        <form id="table_form" method="post">
+        <div class="table-responsive">
+            <form id="table_form" method="post">
 
-        </form>
-
+            </form>
+        </div>
         <div id="openY" class="form-group" style="display: none">
             <a class="btn btn-light" id="addRow">+</a>
             <a class="btn btn-light" id="delRow">-</a>
