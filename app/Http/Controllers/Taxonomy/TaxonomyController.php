@@ -82,7 +82,7 @@ class TaxonomyController extends Controller
             $_tax = Taxonomy::find($id);
 
             try {
-                $dir = storage_path('app/public/' . $_tax->file);
+                $dir = storage_path('app/public/' . $_tax->path . DIRECTORY_SEPARATOR . $_tax->folder);
 
                 $it = new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS);
                 $files = new RecursiveIteratorIterator($it,
@@ -106,7 +106,7 @@ class TaxonomyController extends Controller
 
             return back()->with('success', 'You taxonomy is successful deleted.');
         else:
-            return back()->with('warning', 'Please select the taxonomy !');
+            return back()->with('warning', 'Please select the taxonomy!');
         endif;
 
     }
@@ -145,7 +145,7 @@ class TaxonomyController extends Controller
                 'name' => $request->get('name'),
                 'original_name' => $_name
             ]);
-                return back()->with('success', 'Upload Seccessful.');
+                return back()->with('success', 'Upload successful.');
         endif;
 
 

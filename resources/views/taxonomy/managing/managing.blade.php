@@ -40,8 +40,8 @@
                                     {{$row->original_name}}
                                 </td>
                                 <td class="text-center">
-                                    <button formaction="tax_delete" class="btn btn-outline-danger"><i
-                                            class="fas fa-trash"></i></button>
+                                    <button formaction="/taxonomy/delete" class="btn btn-outline-danger"><i
+                                            class="fas fa-trash" type="submit"></i></button>
                                 </td>
                             </tr>
 
