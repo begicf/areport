@@ -105,7 +105,7 @@ class TaxonomyController extends Controller
             return back()->with('danger', 'An error has occurred!');
         }
 
-        return back()->with('success', 'You taxonomy is successful deleted.');
+        return back()->with('success', 'You taxonomy was successfully deleted.');
 
     }
 
@@ -143,7 +143,7 @@ class TaxonomyController extends Controller
                 'original_name' => $_name
             ]);
 
-            return back()->with('success', 'Upload successful.');
+            return redirect("/taxonomy/managing")->with('success', 'Upload successful.');
 
         endif;
 

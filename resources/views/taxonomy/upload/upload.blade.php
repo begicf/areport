@@ -50,7 +50,6 @@
                 }
             ).then(function (response) {
                 $('#pleaseWaitDialog').modal('hide');
-                Session::flash('groups', $_groups);
             });
         }
 

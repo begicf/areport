@@ -72,8 +72,6 @@
             ).then(function (response) {
                 $('#pleaseWaitDialog').modal('hide');
             });
-
-            return back();
         }
 
     </script>
