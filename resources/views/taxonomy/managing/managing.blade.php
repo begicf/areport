@@ -40,8 +40,9 @@
                                     {{$row->original_name}}
                                 </td>
                                 <td class="text-center">
-                                    <button formaction="/taxonomy/delete" class="btn btn-outline-danger"><i
-                                            class="fas fa-trash" type="submit"></i></button>
+                                    <button onclick="deleteTaxonomy({{$row}})" {{ $row->active == true ? "disabled" : "" }}
+                                            type="button" class="btn btn-outline-danger"><i
+                                            class="fas fa-trash"></i></button>
                                 </td>
                             </tr>
 
@@ -51,10 +52,30 @@
 
                 </div>
                 <div class="card-footer text-right">
-                    <button class="btn btn-primary" type="submit"><i class="fas fa-cog"></i> Set
-                    </button>
+                    <button class="btn btn-primary" type="submit"><i class="fas fa-cog"></i> Set</button>
                 </div>
             </form>
         </div>
     </div>
+
+    @include('components.please-wait')
+
+    <script type="text/javascript">
+
+        function deleteTaxonomy(selectedTax) {
+
+            $('#pleaseWaitDialog').modal();
+
+            axios.post('/taxonomy/delete', {
+                    'id': selectedTax.id
+                }
+            ).then(function (response) {
+                $('#pleaseWaitDialog').modal('hide');
+            });
+
+            return back();
+        }
+
+    </script>
+
 @endsection
