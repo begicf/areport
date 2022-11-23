@@ -3,12 +3,13 @@
 @section('content')
 
     <div class="container">
+
         @include('flash.flash-message')
 
         <div class="card col-lg-8">
             <div class="card-body">
 
-                <form class="form" action="/taxonomy/upload" method="post" enctype="multipart/form-data">
+                <form class="form" name="upload-form" method="post">
                                         {{ csrf_field() }}
                     <div class="form-group">
                         <label for="tax">Taxonomy name</label>
@@ -22,11 +23,36 @@
                         <small class="form-text text-muted"><span class="text-danger">*</span> Only *.zip</small>
                     </div>
 
-                    <button class="btn btn-primary float-right" {{env('UPLOAD')?"":"disabled"}} type="submit">Upload
+                    <button class="btn btn-primary float-right" {{env('UPLOAD')?"":"disabled"}}
+                        onclick="uploadTaxonomy()" type="button">Upload
                     </button>
                 </form>
 
             </div>
         </div>
     </div>
+
+    @include('components.please-wait')
+
+    <script type="text/javascript">
+
+        function uploadTaxonomy() {
+
+            $('#pleaseWaitDialog').modal();
+
+            var form = $('form[name="upload-form"]')[0];
+            var formData = new FormData(form);
+
+            axios.post('/taxonomy/upload', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }
+            ).then(function (response) {
+                $('#pleaseWaitDialog').modal('hide');
+            });
+        }
+
+    </script>
+
 @endsection
