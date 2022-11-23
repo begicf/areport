@@ -32,7 +32,6 @@ class TaxonomyController extends Controller
      */
     public function index()
     {
-
         return view('taxonomy.upload.upload');
     }
 
@@ -46,7 +45,7 @@ class TaxonomyController extends Controller
 
         else:
 
-            return redirect('/home')->with('warning', 'Please upload the taxonomy !');
+            return redirect('/home')->with('warning', 'Please upload a taxonomy!');
 
         endif;
     }
@@ -55,7 +54,7 @@ class TaxonomyController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function active(Request $request)
+    public function active(Request $request): \Illuminate\Http\RedirectResponse
     {
         $id = $request->get('tax_active');
 
@@ -64,59 +63,57 @@ class TaxonomyController extends Controller
             Taxonomy::query()->update(['active' => false]);
             Taxonomy::where('id', $id)->update(['active' => true]);
 
-            return back()->with('success', 'You are successful active the taxonomy.');
+            return back()->with('success', 'You have successfully actived the taxonomy.');
         else:
 
-            return back()->with('warning', 'Please select the taxonomy !');
+            return back()->with('warning', 'Please select a taxonomy!');
 
         endif;
 
     }
-
-    public function delete(Request $request)
-    {
-        $id = $request->get('tax_active');
-
-        if ($id != null):
-
-            $_tax = Taxonomy::find($id);
-
-            try {
-                $dir = storage_path('app/public/' . $_tax->file);
-
-                $it = new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS);
-                $files = new RecursiveIteratorIterator($it,
-                    RecursiveIteratorIterator::CHILD_FIRST);
-
-                foreach ($files as $file) {
-                    if ($file->isDir()) {
-                        rmdir($file->getRealPath());
-                    } else {
-                        unlink($file->getRealPath());
-                    }
-                }
-                rmdir($dir);
-
-                Taxonomy::destroy($id);
-
-            } catch (\Exception $exception) {
-
-                return back()->with('danger', 'An error has occurred!');
-            }
-
-            return back()->with('success', 'You taxonomy is successful deleted.');
-        else:
-            return back()->with('warning', 'Please select the taxonomy !');
-        endif;
-
-    }
-
 
     /**
      * @param Request $request
-     * @return Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request)
+    public function delete(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $id = $request->get('id');
+
+        $_tax = Taxonomy::find($id);
+
+        try {
+            $dir = storage_path('app/public/' . $_tax->path . DIRECTORY_SEPARATOR . $_tax->folder);
+
+            $it = new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS);
+            $files = new RecursiveIteratorIterator($it,
+                RecursiveIteratorIterator::CHILD_FIRST);
+
+            foreach ($files as $file) {
+                if ($file->isDir()) {
+                    rmdir($file->getRealPath());
+                } else {
+                    unlink($file->getRealPath());
+                }
+            }
+            rmdir($dir);
+
+            Taxonomy::destroy($id);
+
+        } catch (\Exception $exception) {
+
+            return back()->with('danger', 'An error has occurred!');
+        }
+
+        return back()->with('success', 'You taxonomy was successfully deleted.');
+
+    }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function store(Request $request): \Illuminate\Http\RedirectResponse
     {
 
         $_name = pathinfo($request->file('file')->getClientOriginalName(), PATHINFO_FILENAME);
@@ -145,9 +142,11 @@ class TaxonomyController extends Controller
                 'name' => $request->get('name'),
                 'original_name' => $_name
             ]);
-                return back()->with('success', 'Upload Seccessful.');
+
+            return redirect("/taxonomy/managing")->with('success', 'Upload successful.');
+
         endif;
 
-
+        return back()->with('danger', 'An error has occurred!');
     }
 }
