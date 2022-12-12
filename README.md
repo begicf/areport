@@ -49,6 +49,12 @@ To create database table, run this command
 ```
 php artisan migrate:fresh --seed
 ```
+
+Run the application
+```
+php artisan serve
+```
+
 ## Import *.xml example
 Import xml file in HTML Table Form - RC Notation
 ```xml
