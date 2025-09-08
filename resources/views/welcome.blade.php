@@ -94,6 +94,29 @@
 
                 </div>
 
+                <div id="bp-payment-button"></div>
+
+                <script src="https://cdn.jsdelivr.net/npm/@confirmo/overlay@latest/dist/confirmo.js"></script>
+                <script type="text/javascript">
+                    Confirmo.PaymentButton.initialize({
+                        "id": "bp-payment-button",
+                        "url": "https://confirmo.net",
+                        "buttonType": "DONATION",
+                        "paymentButtonId": "WqgEkOPl7RZzwD026dmgJ1864QL3xXBa9Ny",
+                        "values": {
+                            "merchantAmount": null,
+                            "merchantCurrency": null,
+                            "productName": "areport.net",
+                            "productDescription": null,
+                            "reference": null,
+                            "returnUrl": null,
+                            "merchantId": "mer2dqkr9vdp",
+                            "overlay": true
+                        }
+                    });
+                </script>
+
+
 
             </div>
         </div>
