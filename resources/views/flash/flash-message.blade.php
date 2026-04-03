@@ -1,76 +1,21 @@
-
-@if ($message = Session::get('success'))
-
-    <div class="alert alert-success alert-block">
-
-        <button type="button" class="close" data-dismiss="alert">×</button>
-
-        <strong>{{ $message }}</strong>
-
-    </div>
-
-@endif
-
-
-@if ($message = Session::get('error'))
-
-    <div class="alert alert-danger alert-block">
-
-        <button type="button" class="close" data-dismiss="alert">×</button>
-
-        <strong>{{ $message }}</strong>
-
-    </div>
-
-@endif
-
-
-@if ($message = Session::get('warning'))
-
-    <div class="alert alert-warning alert-block">
-
-        <button type="button" class="close" data-dismiss="alert">×</button>
-
-        <strong>{{ $message }}</strong>
-
-    </div>
-
-@endif
-
-
-@if ($message = Session::get('info'))
-
-    <div class="alert alert-info alert-block">
-
-        <button type="button" class="close" data-dismiss="alert">×</button>
-
-        <strong>{{ $message }}</strong>
-
-    </div>
-
-@endif
-
-@if ($message = Session::get('danger'))
-
-    <div class="alert alert-danger alert-block">
-
-        <button type="button" class="close" data-dismiss="alert">×</button>
-
-        <strong>{{ $message }}</strong>
-
-    </div>
-
-@endif
-
+@foreach ([
+    'success' => 'success',
+    'error' => 'danger',
+    'warning' => 'warning',
+    'info' => 'info',
+    'danger' => 'danger',
+] as $messageKey => $alertType)
+    @if ($message = Session::get($messageKey))
+        <div class="alert alert-{{ $alertType }} alert-dismissible fade show shadow-sm mb-4" role="alert">
+            <strong>{{ $message }}</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+@endforeach
 
 @if ($errors->any())
-
-    <div class="alert alert-danger">
-
-        <button type="button" class="close" data-dismiss="alert">×</button>
-
-        Please check the form below for errors
-
+    <div class="alert alert-danger alert-dismissible fade show shadow-sm mb-4" role="alert">
+        <strong>Please check the form below for errors.</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-
 @endif

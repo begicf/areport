@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Areport;
 
 use App\Http\Controllers\Controller;
-use App\Model\FactHeader;
 use App\Model\FactModule;
+use App\Model\Taxonomy;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -34,18 +34,44 @@ class HomeController extends Controller
     {
         $data = FactModule::query();
 
+        $activeTaxonomyId = Taxonomy::query()->where('active', true)->value('id');
 
-        if ($request->sort):
-            $data->orderBy($request->sort, $request->order);
-        endif;
+        if (!empty($activeTaxonomyId)) {
+            $data->where('taxonomy_id', '=', $activeTaxonomyId);
+        }
 
-        $data->offset($request->offset)->limit($request->limit);
+        $allTotal = (clone $data)->count();
 
+        $search = trim((string) $request->get('search'));
+        if ($search !== '') {
+            $search = '%' . mb_strtolower($search) . '%';
 
-        $result = $data->get()->toArray();
+            $data->where(function ($query) use ($search) {
+                $query->whereRaw('LOWER(module_name) LIKE ?', [$search])
+                    ->orWhereRaw('LOWER(module_path) LIKE ?', [$search])
+                    ->orWhereRaw('CAST(period AS TEXT) LIKE ?', [$search]);
+            });
+        }
 
+        $allowedSorts = ['period', 'module_name', 'module_path'];
+        $sort = in_array($request->get('sort'), $allowedSorts, true) ? $request->get('sort') : 'period';
+        $order = $request->get('order') === 'asc' ? 'asc' : 'desc';
+        $offset = max((int) $request->get('offset', 0), 0);
+        $limit = max((int) $request->get('limit', 15), 1);
 
-        return response()->json(['total' => FactModule::count(), 'rows' => $result]);
+        $filteredTotal = (clone $data)->count();
+
+        $result = $data->orderBy($sort, $order)
+            ->offset($offset)
+            ->limit($limit)
+            ->get()
+            ->toArray();
+
+        return response()->json([
+            'all_total' => $allTotal,
+            'total' => $filteredTotal,
+            'rows' => $result,
+        ]);
 
     }
 }
