@@ -22,6 +22,9 @@ Route::post('/areport/json', 'Areport\HomeController@json')->name('json');
 
 //Taxonomy
 Route::group(['prefix' => 'taxonomy', 'middleware' => 'auth'], function () {
+    Route::get('/', function () {
+        return redirect('/taxonomy/managing');
+    });
     Route::get('/upload', 'Taxonomy\TaxonomyController@index');
     Route::post('/upload', 'Taxonomy\TaxonomyController@store');
 
@@ -50,8 +53,7 @@ Route::group(['prefix' => 'table', 'middleware' => 'auth'], function () {
 //Export instance
 Route::group(['prefix' => 'instance', 'middleware' => 'auth'], function () {
     Route::post('/export', 'Export\InstanceController@exportInstance');
+    Route::post('/export-csv', 'Export\InstanceController@exportCsvInstance');
 
 });
-
-
 

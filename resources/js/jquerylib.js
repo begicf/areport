@@ -5,16 +5,13 @@
  */
 
 try {
-    window.Popper = require('popper.js').default;
+    window.Popper = require('@popperjs/core');
     window.$ = window.jQuery = require('jquery');
+    window.bootstrap = require('bootstrap');
 
     require('jquery-ui/ui/widgets/datepicker');
-    require('bootstrap');
     require('bootstrap-table/dist/bootstrap-table.min');
     require('multiselect-two-sides/dist/js/multiselect.min')
     require('jstree/dist/jstree.min')
     require('bootstrap-select/dist/js/bootstrap-select.min')
 } catch (e) {}
-
-
-

@@ -63,7 +63,7 @@ class TaxonomyController extends Controller
             Taxonomy::query()->update(['active' => false]);
             Taxonomy::where('id', $id)->update(['active' => true]);
 
-            return back()->with('success', 'You have successfully actived the taxonomy.');
+            return back()->with('success', 'The taxonomy has been activated successfully.');
         else:
 
             return back()->with('warning', 'Please select a taxonomy!');
@@ -105,7 +105,7 @@ class TaxonomyController extends Controller
             return back()->with('danger', 'An error has occurred!');
         }
 
-        return back()->with('success', 'You taxonomy was successfully deleted.');
+        return back()->with('success', 'The taxonomy was deleted successfully.');
 
     }
 

@@ -1,6 +1,21 @@
 {
     "/js/app.js": "/js/app.js",
-    "/css/app.css": "/css/app.css",
+    "/js/jquerylib.js": "/js/jquerylib.js",
     "/js/areport.js": "/js/areport.js",
-    "/js/jquerylib.js": "/js/jquerylib.js"
+    "/css/app.css": "/css/app.css",
+    "/fonts/vendor/@fortawesome/fontawesome-free/webfa-regular-400.woff2?1f3772178d9e5bed38a6ca738d28cd4b": "/fonts/vendor/@fortawesome/fontawesome-free/webfa-regular-400.woff2?1f3772178d9e5bed38a6ca738d28cd4b",
+    "/fonts/vendor/@fortawesome/fontawesome-free/webfa-regular-400.ttf?3cd9fb8fcec4ad0f99d4062cd547a4ba": "/fonts/vendor/@fortawesome/fontawesome-free/webfa-regular-400.ttf?3cd9fb8fcec4ad0f99d4062cd547a4ba",
+    "/fonts/vendor/@fortawesome/fontawesome-free/webfa-solid-900.woff2?41c0f706d8ce93933771be0292757b92": "/fonts/vendor/@fortawesome/fontawesome-free/webfa-solid-900.woff2?41c0f706d8ce93933771be0292757b92",
+    "/fonts/vendor/@fortawesome/fontawesome-free/webfa-solid-900.ttf?b1a653db79258eeccc5d0bb8726f6600": "/fonts/vendor/@fortawesome/fontawesome-free/webfa-solid-900.ttf?b1a653db79258eeccc5d0bb8726f6600",
+    "/fonts/vendor/@fortawesome/fontawesome-free/webfa-brands-400.woff2?3ac6859b28be946745f95de1136a7251": "/fonts/vendor/@fortawesome/fontawesome-free/webfa-brands-400.woff2?3ac6859b28be946745f95de1136a7251",
+    "/fonts/vendor/@fortawesome/fontawesome-free/webfa-brands-400.ttf?450a5c898f0b184b968b971eaf7c5fa4": "/fonts/vendor/@fortawesome/fontawesome-free/webfa-brands-400.ttf?450a5c898f0b184b968b971eaf7c5fa4",
+    "/images/vendor/jstree/dist/themes/default/32px.png?7b8ef9809145cfec0aa699bf38d0ed96": "/images/vendor/jstree/dist/themes/default/32px.png?7b8ef9809145cfec0aa699bf38d0ed96",
+    "/images/vendor/jstree/dist/themes/default/throbber.gif?f3bc149017432b87da2e4112539c4549": "/images/vendor/jstree/dist/themes/default/throbber.gif?f3bc149017432b87da2e4112539c4549",
+    "/images/vendor/jstree/dist/themes/default/40px.png?106a7abc109fb5e787427a83e56d4336": "/images/vendor/jstree/dist/themes/default/40px.png?106a7abc109fb5e787427a83e56d4336",
+    "/images/vendor/jquery-ui/themes/base/ui-icons_444444_256x240.png?d1b818587c3bc65058fe43800e4a191c": "/images/vendor/jquery-ui/themes/base/ui-icons_444444_256x240.png?d1b818587c3bc65058fe43800e4a191c",
+    "/images/vendor/jquery-ui/themes/base/ui-icons_555555_256x240.png?35d57320d9df28ec0d0d8bd1b5c75983": "/images/vendor/jquery-ui/themes/base/ui-icons_555555_256x240.png?35d57320d9df28ec0d0d8bd1b5c75983",
+    "/images/vendor/jquery-ui/themes/base/ui-icons_ffffff_256x240.png?92bef7e45fed3caba8dc9348edef4df2": "/images/vendor/jquery-ui/themes/base/ui-icons_ffffff_256x240.png?92bef7e45fed3caba8dc9348edef4df2",
+    "/images/vendor/jquery-ui/themes/base/ui-icons_777620_256x240.png?f423048bf942a7a33b33b1b982ecdb51": "/images/vendor/jquery-ui/themes/base/ui-icons_777620_256x240.png?f423048bf942a7a33b33b1b982ecdb51",
+    "/images/vendor/jquery-ui/themes/base/ui-icons_cc0000_256x240.png?5cbbd560bcf30acb95dd3b0b0d61645a": "/images/vendor/jquery-ui/themes/base/ui-icons_cc0000_256x240.png?5cbbd560bcf30acb95dd3b0b0d61645a",
+    "/images/vendor/jquery-ui/themes/base/ui-icons_777777_256x240.png?f5d5fce2f36b5776eab8b314efc2dfd8": "/images/vendor/jquery-ui/themes/base/ui-icons_777777_256x240.png?f5d5fce2f36b5776eab8b314efc2dfd8"
 }

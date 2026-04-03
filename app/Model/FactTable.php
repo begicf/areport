@@ -32,18 +32,25 @@ class FactTable extends Model
 
                 $arr = json_decode($row['dim'], true);
 
+                if (!is_array($arr)) {
+                    $arr = [];
+                }
+
                 if (isset($arr['metric'])):
                     $metric = $arr['metric'];
-                    unset($arr['metric']);
                 else:
                     $metric = NULL;
                 endif;
 
+                $raw = $arr;
+
                 if (isset($sheet)):
-                    $arr = array_merge($arr, $sheet);
+                    $raw = array_merge($raw, $sheet);
                 endif;
 
-                $raw = $arr;
+                $arr = $raw;
+
+                unset($arr['metric'], $arr['__meta']);
 
                 if (isset($arr['typedMember'])):
                     unset($arr['typedMember']);

@@ -17,13 +17,32 @@
         "laravel"
     ],
     "license": "MIT",
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../areport-dpm-xbrl",
+            "options": {
+                "symlink": true,
+                "versions": {
+                    "begicf/areport-dpm-xbrl": "dev-master"
+                }
+            }
+        },
+        {
+            "type": "path",
+            "url": "packages/begicf/simple-menu",
+            "options": {
+                "symlink": false
+            }
+        }
+    ],
     "require": {
-        "php": "^8.2",
+        "php": "^8.3",
         "begicf/areport-dpm-xbrl": "dev-master",
         "begicf/simple-menu": "dev-master",
         "guzzlehttp/guzzle": "^7.0.1",
-        "laravel/framework": "^12.0",
-        "laravel/tinker": "^2.9",
+        "laravel/framework": "^13.0",
+        "laravel/tinker": "^3.0",
         "laravel/ui": "^4.6",
         "mpdf/mpdf": "^8.0",
         "phpoffice/phpspreadsheet": "^1.21"
@@ -34,7 +53,7 @@
         "laravel/sail": "^1.26",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.1",
-        "phpunit/phpunit": "^11.0"
+        "phpunit/phpunit": "^12.0"
     },
     "config": {
         "optimize-autoloader": true,

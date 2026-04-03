@@ -25,7 +25,7 @@ class TableController extends Controller
 
     public function __construct()
     {
-        $this->_taxonomy = Taxonomy::all()->where('active', '=', 1)->first();
+        $this->_taxonomy = Taxonomy::query()->where('active', true)->first();
 
         $this->_period = Carbon::parse(request('period'))->format('Y-m-d');
 
@@ -38,7 +38,10 @@ class TableController extends Controller
 
         if ($request->get('view_home')):
 
-            $fact_module = FactModule::find($request->get('id'));
+            $fact_module = FactModule::query()
+                ->where('id', '=', $request->get('id'))
+                ->where('taxonomy_id', '=', $this->_taxonomy->id)
+                ->firstOrFail();
             $_groups = json_decode($fact_module->groups);
             $module_path = $fact_module->module_path;
             $module_name = $fact_module->module_name;
@@ -62,7 +65,7 @@ class TableController extends Controller
 
         else:
 
-            return redirect('/home')->with('warning', 'Please chose the table group!');
+            return redirect('/home')->with('warning', 'Please choose a table group.');
 
         endif;
 
@@ -139,7 +142,14 @@ class TableController extends Controller
         endif;
 
         $data =
-            FactHeader::getCRData($this->getNormalizeTable($tc), $this->_period, $this->getNormalizeModule(request()->get('mod')), $cr_sheet);
+            FactHeader::getCRData(
+                $this->getNormalizeTable($tc),
+                $this->_period,
+                $this->getNormalizeModule(request()->get('mod')),
+                $cr_sheet,
+                null,
+                $this->_taxonomy->id
+            );
 
         return (request()->get('json')) ? response()->json($data) : $data;
 
@@ -147,7 +157,7 @@ class TableController extends Controller
 
     private function getNormalizeTable($table)
     {
-        if (strpos($table, $this->_taxonomy->folder)):
+        if (strpos($table, $this->_taxonomy->folder) !== false):
             return Format::getAfterSpecChar($table, $this->_taxonomy->folder, strlen($this->_taxonomy->folder) + 1);
         endif;
         return $table;
@@ -155,7 +165,7 @@ class TableController extends Controller
 
     private function getNormalizeModule($module)
     {
-        if (strpos($module, $this->_taxonomy->folder)):
+        if (strpos($module, $this->_taxonomy->folder) !== false):
             return Format::getAfterSpecChar($module, $this->_taxonomy->folder, strlen($this->_taxonomy->folder) + 1);
         endif;
         return $module;
@@ -171,7 +181,8 @@ class TableController extends Controller
             $this->_period,
             $this->getNormalizeModule($this->getNormalizeModule($request->get('mod'))),
             null,
-            true
+            true,
+            $this->_taxonomy->id
         );
 
         $additional['period'] = $this->_period;
@@ -295,7 +306,12 @@ class TableController extends Controller
 
 
             $fact_module = FactModule::where(
-                [['period', $this->_period], ['module_path', $mod]])->first();
+                [
+                    ['period', $this->_period],
+                    ['module_path', $mod],
+                    ['taxonomy_id', $this->_taxonomy->id],
+                ]
+            )->first();
 
             if (empty($fact_module->id)):
                 throw new \Exception('An error has occurred! Fetching Fact Module! ');

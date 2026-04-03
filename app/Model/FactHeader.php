@@ -42,9 +42,18 @@ class FactHeader extends Model
         foreach ($results as $result) :
 
             if (isset($result->factTable)):
+                $rowContextMap = self::buildRowKeyContextMap($result->factTable);
 
                 foreach ($result->factTable as $row):
-                    $context[$row->id]['context'] = $row->xbrl_context_key_raw;
+                    $parsedCode = self::parseCrCode($row->cr_code);
+                    $groupKey = self::buildRowGroupKey($row->cr_sheet_code, $parsedCode['row_code'] ?? null);
+                    $factContext = self::sanitizeRawContext($row->xbrl_context_key_raw);
+
+                    if (!empty($row->metric) && isset($rowContextMap[$groupKey])) {
+                        $factContext = self::mergeExportContext($factContext, $rowContextMap[$groupKey]);
+                    }
+
+                    $context[$row->id]['context'] = json_encode($factContext);
                     $context[$row->id]['period'] = $period;
                     $context[$row->id]['metric'] = $row->metric;
                     $context[$row->id]['numeric_value'] = $row->string_value;
@@ -63,22 +72,187 @@ class FactHeader extends Model
     }
 
     /**
+     * Build a neutral fact payload for xBRL-CSV packaging.
+     *
+     * @param $fact_module_id
+     * @param $period
+     * @return array
+     */
+    public static function prepareDataForXbrlCsv($fact_module_id, $period): array
+    {
+        $results = self::with('factTable')->where([
+            ['module_id', '=', $fact_module_id]
+        ])->get();
+
+        $facts = [];
+
+        foreach ($results as $result) :
+            if (!isset($result->factTable)):
+                continue;
+            endif;
+
+            foreach ($result->factTable as $row):
+                $parsedCode = self::parseCrCode($row->cr_code);
+                $columnCode = $parsedCode['column_code'] ?? null;
+                $rowCode = $parsedCode['row_code'] ?? null;
+                $rowIndex = $parsedCode['row_index'] ?? null;
+
+                $rawContext = self::decodeRawContext($row->xbrl_context_key_raw);
+                $context = self::sanitizeRawContext($rawContext);
+                $meta = self::extractRawMeta($rawContext);
+
+                $facts[] = [
+                    'fact_header_id' => $row->fact_header_id,
+                    'table_path' => $result->table_path,
+                    'module_path' => $result->module_path,
+                    'period' => $period,
+                    'sheetcode' => $row->cr_sheet_code,
+                    'cr_code' => $row->cr_code,
+                    'column_code' => $columnCode,
+                    'row_code' => $rowCode,
+                    'row_index' => $rowIndex,
+                    'metric' => $row->metric,
+                    'value' => $row->string_value,
+                    'context' => $context,
+                    'meta' => $meta,
+                ];
+            endforeach;
+        endforeach;
+
+        return $facts;
+    }
+
+    private static function decodeRawContext($raw): array
+    {
+        if (is_array($raw)) {
+            return $raw;
+        }
+
+        $decoded = json_decode($raw, true);
+
+        return is_array($decoded) ? $decoded : [];
+    }
+
+    private static function parseCrCode($crCode): array
+    {
+        if (preg_match('/^(c[0-9A-Za-z._-]+?)(r\d+)$/', (string) $crCode, $matches)) {
+            return [
+                'column_code' => $matches[1],
+                'row_code' => $matches[2],
+                'row_index' => intval(substr($matches[2], 1)),
+            ];
+        }
+
+        return [];
+    }
+
+    private static function sanitizeRawContext($raw): array
+    {
+        $context = self::decodeRawContext($raw);
+
+        unset($context['metric'], $context['__meta']);
+
+        return $context;
+    }
+
+    private static function extractRawMeta($raw): array
+    {
+        $context = self::decodeRawContext($raw);
+
+        return (isset($context['__meta']) && is_array($context['__meta'])) ? $context['__meta'] : [];
+    }
+
+    private static function buildRowKeyContextMap($rows): array
+    {
+        $map = [];
+
+        foreach ($rows as $row) {
+            $parsedCode = self::parseCrCode($row->cr_code);
+
+            if (empty($parsedCode['row_code'])) {
+                continue;
+            }
+
+            $rawContext = self::decodeRawContext($row->xbrl_context_key_raw);
+            $context = self::sanitizeRawContext($rawContext);
+            $groupKey = self::buildRowGroupKey($row->cr_sheet_code, $parsedCode['row_code']);
+            $typed = $rawContext['typ'] ?? null;
+
+            foreach ($context as $dimensionKey => $dimensionValue) {
+                if ($dimensionValue !== '*') {
+                    continue;
+                }
+
+                if ($row->string_value === null || $row->string_value === '') {
+                    continue;
+                }
+
+                if (self::looksLikeQName($row->string_value)) {
+                    $map[$groupKey][$dimensionKey] = $row->string_value;
+                    continue;
+                }
+
+                if (!empty($typed)) {
+                    $map[$groupKey]['typedMember'][$dimensionKey] = [
+                        'typ' => $typed,
+                        'value' => $row->string_value,
+                    ];
+                }
+            }
+        }
+
+        return $map;
+    }
+
+    private static function buildRowGroupKey($sheetCode, $rowCode): string
+    {
+        return ($sheetCode ?? '000') . '|' . ($rowCode ?? 'r0');
+    }
+
+    private static function mergeExportContext(array $context, array $rowContext): array
+    {
+        foreach ($rowContext as $key => $value) {
+            if ($key === 'typedMember') {
+                $context['typedMember'] = array_merge($context['typedMember'] ?? [], $value);
+                continue;
+            }
+
+            if (!array_key_exists($key, $context)) {
+                $context[$key] = $value;
+            }
+        }
+
+        return $context;
+    }
+
+    private static function looksLikeQName($value): bool
+    {
+        return is_string($value) && preg_match('/^[A-Za-z_][A-Za-z0-9._-]*:[A-Za-z0-9._-]+$/', $value) === 1;
+    }
+
+    /**
      * @param $table_path
      * @param $period
      * @param $module_path
      * @param null $sheet
      * @return array
      */
-    public static function getCRData($table_path, $period, $module_path, $sheet = null, $all = null): ?array
+    public static function getCRData($table_path, $period, $module_path, $sheet = null, $all = null, $taxonomyId = null): ?array
     {
 
         $data = [];
         $r = 0;
 
-        $fact_module = FactModule::where([
+        $factModuleQuery = FactModule::query()->where([
             ['period', '=', $period],
             ['module_path', '=', $module_path]
-        ])->first();
+        ]);
+
+        if (!is_null($taxonomyId)) {
+            $factModuleQuery->where('taxonomy_id', '=', $taxonomyId);
+        }
+
+        $fact_module = $factModuleQuery->first();
 
 
         if (!is_null($fact_module)):

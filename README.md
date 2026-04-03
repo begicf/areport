@@ -1,110 +1,158 @@
-## About Areport
-Areport is a web application, which allows you to create an XBRL instance based on XBRL taxonomy which is created by DPM Architect.
-This standard is recommended and implemented by EU regulators such as [EBA](https://eba.europa.eu/risk-analysis-and-data/reporting-frameworks) and [EIOPA](https://www.eiopa.europa.eu/tools-and-data/supervisory-reporting-dpm-and-xbrl_en).
+# AReport
 
-[DEMO](https://demo.areport.net/) 
+AReport is a Laravel-based data entry and export application for supervisory reporting taxonomies built with the DPM/XBRL model. It renders taxonomy tables as editable HTML forms, stores facts in a relational database, and exports reporting instances in multiple formats.
 
-Key futures:
-- Web based solution
-- XBRL table specification present through HTML forms
-- Create XBRL instance 
-- Import data from .xlsx formats
-- Export data to .xlsx, .pdf, .html formats
-- Easy Customisable and Scalable
-- ...
+The application uses the companion package [`begicf/areport-dpm-xbrl`](https://github.com/begicf/areport-dpm-xbrl) to parse taxonomy files, render tables, and prepare export payloads.
 
-The application uses a library [apreport-dpm-xbrl](https://github.com/begicf/areport-dpm-xbrl) for parsing XBRL taxonomy. The library is written independently, so it is applicable to any framework. 
+## Current State
 
-The application Areport is based on Laravel framework.
+The current development branch includes the following notable updates:
+
+- Upgraded the application to Laravel `13.3.0`
+- Upgraded the UI stack to Bootstrap `5.3.8`
+- Reworked the shared layout for full-width, dense financial-reporting screens
+- Standardized labels and UI copy to English
+- Added active taxonomy visibility in the navigation and taxonomy management flow
+- Improved the module explorer with compact search and expand/collapse-all behavior
+- Added support for DPM `1.0` and DPM `2.0` taxonomy workflows
+- Fixed taxonomy scoping so the application no longer mixes facts from different active taxonomies
+- Restored legacy DPM `1.0` rendering behavior while continuing compatibility work for DPM `2.0` taxonomies
+- Improved xBRL XML export and added an xBRL-CSV package export path aligned with local EBA sample packages
+- Added regression coverage for export writer behavior
+
+## Main Features
+
+- Web-based XBRL/DPM data entry
+- HTML rendering of taxonomy tables
+- Import from spreadsheet and structured files
+- Export to `.xlsx`, `.pdf`, `.html`, `xBRL-XML`, and `xBRL-CSV`
+- Taxonomy upload and active taxonomy switching
+- Database-backed storage of reporting facts and instances
+- Local development with a symlinked parser package
 
 ## Requirements
-- Server requirements for [Laravel framework](https://laravel.com/docs/7.x/installation#server-requirements)
-- [Supported database](https://laravel.com/docs/7.x/database) - Areport use ORM Eloquent for storing data in database
-- ZIP PHP Extension
 
-## Configuration
-To be able to upload large taxonomy package you need to set following parameters in
-##### php.ini
-- max_execution_time = 6000
-- upload_max_filesize = 4000M
-- post_max_size = 4000M
-- max_input_vars = 4000 
+- PHP `8.3+`
+- Composer
+- Node.js and npm
+- A supported database for Laravel
+- PHP ZIP extension
 
+## Local Development Setup
 
-## Installation
+Clone the application:
 
-```
+```bash
 git clone https://github.com/begicf/areport.git
+cd areport
+```
 
+Install dependencies:
+
+```bash
 composer update
+npm install
 ```
-- Set [env](https://laravel.com/docs/7.x/configuration#environment-variable-types) file
-- additional .env variables
-```
-UPLOAD=1 #to enable update
-LEI_CODE=12345678912345678912 #to set LEI CODE
 
+Create the environment file and generate the app key:
+
+```bash
+cp .env.example .env
+php artisan key:generate
 ```
-To create database table, run this command
-```
+
+Run the database setup:
+
+```bash
 php artisan migrate:fresh --seed
 ```
 
-Run the application
+Build frontend assets:
+
+```bash
+npm run prod
 ```
+
+Start the application:
+
+```bash
 php artisan serve
 ```
 
-## Import *.xml example
-Import xml file in HTML Table Form - RC Notation
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<data>
-  <table_C_01.00>
-    <sheet_000>
-      <c010r010>1</c010r010>
-      <c010r015>2</c010r015>
-      <c010r020>3</c010r020>
-      <c010r030>4</c010r030>
-      <c010r040>5</c010r040>
-    </sheet_000>
-  </table_C_01.00>
-  <table_C_02.00>
-    <sheet_000>
-      <c010r010>6</c010r010>
-      <c010r020>7</c010r020>
-      <c010r030>8</c010r030>
-      <c010r040>9</c010r040>
-      <c010r050>10</c010r050>
-    </sheet_000>
-  </table_C_02.00>
-</data>
+## Local Package Link
 
-```
-## Import *.json example
-Import json file in HTML Table Form - RC Notation
+This project is configured to use the parser package as a local path repository during development:
+
 ```json
-{
-    "table_C_01.00": {
-      "sheet_000": {
-        "c010r010": "1",
-        "c010r015": "2",
-        "c010r020": "3",
-        "c010r030": "4",
-        "c010r040": "5"
-      }
-    },
-    "table_C_02.00": {
-      "sheet_000": {
-        "c010r010": "6",
-        "c010r020": "7",
-        "c010r030": "8",
-        "c010r040": "9",
-        "c010r040": "10"
-      }
+"repositories": [
+  {
+    "type": "path",
+    "url": "../areport-dpm-xbrl",
+    "options": {
+      "symlink": true
     }
   }
+]
 ```
-## Tutorial
 
-[Video](https://www.youtube.com/watch?v=WdV35ywmjjM&feature=youtu.be)
+That means changes made in the local `../areport-dpm-xbrl` repository are immediately visible inside this application through `vendor/begicf/areport-dpm-xbrl`.
+
+## Environment Notes
+
+Additional environment variables used by the application:
+
+```dotenv
+UPLOAD=1
+LEI_CODE=12345678912345678912
+```
+
+For large taxonomy uploads, increase PHP limits in `php.ini`:
+
+```ini
+max_execution_time = 6000
+upload_max_filesize = 4000M
+post_max_size = 4000M
+max_input_vars = 4000
+```
+
+## Taxonomy Notes
+
+- Taxonomy files are typically stored under `storage/app/public/tax`
+- The application is being maintained with support for both DPM `1.0` and DPM `2.0` taxonomy structures
+- The currently active taxonomy is controlled from the taxonomy management UI
+- Recent work focused on keeping DPM `1.0` flows stable while improving DPM `2.0` compatibility
+
+## Testing
+
+Run the backend test suite with:
+
+```bash
+php artisan test
+```
+
+Useful maintenance commands:
+
+```bash
+php artisan view:cache
+php artisan route:list
+php -l path/to/file.php
+```
+
+## Export Notes
+
+The application currently contains two main supervisory export paths:
+
+- Legacy `xBRL-XML` export
+- `xBRL-CSV` report package export
+
+Recent export work included:
+
+- normalization of filing indicator handling
+- better XML context generation, including scenario members
+- datapoint-based CSV generation aligned with local EBA sample instances
+- improved parameter generation for CSV report packages
+
+## Related Repository
+
+- Application: <https://github.com/begicf/areport>
+- Parser package: <https://github.com/begicf/areport-dpm-xbrl>
