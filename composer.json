@@ -19,14 +19,8 @@
     "license": "MIT",
     "repositories": [
         {
-            "type": "path",
-            "url": "../areport-dpm-xbrl",
-            "options": {
-                "symlink": true,
-                "versions": {
-                    "begicf/areport-dpm-xbrl": "dev-master"
-                }
-            }
+            "type": "vcs",
+            "url": "https://github.com/begicf/areport-dpm-xbrl.git"
         },
         {
             "type": "path",
