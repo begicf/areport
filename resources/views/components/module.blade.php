@@ -69,7 +69,25 @@
 </div>
 
 <script type="text/javascript">
-    $('#multiselect').multiselect();
-    $('#datepicker').datepicker({dateFormat: 'dd-mm-yy'}).val();
-    $('#datepicker').datepicker('setDate', new Date("{{$period ?? ''}}"));
+    window.initModulePicker = function () {
+        const $multiselect = $('#multiselect');
+        const $datepicker = $('#datepicker');
+
+        if ($multiselect.length && !$multiselect.data('module-picker-ready')) {
+            $multiselect.multiselect();
+            $multiselect.data('module-picker-ready', true);
+        }
+
+        if ($datepicker.length && !$datepicker.data('datepicker')) {
+            $datepicker.datepicker({ dateFormat: 'dd-mm-yy' }).val();
+        }
+
+        if ($datepicker.length) {
+            $datepicker.datepicker('setDate', new Date("{{$period ?? ''}}"));
+        }
+    };
+
+    $(function () {
+        window.initModulePicker();
+    });
 </script>

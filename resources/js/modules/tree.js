@@ -34,7 +34,12 @@ export default function initTreeModule() {
     const $tree = $('#modules');
     const $search = $('#moduleTreeSearch');
     const $expandAll = $('#moduleTreeExpandAll');
-    const taxonomyFolder = String($tree.data('taxonomy-folder') || 'default');
+
+    try {
+        window.localStorage.removeItem('modules:default');
+    } catch (error) {
+        // Ignore localStorage access issues in restricted environments.
+    }
 
     function setExpandButtonState(isExpanded) {
         const iconClass = isExpanded ? 'fas fa-compress-arrows-alt' : 'fas fa-expand-arrows-alt';
@@ -91,9 +96,6 @@ export default function initTreeModule() {
                 }
             }
         },
-        state: {
-            key: `modules:${taxonomyFolder}`
-        },
         types: {
             fws: {
                 icon: 'fas fa-folder text-primary',
@@ -116,7 +118,7 @@ export default function initTreeModule() {
                 valid_children: []
             }
         },
-        plugins: ['contextmenu', 'search', 'state', 'types', 'wholerow'],
+        plugins: ['contextmenu', 'search', 'types', 'wholerow'],
         search: {
             show_only_matches: true,
             show_only_matches_children: true,
@@ -159,6 +161,10 @@ export default function initTreeModule() {
                                 }
                             }).done(function (response) {
                                 const optionsHTML = [];
+
+                                if (typeof window.initModulePicker === 'function') {
+                                    window.initModulePicker();
+                                }
 
                                 $('#module_name').val(node.text);
                                 $('#module_path').val(node.original.mod);

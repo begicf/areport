@@ -42,7 +42,7 @@ a {
 
 .app-navbar {
     position: relative;
-    z-index: 1040;
+    z-index: 1030;
     padding: 1rem 0;
     background: transparent;
 }
@@ -56,7 +56,6 @@ a {
 
 .app-navbar-surface {
     position: relative;
-    z-index: 1040;
     display: flex;
     align-items: center;
     gap: 1rem;
@@ -130,8 +129,6 @@ a {
 }
 
 .app-main {
-    position: relative;
-    z-index: 1;
     padding-bottom: 2rem;
 }
 
@@ -410,9 +407,16 @@ a {
 }
 
 .dropdown-menu {
+    z-index: 1080;
     border: 1px solid rgba(15, 23, 42, 0.08);
     border-radius: 16px;
     box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+}
+
+.vakata-context,
+.vakata-context ul,
+.ui-datepicker {
+    z-index: 1085 !important;
 }
 
 .dropdown-item {
