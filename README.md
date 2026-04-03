@@ -1,6 +1,6 @@
 # AReport
 
-AReport is a Laravel-based data entry and export application for supervisory reporting taxonomies built with the DPM/XBRL model. It renders taxonomy tables as editable HTML forms, stores facts in a relational database, and exports reporting instances in multiple formats.
+AReport is data entry and export application for supervisory reporting taxonomies built with the DPM/XBRL model. It renders taxonomy tables as editable HTML forms, stores facts in a relational database, and exports reporting instances in multiple formats.
 
 The application uses the companion package [`begicf/areport-dpm-xbrl`](https://github.com/begicf/areport-dpm-xbrl) to parse taxonomy files, render tables, and prepare export payloads.
 
@@ -78,24 +78,6 @@ Start the application:
 ```bash
 php artisan serve
 ```
-
-## Local Package Link
-
-This project is configured to use the parser package as a local path repository during development:
-
-```json
-"repositories": [
-  {
-    "type": "path",
-    "url": "../areport-dpm-xbrl",
-    "options": {
-      "symlink": true
-    }
-  }
-]
-```
-
-That means changes made in the local `../areport-dpm-xbrl` repository are immediately visible inside this application through `vendor/begicf/areport-dpm-xbrl`.
 
 ## Environment Notes
 
