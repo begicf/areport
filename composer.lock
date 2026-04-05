@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d0e950555f632a6c7ccbac83080bd0f5",
+    "content-hash": "7da23b01817e0b61c989dba36cacb73f",
     "packages": [
         {
             "name": "begicf/areport-dpm-xbrl",
-            "version": "dev-master",
+            "version": "v1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/begicf/areport-dpm-xbrl.git",
-                "reference": "59bfd0c"
+                "reference": "59bfd0c31097c0d27c49154785105f7efa15aa11"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/begicf/areport-dpm-xbrl/zipball/59bfd0c",
-                "reference": "59bfd0c",
+                "url": "https://api.github.com/repos/begicf/areport-dpm-xbrl/zipball/59bfd0c31097c0d27c49154785105f7efa15aa11",
+                "reference": "59bfd0c31097c0d27c49154785105f7efa15aa11",
                 "shasum": ""
             },
             "require": {
@@ -25,7 +25,6 @@
                 "php": "^7.3|^8.0",
                 "phpoffice/phpspreadsheet": "^1.21.0"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -51,7 +50,7 @@
                 "report"
             ],
             "support": {
-                "source": "https://github.com/begicf/areport-dpm-xbrl/tree/master",
+                "source": "https://github.com/begicf/areport-dpm-xbrl/tree/v1.0.0",
                 "issues": "https://github.com/begicf/areport-dpm-xbrl/issues"
             },
             "time": "2026-04-05T14:28:43+00:00"
@@ -9266,7 +9265,6 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "begicf/areport-dpm-xbrl": 20,
         "begicf/simple-menu": 20
     },
     "prefer-stable": true,
