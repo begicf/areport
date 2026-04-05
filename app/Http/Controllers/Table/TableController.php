@@ -54,9 +54,23 @@ class TableController extends Controller
 
                 $tmp = json_decode($item, true);
 
-                $_groups[key($tmp)] = json_encode($tmp);
+                if (!is_array($tmp) || empty($tmp)) {
+                    continue;
+                }
+
+                $groupName = key($tmp);
+
+                if (!is_string($groupName) || $groupName === '') {
+                    continue;
+                }
+
+                $_groups[$groupName] = json_encode($tmp);
 
             endforeach;
+
+            if (empty($_groups)) {
+                return redirect('/modules')->with('warning', 'Please choose at least one valid table group.');
+            }
 
             $module_path = $request->get('module_path');
             $module_name = $request->get('module_name');
@@ -87,7 +101,8 @@ class TableController extends Controller
         if ($table):
             $tc = $table;
         else:
-            $tc = current(current($group));
+            $currentGroup = is_array($group) ? current($group) : null;
+            $tc = is_array($currentGroup) ? current($currentGroup) : null;
         endif;
 
         return $tc;

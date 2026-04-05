@@ -461,16 +461,104 @@ a {
     white-space: nowrap;
 }
 
+.app-tree-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+}
+
 .app-tree-shell {
     min-height: 460px;
 }
 
+.app-modules-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) minmax(320px, 0.9fr);
+    gap: 0.9rem;
+    align-items: start;
+}
+
+.app-module-instance-panel {
+    min-height: auto;
+}
+
+.app-module-instance-state {
+    min-height: 0;
+    display: flex;
+    align-items: stretch;
+}
+
+.app-module-instance-empty,
+.app-module-instance-card {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 0.7rem;
+    padding: 0.9rem 1rem;
+    border-radius: 16px;
+    background: linear-gradient(180deg, rgba(248, 250, 252, 0.98), rgba(241, 245, 249, 0.98));
+    border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.app-module-instance-badge {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    padding: 0.28rem 0.58rem;
+    border-radius: 999px;
+    background: rgba(15, 74, 161, 0.08);
+    color: #0f4aa1;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.app-module-instance-badge-muted {
+    background: rgba(148, 163, 184, 0.14);
+    color: #475569;
+}
+
+.app-module-instance-badge-danger {
+    background: rgba(185, 28, 28, 0.1);
+    color: #991b1b;
+}
+
+.app-module-instance-heading {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.app-module-instance-copy {
+    margin: 0;
+    color: #475569;
+    line-height: 1.45;
+    font-size: 0.88rem;
+}
+
+.app-module-instance-card .btn,
+.app-module-instance-empty .btn {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
 @media (max-width: 767.98px) {
+    .app-modules-layout {
+        grid-template-columns: 1fr;
+    }
+
     .app-tree-toolbar {
         align-items: stretch;
     }
 
     .app-tree-search,
+    .app-tree-actions,
     .app-tree-toggle-btn {
         flex: 1 1 100%;
         max-width: none;
