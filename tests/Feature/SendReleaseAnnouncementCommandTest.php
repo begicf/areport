@@ -7,6 +7,7 @@ use App\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use RuntimeException;
 use Tests\TestCase;
 
 class SendReleaseAnnouncementCommandTest extends TestCase
@@ -76,5 +77,75 @@ class SendReleaseAnnouncementCommandTest extends TestCase
             ->assertExitCode(0);
 
         Mail::assertSent(ReleaseAnnouncementMail::class, 1);
+    }
+
+    public function testDryRunSupportsResumingAfterUserId(): void
+    {
+        User::query()->create([
+            'name' => 'Alice',
+            'email' => 'alice@example.com',
+            'password' => Hash::make('password'),
+        ]);
+
+        User::query()->create([
+            'name' => 'Bob',
+            'email' => 'bob@example.com',
+            'password' => Hash::make('password'),
+        ]);
+
+        Mail::fake();
+
+        $this->artisan('release:announce', [
+            '--all' => true,
+            '--after-id' => 1,
+            '--limit' => 1,
+            '--dry-run' => true,
+        ])
+            ->expectsOutput('Resolved 1 recipient(s).')
+            ->expectsTable(
+                ['ID', 'Email', 'Name', 'Source'],
+                [[2, 'bob@example.com', 'Bob', 'users']]
+            )
+            ->expectsOutput('Dry run completed. No email was sent.')
+            ->assertExitCode(0);
+
+        Mail::assertNothingSent();
+    }
+
+    public function testCommandPrintsResumeHintWhenSendingFails(): void
+    {
+        User::query()->create([
+            'name' => 'Alice',
+            'email' => 'alice@example.com',
+            'password' => Hash::make('password'),
+        ]);
+
+        User::query()->create([
+            'name' => 'Bob',
+            'email' => 'bob@example.com',
+            'password' => Hash::make('password'),
+        ]);
+
+        $pendingMail = new class {
+            public function send($mailable): void
+            {
+                throw new RuntimeException('SMTP limit');
+            }
+        };
+
+        Mail::shouldReceive('to')
+            ->once()
+            ->with('alice@example.com')
+            ->andReturn($pendingMail);
+
+        $this->artisan('release:announce', [
+            '--all' => true,
+            '--limit' => 2,
+            '--sleep-ms' => 250,
+        ])
+            ->expectsOutput('Resolved 2 recipient(s).')
+            ->expectsOutput('Sending stopped after 0 recipient(s): SMTP limit')
+            ->expectsOutput('Resume with: php artisan release:announce --all --after-id=0 --limit=2 --sleep-ms=250')
+            ->assertExitCode(1);
     }
 }

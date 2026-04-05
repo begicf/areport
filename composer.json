@@ -16,7 +16,7 @@
         "framework",
         "laravel"
     ],
-    "license": "MIT",
+    "license": "proprietary",
     "repositories": [
         {
             "type": "vcs",
@@ -32,7 +32,7 @@
     ],
     "require": {
         "php": "^8.3",
-        "begicf/areport-dpm-xbrl": "dev-master",
+        "begicf/areport-dpm-xbrl": "dev-master#6fe6a89",
         "begicf/simple-menu": "dev-master",
         "guzzlehttp/guzzle": "^7.0.1",
         "laravel/framework": "^13.0",
