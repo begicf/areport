@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a660dcde60a5e187d3df52af8adc03a5",
+    "content-hash": "d0e950555f632a6c7ccbac83080bd0f5",
     "packages": [
         {
             "name": "begicf/areport-dpm-xbrl",
@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/begicf/areport-dpm-xbrl.git",
-                "reference": "6fe6a89"
+                "reference": "59bfd0c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/begicf/areport-dpm-xbrl/zipball/6fe6a89",
-                "reference": "6fe6a89",
+                "url": "https://api.github.com/repos/begicf/areport-dpm-xbrl/zipball/59bfd0c",
+                "reference": "59bfd0c",
                 "shasum": ""
             },
             "require": {
@@ -54,7 +54,7 @@
                 "source": "https://github.com/begicf/areport-dpm-xbrl/tree/master",
                 "issues": "https://github.com/begicf/areport-dpm-xbrl/issues"
             },
-            "time": "2026-04-05T14:19:04+00:00"
+            "time": "2026-04-05T14:28:43+00:00"
         },
         {
             "name": "begicf/simple-menu",
