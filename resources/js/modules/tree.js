@@ -24,6 +24,13 @@ function debounce(callback, delay) {
     };
 }
 
+function normalizeTableCode(value) {
+    return String(value || '')
+        .trim()
+        .replace(/\.(xsd|xml)$/i, '')
+        .toLowerCase();
+}
+
 export default function initTreeModule() {
     $.ajaxSetup({
         headers: {
@@ -37,6 +44,7 @@ export default function initTreeModule() {
     const $refreshTree = $('#moduleTreeRefresh');
     const $instance = $('#instance');
     const $instanceCreate = $('#moduleInstanceCreate');
+    const translationWorkspaceUrl = String($tree.data('proTranslationUrl') || '');
     let activeModuleNode = null;
 
     try {
@@ -181,6 +189,60 @@ export default function initTreeModule() {
         });
     }
 
+    function tableCodeFromPath(path) {
+        const value = String(path || '');
+        const tabMatch = value.match(/[\\/]tab[\\/]([^\\/]+)[\\/]/i);
+
+        if (tabMatch && tabMatch[1]) {
+            return normalizeTableCode(tabMatch[1]);
+        }
+
+        const parts = value.split(/[\\/]/).filter(Boolean);
+
+        if (parts.length >= 2) {
+            const parent = normalizeTableCode(parts[parts.length - 2]);
+
+            if (/^[a-z]_[0-9]{2}\.[0-9]{2}/i.test(parent)) {
+                return parent;
+            }
+        }
+
+        return null;
+    }
+
+    function tableCodeFromNode(node) {
+        if (!node || node.type !== 'file') {
+            return null;
+        }
+
+        const original = node.original || {};
+        const fromPath = tableCodeFromPath(original.table_xsd || original.path || original.href);
+
+        if (fromPath) {
+            return fromPath;
+        }
+
+        const textMatch = String(node.text || '').match(/[A-Z]_[0-9]{2}\.[0-9]{2}(?:\.[A-Z0-9]+)?/i);
+
+        if (textMatch && textMatch[0]) {
+            return normalizeTableCode(textMatch[0]);
+        }
+
+        return null;
+    }
+
+    function openTranslationWorkspace(node) {
+        const tableCode = tableCodeFromNode(node);
+
+        if (!translationWorkspaceUrl || !tableCode) {
+            return;
+        }
+
+        const url = new URL(translationWorkspaceUrl, window.location.origin);
+        url.searchParams.set('table', tableCode);
+        window.location.assign(url.toString());
+    }
+
     function hasOpenBranches(instance) {
         return instance.get_json('#', { flat: true }).some(function (node) {
             return node.id !== '#' && Array.isArray(node.children) && node.children.length > 0 && instance.is_open(node.id);
@@ -305,6 +367,7 @@ export default function initTreeModule() {
                 const instance = $tree.jstree(true);
                 const canToggleBranch = node.type !== 'file' && Array.isArray(node.children) && node.children.length > 0;
                 const branchExpanded = canToggleBranch ? isBranchFullyExpanded(instance, node) : false;
+                const hasTranslationWorkspace = translationWorkspaceUrl !== '' && tableCodeFromNode(node) !== null;
 
                 return {
                     ToggleBranch: {
@@ -331,12 +394,22 @@ export default function initTreeModule() {
                     },
                     Create: {
                         separator_before: false,
-                        separator_after: false,
+                        separator_after: hasTranslationWorkspace,
                         label: 'New instance',
                         _disabled: node.type !== 'mod',
                         icon: 'fas fa-external-link-alt',
                         action: function () {
                             openModuleInstance(node, true);
+                        }
+                    },
+                    TranslationWorkspace: {
+                        separator_before: false,
+                        separator_after: false,
+                        label: 'Translation workspace',
+                        _disabled: !hasTranslationWorkspace,
+                        icon: 'fas fa-language',
+                        action: function () {
+                            openTranslationWorkspace(node);
                         }
                     }
                 };

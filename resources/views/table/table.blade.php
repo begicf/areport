@@ -110,6 +110,14 @@
             <div class="app-report-toolbar">
                 <div id="button_group" class="app-report-groupbar"></div>
                 <div id="sheets" class="app-report-sheets"></div>
+                @if(Route::has('areport-pro.dpm-architect.index'))
+                    <div class="app-report-row-actions app-report-translate-actions">
+                        <button type="button" class="btn app-report-translate-btn" id="openTranslationWorkspace" disabled>
+                            <i class="fas fa-language"></i>
+                            <span>Translate</span>
+                        </button>
+                    </div>
+                @endif
                 <div id="openY" class="app-report-row-actions" style="display: none">
                     <button type="button" class="btn btn-outline-secondary" id="addRow">
                         <i class="fas fa-plus"></i>
@@ -168,6 +176,7 @@
         var aspectNode = null;
         var tableCode = null;
         var activeInspectorCell = null;
+        var translationWorkspaceUrl = @json(Route::has('areport-pro.dpm-architect.index') ? route('areport-pro.dpm-architect.index') : null);
 
         function hidePleaseWait() {
             window.appModal.hide('pleaseWaitDialog');
@@ -259,6 +268,73 @@
 
             sheetSelect.classList.add('form-select');
             sheetSelect.dataset.prevValue = sheetSelect.value || '';
+        }
+
+        function normalizeTranslationTableCode(value) {
+            return String(value || '')
+                .trim()
+                .replace(/\.(xsd|xml)$/i, '')
+                .toLowerCase();
+        }
+
+        function tableCodeFromPath(path) {
+            const value = String(path || '');
+            const tabMatch = value.match(/[\\/]tab[\\/]([^\\/]+)[\\/]/i);
+
+            if (tabMatch && tabMatch[1]) {
+                return normalizeTranslationTableCode(tabMatch[1]);
+            }
+
+            const parts = value.split(/[\\/]/).filter(Boolean);
+
+            if (parts.length >= 2) {
+                const parent = normalizeTranslationTableCode(parts[parts.length - 2]);
+
+                if (/^[a-z]_[0-9]{2}\.[0-9]{2}/i.test(parent)) {
+                    return parent;
+                }
+            }
+
+            return null;
+        }
+
+        function currentTranslationTableCode() {
+            const pathTableCode = tableCodeFromPath($('#export_table_path').val());
+
+            if (pathTableCode) {
+                return pathTableCode;
+            }
+
+            const normalizedTableCode = normalizeTranslationTableCode(tableCode);
+
+            if (/^[a-z]_[0-9]{2}\.[0-9]{2}/i.test(normalizedTableCode)) {
+                return normalizedTableCode;
+            }
+
+            return null;
+        }
+
+        function updateTranslationWorkspaceButton() {
+            const button = document.getElementById('openTranslationWorkspace');
+
+            if (!button) {
+                return;
+            }
+
+            button.disabled = !translationWorkspaceUrl || !currentTranslationTableCode();
+        }
+
+        function openTranslationWorkspace() {
+            const code = currentTranslationTableCode();
+
+            if (!translationWorkspaceUrl || !code) {
+                window.alert('Translation workspace is not available for the active table.');
+                return;
+            }
+
+            const url = new URL(translationWorkspaceUrl, window.location.origin);
+            url.searchParams.set('table', code);
+            window.location.assign(url.toString());
         }
 
         function updateCellInspector(control) {
@@ -448,6 +524,9 @@
             $("#tab").empty();
             $("#button_group").empty();
             $("#sheets").empty();
+            tableCode = null;
+            $('#tableCode').val('');
+            updateTranslationWorkspaceButton();
             resetCellInspector('Loading the selected table.');
 
             axios.post('/table/ajax', {
@@ -465,9 +544,11 @@
                 $('#sheets').html(response.data.sheets);
                 $('#button_group').html(response.data.groups);
                 $('#export_table_path').val(response.data.table_path);
+                $('#tableCode').val(tableCode);
 
                 initializeSheetSelector();
                 setupCellInspector();
+                updateTranslationWorkspaceButton();
 
 
                 if (response.data.aspectNode == true) {
@@ -525,6 +606,12 @@
                 hidePleaseWait();
             });
         }
+
+        $(document).on('click', '#openTranslationWorkspace', function () {
+            save().finally(function () {
+                openTranslationWorkspace();
+            });
+        });
 
 
         /* Import*/

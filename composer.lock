@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7da23b01817e0b61c989dba36cacb73f",
+    "content-hash": "77e95551c9c3baa241941c71162b32a9",
     "packages": [
         {
             "name": "begicf/areport-dpm-xbrl",
@@ -54,6 +54,55 @@
                 "issues": "https://github.com/begicf/areport-dpm-xbrl/issues"
             },
             "time": "2026-04-05T14:28:43+00:00"
+        },
+        {
+            "name": "begicf/areport-pro",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../areport-pro",
+                "reference": "e90c2a3fd8f4229f39c822fef8fded120b579f66"
+            },
+            "require": {
+                "ext-dom": "*",
+                "illuminate/database": "^13.0",
+                "illuminate/http": "^13.0",
+                "illuminate/routing": "^13.0",
+                "illuminate/support": "^13.0",
+                "php": "^8.3"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Begicf\\AReportPro\\AReportProServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Begicf\\AReportPro\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Begicf\\AReportPro\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "authors": [
+                {
+                    "name": "Fuad Begic",
+                    "email": "fuad.begic@gmail.com"
+                }
+            ],
+            "description": "Commercial extension package for AReport.",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
         },
         {
             "name": "begicf/simple-menu",
@@ -9265,6 +9314,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "begicf/areport-pro": 20,
         "begicf/simple-menu": 20
     },
     "prefer-stable": true,

@@ -17,7 +17,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        foreach (config('areport.extension_providers', []) as $provider) {
+            if (is_string($provider) && class_exists($provider)) {
+                $this->app->register($provider);
+            }
+        }
     }
 
     /**
