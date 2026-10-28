@@ -70,6 +70,7 @@
                     id="modules"
                     class="app-tree-shell"
                     data-taxonomy-folder="{{ $activeTaxonomy->folder ?? 'default' }}"
+                    data-pro-translation-url="{{ Route::has('areport-pro.dpm-architect.index') ? route('areport-pro.dpm-architect.index') : '' }}"
                 ></div>
             </section>
 

@@ -692,6 +692,46 @@ a {
     justify-content: flex-end;
 }
 
+.app-report-translate-actions {
+    align-items: center;
+}
+
+.app-report-page .app-report-translate-btn {
+    min-height: 34px;
+    padding: 0.36rem 0.62rem;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    border-radius: 8px;
+    background: rgba(248, 250, 252, 0.72);
+    color: #475569;
+    font-size: 0.8rem;
+    font-weight: 700;
+    line-height: 1.2;
+    box-shadow: none;
+}
+
+.app-report-page .app-report-translate-btn i {
+    color: #0f766e;
+    font-size: 0.78rem;
+}
+
+.app-report-page .app-report-translate-btn:hover,
+.app-report-page .app-report-translate-btn:focus {
+    border-color: rgba(15, 118, 110, 0.28);
+    background: #f8fafc;
+    color: #0f172a;
+}
+
+.app-report-page .app-report-translate-btn:disabled {
+    border-color: rgba(15, 23, 42, 0.08);
+    background: rgba(248, 250, 252, 0.45);
+    color: #94a3b8;
+    opacity: 1;
+}
+
+.app-report-page .app-report-translate-btn:disabled i {
+    color: #94a3b8;
+}
+
 .app-report-inspector {
     display: grid;
     gap: 0.55rem;
