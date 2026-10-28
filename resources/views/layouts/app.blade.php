@@ -49,6 +49,16 @@
         .app-page { padding: .9rem 1rem 2rem; }
         .app-page-kicker { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: #0f766e; }
         .app-page-title { font-size: 1.3rem; font-weight: 800; color: #0f172a; margin: 0; }
+
+        /* Flatten the shared design-system panels (module explorer, taxonomy, reports…) */
+        .app-page-header, .app-panel {
+            border-radius: 0 !important; box-shadow: none !important; border: 1px solid #cbd5e1 !important; }
+        .app-page-header { border-top: 2px solid #0f766e !important; padding: .7rem .9rem !important; margin-bottom: .6rem !important; }
+        .app-panel { padding: .8rem .9rem; }
+        .app-tree-shell, .app-tree-toolbar, .app-report-controls, .app-table-shell,
+        .app-module-instance-empty, .app-module-instance-card, .app-module-instance-icon,
+        .app-module-instance-badge { border-radius: 2px !important; box-shadow: none !important; }
+        .app-module-instance-icon { background: #f0fdfa !important; color: #0f766e !important; border: 1px solid #99f6e4 !important; }
     </style>
     @stack('styles')
 </head>
