@@ -20,6 +20,36 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+
+    {{-- One desktop theme for the whole app: flat, professional, consistent on every page. --}}
+    <style>
+        body { background: #eef2f6 !important; color: #0f172a; }
+
+        /* Top navigation: a single flat band (no web rounding / glass / shadow) */
+        .app-navbar { padding: 0 !important; background: #fff !important; border-bottom: 1px solid #cbd5e1; }
+        .app-navbar .container-fluid { padding: 0 !important; }
+        .app-navbar-surface { border: 0 !important; border-radius: 0 !important; background: #fff !important;
+            backdrop-filter: none !important; box-shadow: none !important; padding: .3rem 1rem !important; gap: .8rem; }
+        .app-navbar-brand img { height: 34px !important; }
+        .app-navbar-title { font-size: .92rem; }
+        .app-navbar-subtitle { font-size: .62rem; letter-spacing: .12em; }
+        .app-navbar .nav-link { border-radius: 2px !important; padding: .4rem .7rem !important; font-weight: 600; }
+        .app-navbar .nav-link:hover, .app-navbar .nav-link:focus, .app-navbar .nav-link.active { background: #e6eef7; }
+        .app-navbar .d-md-flex.align-items-center, .app-navbar .d-none.d-md-flex { margin-left: auto !important; }
+
+        /* Flat desktop controls everywhere */
+        .btn, .form-control, .form-select, .input-group-text, .dropdown-menu,
+        .card, .modal-content, .alert, .list-group-item, .page-link,
+        .badge, .badge.rounded-pill { border-radius: 2px !important; }
+        .btn { font-weight: 600; }
+        .card { border: 1px solid #cbd5e1; box-shadow: none; }
+        .card-header { background: #f1f5f9; border-bottom: 1px solid #cbd5e1; }
+
+        /* Shared page scaffold used by DPM Architect / Settings and reusable elsewhere */
+        .app-page { padding: .9rem 1rem 2rem; }
+        .app-page-kicker { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: #0f766e; }
+        .app-page-title { font-size: 1.3rem; font-weight: 800; color: #0f172a; margin: 0; }
+    </style>
     @stack('styles')
 </head>
 <body>
@@ -44,6 +74,9 @@
                     @auth
                         <ul class="navbar-nav me-auto">
                             <x-menu-menu-component type="v"/>
+                            @foreach(config('areport.views.authenticated_navigation', []) as $navigationView)
+                                @includeIf($navigationView)
+                            @endforeach
                         </ul>
 
                         <div class="d-none d-md-flex align-items-center gap-2 ms-md-3">
