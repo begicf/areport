@@ -56,9 +56,22 @@
         .app-page-header { border-top: 2px solid #0f766e !important; padding: .7rem .9rem !important; margin-bottom: .6rem !important; }
         .app-panel { padding: .8rem .9rem; }
         .app-tree-shell, .app-tree-toolbar, .app-report-controls, .app-table-shell,
+        .app-report-panel, .app-report-header, .app-report-inspector, .app-report-table-shell,
+        .app-auth-card, .app-auth-aside, .app-report-controls-bar,
         .app-module-instance-empty, .app-module-instance-card, .app-module-instance-icon,
         .app-module-instance-badge { border-radius: 2px !important; box-shadow: none !important; }
         .app-module-instance-icon { background: #f0fdfa !important; color: #0f766e !important; border: 1px solid #99f6e4 !important; }
+
+        /* Flatten plugin widgets & modals so every page matches the desktop theme */
+        .modal-content { border-radius: 2px !important; box-shadow: none !important; border: 1px solid #94a3b8; }
+        .modal-content .modal-header { background: #f1f5f9; border-bottom: 1px solid #cbd5e1; }
+        .bootstrap-select > .dropdown-toggle, .bootstrap-select .dropdown-menu,
+        .ui-datepicker, .ui-widget-content, .jstree-default .jstree-anchor { border-radius: 2px !important; }
+        .btn:disabled, .btn.disabled { opacity: .5; cursor: not-allowed; }
+        code { background: #f8fafc; border: 1px solid #e2e8f0; padding: .05rem .3rem; border-radius: 2px;
+            font-family: "SFMono-Regular","Consolas","Liberation Mono",monospace; font-size: .86em; color: #0f766e; }
+        .alert { border-radius: 2px !important; box-shadow: none !important; }
+        .dpm-loading { font-size: .82rem; color: #94a3b8; padding: 1rem; text-align: center; }
     </style>
     @stack('styles')
 </head>
