@@ -132,7 +132,7 @@
 
             <input type="hidden" id="tableCode" name="tableCode">
 
-            <div id="cellInspector" class="app-report-inspector">
+            <div id="cellInspector" class="app-report-inspector" aria-live="polite" aria-label="Cell details">
                 <div class="app-report-inspector-bar">
                     <div class="app-report-inspector-summary">
                         <span class="app-report-inspector-kicker">Cell inspector</span>
@@ -158,7 +158,12 @@
 
             <div class="app-report-table-shell">
                 <div class="table-responsive">
-                    <form id="table_form" method="post"></form>
+                    <form id="table_form" method="post">
+                        <div class="app-report-empty dpm-loading" id="tableEmptyState">
+                            <i class="fas fa-table-cells-large d-block mb-2" style="font-size:1.4rem;color:#cbd5e1"></i>
+                            Select a table group above to load the reporting table.
+                        </div>
+                    </form>
                 </div>
             </div>
         </section>
