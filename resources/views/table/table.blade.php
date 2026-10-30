@@ -47,7 +47,8 @@
         .rib-sep { width: 1px; background: var(--line); margin: .3rem .35rem; align-self: stretch; }
         .rib-group { display: flex; flex-direction: column; align-items: center; gap: .25rem; padding: .1rem .35rem; }
         .rib-btns { display: flex; align-items: center; gap: .25rem; }
-        .rib-cap { font-size: .54rem; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--faint); }
+        .rib-cap { order: -1; margin-bottom: .15rem; font-size: .54rem; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--faint); }
+        .rib-title { justify-content: flex-start; }
         .rib-btn { display: flex; flex-direction: column; align-items: center; gap: .18rem; border: 1px solid transparent; background: transparent;
             border-radius: 7px; padding: .3rem .55rem; color: #3a4654; font-size: .66rem; font-weight: 500; cursor: pointer; min-width: 54px; line-height: 1.05; }
         .rib-btn i { font-size: 1.05rem; color: var(--blue); }
@@ -55,6 +56,19 @@
         .rib-btn.dropdown-toggle::after { display: none; }
         .rib-select { height: 34px; border: 1px solid var(--line); border-radius: 7px; font-size: .82rem; padding: 0 .5rem; min-width: 160px; background: #fff; }
         .ribbon .dropdown-menu { font-size: .85rem; z-index: 1060; box-shadow: 0 10px 30px rgba(16,24,40,.14); }
+        .rib-right { margin-left: auto; }
+        /* Per-action colours so the ribbon reads at a glance */
+        .rib-new i { color: #2f557d; }
+        .rib-import i { color: #2f8a5a; }
+        .rib-export i { color: #6d5ab5; }
+        .rib-check i { color: #0f766e; }
+        .rib-new:hover { background: #eef3f9; border-color: #dbe4ef; }
+        .rib-import:hover { background: #e9f5ee; border-color: #cce6d8; }
+        .rib-export:hover { background: #efecf8; border-color: #ddd6f1; }
+        .rib-check:hover { background: #e7f4f2; border-color: #c7e6e1; }
+        .rib-btn:disabled { opacity: .45; cursor: not-allowed; }
+        /* Cell inspector hidden — reclaim vertical space */
+        #cellInspector { display: none !important; }
     </style>
 
     <div class="app-page app-report-page">
@@ -67,7 +81,7 @@
             <div class="rib-sep"></div>
             <div class="rib-group">
                 <div class="rib-btns">
-                    <button type="button" class="rib-btn" onclick="module()" title="Start a new instance">
+                    <button type="button" class="rib-btn rib-new" onclick="module()" title="Start a new instance">
                         <i class="fas fa-file-circle-plus"></i><span>New</span>
                     </button>
                 </div>
@@ -89,11 +103,11 @@
             <div class="rib-sep"></div>
             <div class="rib-group">
                 <div class="rib-btns">
-                    <button type="button" class="rib-btn" onclick="document.getElementById('fileToUpload').click()" title="Import a source file">
+                    <button type="button" class="rib-btn rib-import" onclick="document.getElementById('fileToUpload').click()" title="Import a source file">
                         <i class="fas fa-file-import"></i><span>Import</span>
                     </button>
                     <div class="dropdown">
-                        <button type="button" class="rib-btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Export the instance">
+                        <button type="button" class="rib-btn rib-export dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Export the instance">
                             <i class="fas fa-file-export"></i><span>Export</span>
                         </button>
                         <form id="export_table" method="post" action="table/export">
@@ -115,6 +129,18 @@
                 <span class="rib-cap">Data</span>
             </div>
 
+            @if(Route::has('areport-pro.dpm-model.index'))
+                <div class="rib-sep rib-right"></div>
+                <div class="rib-group">
+                    <div class="rib-btns">
+                        <button type="button" class="rib-btn rib-check" id="validateInstanceBtn" disabled title="Validate the instance against the rules">
+                            <i class="fas fa-circle-check"></i><span>Validate</span>
+                        </button>
+                    </div>
+                    <span class="rib-cap">Check</span>
+                </div>
+            @endif
+
             {{-- Hidden import form: the Import button opens the picker, which auto-submits via the existing handler --}}
             <form id="import" class="d-none" method="POST" enctype="multipart/form-data">
                 {{ csrf_field() }}
@@ -128,23 +154,9 @@
         @include('flash.flash-message')
 
         <section class="app-panel app-report-panel">
-            <div class="app-panel-header mb-0">
-                <div>
-                    <h2 class="app-panel-title">Active table workspace</h2>
-                    <p class="app-panel-copy">Use group tabs, sheet selection, and row actions without wasting vertical space.</p>
-                </div>
-            </div>
-
             <div class="app-report-toolbar app-report-toolbar-tight">
                 <div id="button_group" class="app-report-groupbar"></div>
                 <div id="sheets" class="app-report-sheets"></div>
-                @if(Route::has('areport-pro.dpm-model.index'))
-                    <div class="app-report-row-actions ms-auto">
-                        <button type="button" class="btn btn-sm btn-primary" id="validateInstanceBtn" disabled>
-                            <i class="fas fa-circle-check"></i> Validate
-                        </button>
-                    </div>
-                @endif
             </div>
 
             <div id="validationResult" class="app-report-validation" style="display:none"></div>
