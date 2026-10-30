@@ -19,7 +19,7 @@
         .dpm-val-rule { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; padding: 0 .3rem; border-radius: 3px; font-size: .72rem; }
         .dpm-val-facts { display: flex; flex-wrap: wrap; gap: .3rem; margin: .25rem 0 0 1rem; }
         .dpm-val-fact { font-size: .72rem; background: #f8fafc; border: 1px solid #e2e8f0; padding: .05rem .4rem; border-radius: 3px; font-variant-numeric: tabular-nums; }
-        .dpm-val-fact b { color: #0f766e; }
+        .dpm-val-fact b { color: #2f557d; }
         .dpm-sev-error { color: #dc2626; } .dpm-sev-warning { color: #d97706; }
         .dpm-val-ok { color: #16a34a; margin-top: .4rem; } .dpm-val-err { color: #dc2626; }
         /* The cells the validator flagged — what the reporter must fix. */
