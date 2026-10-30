@@ -68,6 +68,15 @@
         .bootstrap-select > .dropdown-toggle, .bootstrap-select .dropdown-menu,
         .ui-datepicker, .ui-widget-content, .jstree-default .jstree-anchor { border-radius: 2px !important; }
         .btn:disabled, .btn.disabled { opacity: .5; cursor: not-allowed; }
+        /* Primary = teal accent (match the desktop theme) */
+        .btn-primary { background-color: #0f766e; border-color: #0f766e; }
+        .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary:first-child:active {
+            background-color: #0b5c55 !important; border-color: #0b5c55 !important; }
+        .btn-outline-primary { color: #0f766e; border-color: #0f766e; }
+        .btn-outline-primary:hover { background-color: #0f766e; border-color: #0f766e; color: #fff; }
+        .text-bg-primary { background-color: #0f766e !important; }
+        .text-primary { color: #0f766e !important; }
+        a { color: #0f766e; }
         code { background: #f8fafc; border: 1px solid #e2e8f0; padding: .05rem .3rem; border-radius: 2px;
             font-family: "SFMono-Regular","Consolas","Liberation Mono",monospace; font-size: .86em; color: #0f766e; }
         .alert { border-radius: 2px !important; box-shadow: none !important; }
