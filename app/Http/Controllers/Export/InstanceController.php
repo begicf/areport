@@ -54,6 +54,15 @@ class InstanceController extends Controller
         return $module;
     }
 
+    /** Reporting entity LEI: from Settings, falling back to env then a placeholder. */
+    private function reportingLei(): string
+    {
+        $cls = \Begicf\AReportPro\Models\DpmSetting::class;
+        $lei = class_exists($cls) ? ($cls::get('lei') ?: null) : null;
+
+        return $lei ?: env('LEI_CODE', '12345678912345678912');
+    }
+
     public function exportInstance()
     {
         $module = $this->getNormalizeModule(request('mod'));
@@ -74,7 +83,7 @@ class InstanceController extends Controller
 
 
         $instance =
-            new CreateXBRLFromDB(request('period'), env('LEI_CODE', '12345678912345678912'), $module, $data, $find, $fact_module->taxonomy->folder);
+            new CreateXBRLFromDB(request('period'), $this->reportingLei(), $module, $data, $find, $fact_module->taxonomy->folder);
         $file = $instance->writeXbrl();
 
         return response()->streamDownload(function () use ($file) {
@@ -102,7 +111,7 @@ class InstanceController extends Controller
 
         $instance = new CreateXBRLCsvPackage(
             request('period'),
-            env('LEI_CODE', '12345678912345678912'),
+            $this->reportingLei(),
             $module,
             $data,
             $fact_module->taxonomy->folder
