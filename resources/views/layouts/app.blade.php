@@ -87,11 +87,12 @@
 
         /* Shared page scaffold (DPM Architect / Settings / taxonomy…) */
         .app-page { padding: .9rem 1rem 1.6rem; }
-        .app-page-kicker { font-size: .62rem; font-weight: 700; text-transform: uppercase; letter-spacing: .11em; color: var(--amber); }
-        .app-page-title { font-size: 1.18rem; font-weight: 600; color: var(--ink); margin: 0; letter-spacing: -.01em; }
+        .app-page-kicker { font-size: .58rem; font-weight: 700; text-transform: uppercase; letter-spacing: .11em; color: var(--amber); }
+        .app-page-title { font-size: 1.02rem; font-weight: 600; color: var(--ink); margin: .05rem 0 0; letter-spacing: -.01em; }
+        .app-page-copy { font-size: .76rem; color: var(--muted); margin: .1rem 0 0 !important; }
         .app-page-header, .app-panel {
             border-radius: 9px !important; box-shadow: 0 1px 2px rgba(16,24,40,.04) !important; border: 1px solid var(--line) !important; }
-        .app-page-header { border-top: 1px solid var(--line) !important; padding: .7rem .9rem !important; margin-bottom: .7rem !important; }
+        .app-page-header { border-top: 1px solid var(--line) !important; padding: .5rem .8rem !important; margin-bottom: .6rem !important; }
         .app-panel { padding: .7rem .85rem; }
         /* All pages span the full width (no outer shell padding); each page keeps
            its own modest inner padding. DPM Architect is fully flush (padding 0). */
