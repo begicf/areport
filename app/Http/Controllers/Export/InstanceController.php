@@ -54,25 +54,44 @@ class InstanceController extends Controller
         return $module;
     }
 
-    /** Reporting entity LEI: from Settings, falling back to env then a placeholder. */
+    /**
+     * The reporting entity for this export: the one chosen on the instance
+     * (request 'entity') if given, else the default entity, else the legacy
+     * single LEI setting. Returns ['lei' => …, 'name' => …].
+     *
+     * @return array{lei:string,name:?string}
+     */
+    private function currentEntity(): array
+    {
+        $entityCls = \Begicf\AReportPro\Models\DpmEntity::class;
+        if (class_exists($entityCls)) {
+            $id = request('entity');
+            $e = $id ? $entityCls::find($id) : $entityCls::current();
+            if ($e && $e->lei) {
+                return ['lei' => $e->lei, 'name' => $e->name];
+            }
+        }
+
+        $settingCls = \Begicf\AReportPro\Models\DpmSetting::class;
+        $lei = class_exists($settingCls) ? ($settingCls::get('lei') ?: null) : null;
+        $name = class_exists($settingCls) ? ($settingCls::get('entity_name') ?: null) : null;
+
+        return ['lei' => $lei ?: env('LEI_CODE', '12345678912345678912'), 'name' => $name];
+    }
+
     private function reportingLei(): string
     {
-        $cls = \Begicf\AReportPro\Models\DpmSetting::class;
-        $lei = class_exists($cls) ? ($cls::get('lei') ?: null) : null;
-
-        return $lei ?: env('LEI_CODE', '12345678912345678912');
+        return $this->currentEntity()['lei'];
     }
 
     /**
-     * A filename slug for the export, built from the reporting entity name
-     * (Settings) — EBA instances carry only the LEI, so the readable entity
-     * name is surfaced in the download filename instead.
+     * A filename slug from the entity name — EBA instances carry only the LEI,
+     * so the readable entity name is surfaced in the download filename instead.
      */
     private function fileSlug(): string
     {
-        $cls = \Begicf\AReportPro\Models\DpmSetting::class;
-        $name = class_exists($cls) ? ($cls::get('entity_name') ?: null) : null;
-        $base = $name ?: $this->reportingLei();
+        $entity = $this->currentEntity();
+        $base = $entity['name'] ?: $entity['lei'];
         $slug = trim(preg_replace('/[^A-Za-z0-9]+/', '_', (string) $base), '_');
 
         return substr($slug, 0, 40) ?: 'instance';
