@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class FactModule extends Model
 {
     protected $table = 'fact_module';
-    protected $fillable = ['taxonomy_id', 'period', 'module_name', 'module_path', 'groups'];
+    protected $fillable = ['taxonomy_id', 'entity_id', 'period', 'module_name', 'module_path', 'groups'];
 
     protected $casts = [
         'period' => 'date:d-m-Y',

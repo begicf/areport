@@ -13,6 +13,8 @@ use AReportDpmXBRL\Library\Format;
 
 class InstanceController extends Controller
 {
+    private $_entityId = null;
+
     public function __construct()
     {
         $this->_taxonomy = Taxonomy::query()->where('active', true)->first();
@@ -65,7 +67,7 @@ class InstanceController extends Controller
     {
         $entityCls = \Begicf\AReportPro\Models\DpmEntity::class;
         if (class_exists($entityCls)) {
-            $id = request('entity');
+            $id = $this->_entityId ?: request('entity');
             $e = $id ? $entityCls::find($id) : $entityCls::current();
             if ($e && $e->lei) {
                 return ['lei' => $e->lei, 'name' => $e->name];
@@ -107,6 +109,8 @@ class InstanceController extends Controller
             ['taxonomy_id', '=', $this->_taxonomy->id],
         ])->with(['taxonomy', 'factHeader'])->first();
 
+        $this->_entityId = $fact_module->entity_id ?? null;
+
         $find = [];
 
         foreach ($fact_module->factHeader as $row):
@@ -140,6 +144,8 @@ class InstanceController extends Controller
         if (is_null($fact_module)) {
             abort(404, 'Active module was not found for xBRL-CSV export.');
         }
+
+        $this->_entityId = $fact_module->entity_id ?? null;
 
         $data = FactHeader::prepareDataForXbrlCsv($fact_module->id, request('period'));
 
