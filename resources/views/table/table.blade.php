@@ -4,6 +4,29 @@
 
 @section('content')
 
+    <style>
+        .app-report-validation { margin: .6rem 0; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; padding: .6rem .7rem; font-size: .8rem; }
+        .dpm-val-head { display: flex; gap: .4rem; align-items: center; flex-wrap: wrap; }
+        .dpm-val-pill { font-size: .72rem; font-weight: 700; padding: .12rem .5rem; border-radius: 3px; }
+        .dpm-val-pill.ok { background: #dcfce7; color: #166534; } .dpm-val-pill.err { background: #fee2e2; color: #b91c1c; }
+        .dpm-val-pill.ind { background: #fef3c7; color: #b45309; } .dpm-val-pill.mut { background: #f1f5f9; color: #64748b; }
+        .dpm-val-meta { font-size: .72rem; color: #94a3b8; margin-left: .2rem; }
+        .dpm-val-close { margin-left: auto; border: 0; background: transparent; font-size: 1.1rem; line-height: 1; color: #94a3b8; cursor: pointer; }
+        .dpm-val-note { font-size: .74rem; color: #b45309; margin: .4rem 0 .3rem; }
+        .dpm-val-fails { max-height: 32vh; overflow: auto; border: 1px solid #f1f5f9; border-radius: 6px; }
+        .dpm-val-fail { padding: .35rem .5rem; border-bottom: 1px solid #f1f5f9; }
+        .dpm-val-fh { display: flex; gap: .4rem; align-items: center; flex-wrap: wrap; font-size: .76rem; }
+        .dpm-val-rule { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; padding: 0 .3rem; border-radius: 3px; font-size: .72rem; }
+        .dpm-val-facts { display: flex; flex-wrap: wrap; gap: .3rem; margin: .25rem 0 0 1rem; }
+        .dpm-val-fact { font-size: .72rem; background: #f8fafc; border: 1px solid #e2e8f0; padding: .05rem .4rem; border-radius: 3px; font-variant-numeric: tabular-nums; }
+        .dpm-val-fact b { color: #0f766e; }
+        .dpm-sev-error { color: #dc2626; } .dpm-sev-warning { color: #d97706; }
+        .dpm-val-ok { color: #16a34a; margin-top: .4rem; } .dpm-val-err { color: #dc2626; }
+        /* The cells the validator flagged — what the reporter must fix. */
+        #table_form td.dpm-cell-fail { background: #fee2e2 !important; outline: 2px solid #dc2626; outline-offset: -2px; }
+        #table_form td.dpm-cell-fail input, #table_form td.dpm-cell-fail select { border-color: #dc2626 !important; background: #fff1f1; }
+    </style>
+
     <div class="app-page app-report-page">
         <div class="app-report-topbar">
             <section class="app-page-header app-report-header">
@@ -128,7 +151,17 @@
                         Remove row
                     </button>
                 </div>
+                @if(Route::has('areport-pro.dpm-architect.index'))
+                    <div class="app-report-row-actions app-report-validate-actions">
+                        <button type="button" class="btn btn-primary" id="validateInstanceBtn" disabled>
+                            <i class="fas fa-circle-check"></i>
+                            Validate
+                        </button>
+                    </div>
+                @endif
             </div>
+
+            <div id="validationResult" class="app-report-validation" style="display:none"></div>
 
             <input type="hidden" id="tableCode" name="tableCode">
 
@@ -503,6 +536,94 @@
 
         }
 
+        // ---- Instance validation (reporting flow) ----
+        function resetValidation() {
+            $('#validateInstanceBtn').prop('disabled', true);
+            const box = document.getElementById('validationResult');
+            if (box) { box.style.display = 'none'; box.innerHTML = ''; }
+            clearFailedCells();
+        }
+
+        function clearFailedCells() {
+            document.querySelectorAll('#table_form td.dpm-cell-fail').forEach(function (td) {
+                td.classList.remove('dpm-cell-fail');
+            });
+        }
+
+        // Paint the cells the validator flagged red. Rules key cells as
+        // "<tablecode>,r<row>,c<col>"; parser cells carry rc-code="c<col>r<row>".
+        function highlightFailedCells(failedCells) {
+            clearFailedCells();
+            const set = new Set(failedCells || []);
+            if (!set.size || !tableCode) return 0;
+            const code = String(tableCode).toLowerCase();
+            let hits = 0;
+            document.querySelectorAll('#table_form td[rc-code]').forEach(function (td) {
+                const m = /^c([^r]+)r(.+)$/.exec(td.getAttribute('rc-code') || '');
+                if (!m) return;
+                const col = 'c' + m[1].toLowerCase(), row = 'r' + m[2].toLowerCase();
+                if (set.has(code + ',' + row + ',' + col) || set.has(code + ',' + col + ',' + row)) {
+                    td.classList.add('dpm-cell-fail'); hits++;
+                }
+            });
+            return hits;
+        }
+
+        function escapeValHtml(v) {
+            return String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function validateInstance() {
+            const box = document.getElementById('validationResult');
+            box.style.display = 'block';
+            box.innerHTML = '<div class="dpm-loading">Running validation…</div>';
+            // Persist the draft first so values are consistent, then validate the live form.
+            save().finally(function () {
+                axios.post('table/validate', {
+                    'table_data': $("#table_form").serialize(),
+                    'table_code': tableCode,
+                    'tab': $('#export_table_path').val()
+                }).then(function (response) {
+                    const d = response.data || {};
+                    if (!d.ok) { box.innerHTML = '<span class="dpm-val-err">' + escapeValHtml(d.error || 'Validation failed.') + '</span>'; return; }
+                    const s = d.summary || {};
+                    const hits = highlightFailedCells(d.failed_cells);
+                    let html = '<div class="dpm-val-head">'
+                        + '<span class="dpm-val-pill ok">' + (s.passed || 0) + ' passed</span>'
+                        + '<span class="dpm-val-pill err">' + (s.failed || 0) + ' failed</span>'
+                        + '<span class="dpm-val-pill ind">' + (s.indeterminate || 0) + ' indeterminate</span>'
+                        + '<span class="dpm-val-pill mut">' + (s.unsupported || 0) + ' unsupported</span>'
+                        + '<span class="dpm-val-meta">' + escapeValHtml(d.table) + ' · ' + (d.values || 0) + ' values · ' + (s.total || 0) + ' rules</span>'
+                        + '<button type="button" class="dpm-val-close" onclick="resetValidationPanel()">&times;</button>'
+                        + '</div>';
+                    if ((d.failed || []).length) {
+                        html += '<div class="dpm-val-note">' + hits + ' cell(s) highlighted in red below — fix them and re-validate.</div>'
+                            + '<div class="dpm-val-fails">' + d.failed.map(function (f) {
+                                return '<div class="dpm-val-fail">'
+                                    + '<div class="dpm-val-fh"><i class="fas fa-circle dpm-sev-' + escapeValHtml(f.severity) + '"></i> <b>' + escapeValHtml(f.code) + '</b> '
+                                    + '<code class="dpm-val-rule">' + escapeValHtml(f.rule || '') + '</code></div>'
+                                    + '<div class="dpm-val-facts">' + (f.facts || []).map(function (x) {
+                                        return '<span class="dpm-val-fact"><b>' + escapeValHtml(x.cell) + '</b> = ' + escapeValHtml(x.value === null ? '∅' : x.value) + '</span>';
+                                    }).join('') + '</div></div>';
+                            }).join('') + '</div>';
+                    } else if (d.note) {
+                        html += '<div class="dpm-val-note"><i class="fas fa-circle-info"></i> ' + escapeValHtml(d.note) + '</div>';
+                    } else {
+                        html += '<div class="dpm-val-ok"><i class="fas fa-check"></i> No rule violations.</div>';
+                    }
+                    box.innerHTML = html;
+                }).catch(function (error) {
+                    box.innerHTML = '<span class="dpm-val-err">' + escapeValHtml(getRequestErrorMessage(error, 'Validation request failed.')) + '</span>';
+                });
+            });
+        }
+
+        function resetValidationPanel() {
+            const box = document.getElementById('validationResult');
+            if (box) { box.style.display = 'none'; box.innerHTML = ''; }
+            clearFailedCells();
+        }
+
         function changeTable(selectedOb, type = 'G', sheet = null) {
 
             var group;
@@ -532,6 +653,7 @@
             tableCode = null;
             $('#tableCode').val('');
             updateTranslationWorkspaceButton();
+            resetValidation();
             resetCellInspector('Loading the selected table.');
 
             axios.post('/table/ajax', {
@@ -554,6 +676,7 @@
                 initializeSheetSelector();
                 setupCellInspector();
                 updateTranslationWorkspaceButton();
+                $('#validateInstanceBtn').prop('disabled', false);
 
 
                 if (response.data.aspectNode == true) {
@@ -620,6 +743,8 @@
 
 
         /* Import*/
+        $('#validateInstanceBtn').on('click', validateInstance);
+
         $("#import").submit(function (e) {
             window.appModal.show('pleaseWaitDialog');
 

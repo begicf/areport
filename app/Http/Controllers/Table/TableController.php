@@ -350,6 +350,88 @@ class TableController extends Controller
         endif;
     }
 
+    /**
+     * Validate the reporting instance the user is entering: take the current form's
+     * cell values, run this table's DPM-XL rules (via the shared InstanceValidator),
+     * and return the failing cells so the form can highlight exactly what to fix.
+     */
+    public function validateInstance(Request $request)
+    {
+        $validatorClass = \Begicf\AReportPro\Services\InstanceValidator::class;
+        $tableModel = \Begicf\AReportPro\Models\Dpm\DpmTable::class;
+        if (! class_exists($validatorClass) || ! class_exists($tableModel)) {
+            return response()->json(['ok' => false, 'error' => 'The DPM Architect package is not installed.'], 422);
+        }
+
+        /** @var \Begicf\AReportPro\Services\InstanceValidator $validator */
+        $validator = app($validatorClass);
+        if (! $validator->available()) {
+            return response()->json(['ok' => false, 'error' => 'DPM-XL service is offline — start it to run validation.'], 422);
+        }
+
+        // Resolve the open table (by code, then by table-path basename) within the active taxonomy.
+        $code = strtolower(trim((string) $request->get('table_code')));
+        $base = strtolower(pathinfo((string) $request->get('tab'), PATHINFO_FILENAME));
+        $table = $tableModel::query()
+            ->where('taxonomy_id', $this->_taxonomy->id)
+            ->where(function ($q) use ($code, $base) {
+                if ($code !== '') {
+                    $q->whereRaw('LOWER(code) = ?', [$code]);
+                }
+                if ($base !== '') {
+                    $q->orWhereRaw('LOWER(code) = ?', [$base]);
+                }
+            })
+            ->first();
+
+        if (! $table || ! $table->framework) {
+            return response()->json(['ok' => false, 'error' => 'No DPM framework rules found for this table.'], 422);
+        }
+
+        // Form fields are c<col>r<row>[value]; build the cell keys the rules use: t<table>,r<row>,c<col>.
+        parse_str((string) $request->get('table_data'), $form);
+        $tcode = strtolower($table->code);
+        $cellValues = [];
+        foreach ($form as $name => $payload) {
+            if (! is_array($payload) || ! array_key_exists('value', $payload)) {
+                continue;
+            }
+            if (! preg_match('/^c([^r]+)r(.+)$/i', $name, $m)) {
+                continue;
+            }
+            $v = $payload['value'];
+            if ($v === '' || $v === null) {
+                continue;
+            }
+            $key = 't'.$tcode.',r'.strtolower($m[2]).',c'.strtolower($m[1]);
+            $cellValues[$key] = is_numeric($v) ? ($v + 0) : $v;
+        }
+
+        if (empty($cellValues)) {
+            return response()->json(['ok' => false, 'error' => 'Enter some values before validating.'], 422);
+        }
+
+        $result = $validator->validate($table->framework, $cellValues, [$table->code]);
+        if (isset($result['error'])) {
+            return response()->json(['ok' => false, 'error' => $result['error']], 422);
+        }
+
+        // No rules ran → say so plainly, so an empty report isn't mistaken for a clean pass.
+        $note = ((int) ($result['summary']['total'] ?? 0) === 0)
+            ? 'No validation rules are defined for '.$table->code.' in the active taxonomy ('.$this->_taxonomy->folder.').'
+            : null;
+
+        return response()->json([
+            'ok' => true,
+            'table' => $table->code,
+            'values' => count($cellValues),
+            'summary' => $result['summary'],
+            'failed' => $result['failed'],
+            'failed_cells' => $result['failed_cells'],
+            'note' => $note,
+        ]);
+    }
+
     private function saveModule()
     {
 
