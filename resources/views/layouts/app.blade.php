@@ -35,7 +35,9 @@
         .app-navbar-subtitle { font-size: .62rem; letter-spacing: .12em; }
         .app-navbar .nav-link { border-radius: 2px !important; padding: .4rem .7rem !important; font-weight: 600; }
         .app-navbar .nav-link:hover, .app-navbar .nav-link:focus, .app-navbar .nav-link.active { background: #e6eef7; }
-        .app-navbar .d-md-flex.align-items-center, .app-navbar .d-none.d-md-flex { margin-left: auto !important; }
+        .app-navbar-right { margin-left: auto; }
+        .app-navbar-right .navbar-nav { flex-direction: row; align-items: center; }
+        .app-navbar-right .dropdown-toggle { color: var(--ink); font-weight: 600; }
 
         /* ============================================================
            Elegant design system — blue (function) + amber (identity).
@@ -122,6 +124,15 @@
         .ax-table tbody td { padding: .7rem 1.1rem; border-bottom: 1px solid #f2f4f7; vertical-align: middle; }
         .ax-table tbody tr:hover { background: var(--band); }
         .ax-badge { display: inline-flex; padding: .12rem .5rem; background: var(--blue-soft); color: var(--blue); border: 1px solid var(--blue-bd); border-radius: 6px; font-size: .7rem; font-weight: 600; }
+
+        /* Active-taxonomy chip — explicit & readable (solid blue, white text, amber dot) */
+        .ax-tax-label { font-size: .6rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
+        .ax-tax-badge { display: inline-flex; align-items: center; gap: .45rem; background: var(--blue); color: #fff !important;
+            padding: .26rem .65rem; border-radius: 999px; font-size: .74rem; font-weight: 700; letter-spacing: .01em; text-decoration: none; line-height: 1; }
+        .ax-tax-badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--amber-soft); flex: 0 0 auto; }
+        .ax-tax-badge:hover, .ax-tax-badge:focus { background: var(--blue-d); color: #fff !important; }
+        .ax-tax-badge.is-unset { background: #eef1f4; color: #52606d !important; }
+        .ax-tax-badge.is-unset::before { background: #b9c2cd; }
     </style>
     @stack('styles')
 </head>
@@ -151,52 +162,57 @@
                                 @includeIf($navigationView)
                             @endforeach
                         </ul>
-
-                        <div class="d-none d-md-flex align-items-center gap-2 ms-md-3">
-                            <span class="text-uppercase small text-muted fw-semibold">Active taxonomy</span>
-                            @if(!empty($activeTaxonomy))
-                                <a href="{{ url('/taxonomy/managing') }}" class="badge rounded-pill text-bg-primary text-decoration-none">
-                                    {{ $activeTaxonomy->name }}
-                                </a>
-                            @else
-                                <a href="{{ url('/taxonomy/managing') }}" class="badge rounded-pill text-bg-secondary text-decoration-none">
-                                    Not set
-                                </a>
-                            @endif
-                        </div>
                     @endauth
 
-                    <ul class="navbar-nav ms-auto">
-                        @guest
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('login') }}">{{ __('Sign in') }}</a>
-                            </li>
-                            @if (Route::has('register'))
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
-                                </li>
-                            @endif
-                        @else
-                            <li class="nav-item dropdown">
-                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
-                                   data-bs-toggle="dropdown" aria-expanded="false" v-pre>
-                                    {{ Auth::user()->name }}
-                                </a>
+                    {{-- Right cluster: active taxonomy sits beside the account menu --}}
+                    <div class="app-navbar-right d-flex align-items-center gap-3">
+                        @auth
+                            <div class="d-none d-md-flex align-items-center gap-2">
+                                <span class="ax-tax-label">Active taxonomy</span>
+                                @if(!empty($activeTaxonomy))
+                                    <a href="{{ url('/taxonomy/managing') }}" class="ax-tax-badge" title="Active taxonomy — manage">
+                                        {{ $activeTaxonomy->name }}
+                                    </a>
+                                @else
+                                    <a href="{{ url('/taxonomy/managing') }}" class="ax-tax-badge is-unset" title="No taxonomy active — set one">
+                                        Not set
+                                    </a>
+                                @endif
+                            </div>
+                        @endauth
 
-                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="{{ route('logout') }}"
-                                       onclick="event.preventDefault();
-                                                         document.getElementById('logout-form').submit();">
-                                        {{ __('Sign out') }}
+                        <ul class="navbar-nav">
+                            @guest
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('login') }}">{{ __('Sign in') }}</a>
+                                </li>
+                                @if (Route::has('register'))
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
+                                    </li>
+                                @endif
+                            @else
+                                <li class="nav-item dropdown">
+                                    <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+                                       data-bs-toggle="dropdown" aria-expanded="false" v-pre>
+                                        <i class="fas fa-circle-user me-1" style="color:var(--muted)"></i>{{ Auth::user()->name }}
                                     </a>
 
-                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                                        @csrf
-                                    </form>
-                                </div>
-                            </li>
-                        @endguest
-                    </ul>
+                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                        <a class="dropdown-item" href="{{ route('logout') }}"
+                                           onclick="event.preventDefault();
+                                                             document.getElementById('logout-form').submit();">
+                                            {{ __('Sign out') }}
+                                        </a>
+
+                                        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                            @csrf
+                                        </form>
+                                    </div>
+                                </li>
+                            @endguest
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
