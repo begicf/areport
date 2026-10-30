@@ -4,21 +4,15 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "77e95551c9c3baa241941c71162b32a9",
+    "content-hash": "686280e8c38f3a20d95161619688d989",
     "packages": [
         {
             "name": "begicf/areport-dpm-xbrl",
-            "version": "v1.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/begicf/areport-dpm-xbrl.git",
-                "reference": "59bfd0c31097c0d27c49154785105f7efa15aa11"
-            },
+            "version": "dev-publish",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/begicf/areport-dpm-xbrl/zipball/59bfd0c31097c0d27c49154785105f7efa15aa11",
-                "reference": "59bfd0c31097c0d27c49154785105f7efa15aa11",
-                "shasum": ""
+                "type": "path",
+                "url": "../areport-dpm-xbrl",
+                "reference": "59bfd0c31097c0d27c49154785105f7efa15aa11"
             },
             "require": {
                 "mpdf/mpdf": "^8.0.15",
@@ -49,11 +43,10 @@
                 "packaging",
                 "report"
             ],
-            "support": {
-                "source": "https://github.com/begicf/areport-dpm-xbrl/tree/v1.0.0",
-                "issues": "https://github.com/begicf/areport-dpm-xbrl/issues"
-            },
-            "time": "2026-04-05T14:28:43+00:00"
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
         },
         {
             "name": "begicf/areport-pro",
@@ -61,7 +54,7 @@
             "dist": {
                 "type": "path",
                 "url": "../areport-pro",
-                "reference": "e90c2a3fd8f4229f39c822fef8fded120b579f66"
+                "reference": "88b11d856dc8d12a0dad378ad4680c8e528a938b"
             },
             "require": {
                 "ext-dom": "*",
@@ -9311,9 +9304,17 @@
             "time": "2025-12-08T11:19:18+00:00"
         }
     ],
-    "aliases": [],
+    "aliases": [
+        {
+            "package": "begicf/areport-dpm-xbrl",
+            "version": "dev-publish",
+            "alias": "1.0.0",
+            "alias_normalized": "1.0.0.0"
+        }
+    ],
     "minimum-stability": "dev",
     "stability-flags": {
+        "begicf/areport-dpm-xbrl": 20,
         "begicf/areport-pro": 20,
         "begicf/simple-menu": 20
     },
