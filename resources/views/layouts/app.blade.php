@@ -93,6 +93,11 @@
             border-radius: 9px !important; box-shadow: 0 1px 2px rgba(16,24,40,.04) !important; border: 1px solid var(--line) !important; }
         .app-page-header { border-top: 1px solid var(--line) !important; padding: .7rem .9rem !important; margin-bottom: .7rem !important; }
         .app-panel { padding: .7rem .85rem; }
+        /* All pages span the full width (no outer shell padding); each page keeps
+           its own modest inner padding. DPM Architect is fully flush (padding 0). */
+        .app-shell, .app-shell-fluid { width: 100%; max-width: none; margin: 0; padding: 0 !important; }
+        .app-shell-flush { width: 100%; max-width: none; margin: 0; padding: 0; }
+        .app-shell-flush .app-page { padding: 0 !important; }
         .app-tree-shell, .app-tree-toolbar, .app-report-controls, .app-table-shell,
         .app-report-panel, .app-report-header, .app-report-inspector, .app-report-table-shell,
         .app-auth-card, .app-auth-aside, .app-report-controls-bar,
