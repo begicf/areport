@@ -37,50 +37,91 @@
         .app-navbar .nav-link:hover, .app-navbar .nav-link:focus, .app-navbar .nav-link.active { background: #e6eef7; }
         .app-navbar .d-md-flex.align-items-center, .app-navbar .d-none.d-md-flex { margin-left: auto !important; }
 
-        /* Flat desktop controls everywhere */
+        /* ============================================================
+           Elegant design system — blue (function) + amber (identity).
+           Soft rounding, light hairlines, restrained emphasis.
+           Shared tokens + components, reused across every page.
+           ============================================================ */
+        :root {
+            --blue: #2f557d; --blue-d: #243f5c; --blue-soft: #eef3f9; --blue-bd: #dbe4ef;
+            --amber: #c2731f; --amber-soft: #e4902f;
+            --ink: #1f2933; --muted: #7b8794; --faint: #9aa5b1; --line: #e6e9ee; --band: #fafbfc;
+        }
+        body { background: #f4f6f9 !important; color: var(--ink); }
+
+        /* Soft, modern rounding (supersedes the old flat 2px) */
         .btn, .form-control, .form-select, .input-group-text, .dropdown-menu,
-        .card, .modal-content, .alert, .list-group-item, .page-link,
-        .badge, .badge.rounded-pill { border-radius: 2px !important; }
-        .btn { font-weight: 600; }
-        .card { border: 1px solid #cbd5e1; box-shadow: none; }
-        .card-header { background: #f1f5f9; border-bottom: 1px solid #cbd5e1; }
+        .page-link, .list-group-item { border-radius: 7px !important; }
+        .card, .modal-content { border-radius: 10px !important; }
+        .badge, .badge.rounded-pill { border-radius: 999px !important; }
+        .btn { font-weight: 500; }
+        .card { border: 1px solid var(--line); box-shadow: 0 1px 2px rgba(16,24,40,.04); }
+        .card-header { background: linear-gradient(#fbfcfe, #fff); border-bottom: 1px solid #eef1f4; }
 
-        /* Shared page scaffold used by DPM Architect / Settings and reusable elsewhere */
-        .app-page { padding: .9rem 1rem 2rem; }
-        .app-page-kicker { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: #0f766e; }
-        .app-page-title { font-size: 1.3rem; font-weight: 800; color: #0f172a; margin: 0; }
+        /* Links, accents, controls */
+        a { color: var(--blue); } a:hover { color: var(--blue-d); }
+        .text-primary { color: var(--blue) !important; }
+        .text-bg-primary { background-color: var(--blue) !important; }
+        .btn-primary { background-color: var(--blue); border-color: var(--blue); }
+        .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary:first-child:active {
+            background-color: var(--blue-d) !important; border-color: var(--blue-d) !important; }
+        .btn-outline-primary { color: var(--blue); border-color: var(--blue-bd); }
+        .btn-outline-primary:hover { background: var(--blue); border-color: var(--blue); color: #fff; }
+        .btn:disabled, .btn.disabled { opacity: .5; cursor: not-allowed; }
+        .form-control:focus, .form-select:focus { border-color: var(--blue); box-shadow: 0 0 0 .18rem rgba(47,85,125,.12); }
+        code { background: var(--band); border: 1px solid var(--line); padding: .05rem .3rem; border-radius: 4px;
+            font-family: "SFMono-Regular","Consolas","Liberation Mono",monospace; font-size: .86em; color: var(--blue); }
+        .alert { border-radius: 8px !important; box-shadow: none !important; }
+        .dpm-loading { font-size: .82rem; color: var(--faint); padding: 1rem; text-align: center; }
 
-        /* Flatten the shared design-system panels (module explorer, taxonomy, reports…) */
+        /* Navbar — elegant, amber underline marks the active item */
+        .app-navbar { border-bottom: 1px solid var(--line); }
+        .app-navbar .nav-link { color: #52606d; font-weight: 500; border-bottom: 2px solid transparent; border-radius: 6px 6px 0 0; }
+        .app-navbar .nav-link:hover, .app-navbar .nav-link:focus { color: var(--ink); background: #f0f2f5; }
+        .app-navbar .nav-link.active { color: var(--ink); font-weight: 600; background: transparent; border-bottom-color: var(--amber-soft); }
+        .app-navbar-subtitle { color: var(--faint); }
+
+        /* Shared page scaffold (DPM Architect / Settings / taxonomy…) */
+        .app-page { padding: 1.3rem 1.5rem 2rem; }
+        .app-page-kicker { font-size: .64rem; font-weight: 700; text-transform: uppercase; letter-spacing: .11em; color: var(--amber); }
+        .app-page-title { font-size: 1.32rem; font-weight: 600; color: var(--ink); margin: 0; letter-spacing: -.01em; }
         .app-page-header, .app-panel {
-            border-radius: 0 !important; box-shadow: none !important; border: 1px solid #cbd5e1 !important; }
-        .app-page-header { border-top: 2px solid #0f766e !important; padding: .7rem .9rem !important; margin-bottom: .6rem !important; }
-        .app-panel { padding: .8rem .9rem; }
+            border-radius: 10px !important; box-shadow: 0 1px 2px rgba(16,24,40,.04) !important; border: 1px solid var(--line) !important; }
+        .app-page-header { border-top: 1px solid var(--line) !important; padding: 1rem 1.1rem !important; margin-bottom: 1rem !important; }
+        .app-panel { padding: 1rem 1.1rem; }
         .app-tree-shell, .app-tree-toolbar, .app-report-controls, .app-table-shell,
         .app-report-panel, .app-report-header, .app-report-inspector, .app-report-table-shell,
         .app-auth-card, .app-auth-aside, .app-report-controls-bar,
         .app-module-instance-empty, .app-module-instance-card, .app-module-instance-icon,
-        .app-module-instance-badge { border-radius: 2px !important; box-shadow: none !important; }
-        .app-module-instance-icon { background: #f0fdfa !important; color: #0f766e !important; border: 1px solid #99f6e4 !important; }
+        .app-module-instance-badge { border-radius: 8px !important; }
+        .app-module-instance-icon { background: var(--blue-soft) !important; color: var(--blue) !important; border: 1px solid var(--blue-bd) !important; }
 
-        /* Flatten plugin widgets & modals so every page matches the desktop theme */
-        .modal-content { border-radius: 2px !important; box-shadow: none !important; border: 1px solid #94a3b8; }
-        .modal-content .modal-header { background: #f1f5f9; border-bottom: 1px solid #cbd5e1; }
+        /* Modals & plugin widgets */
+        .modal-content { border: 1px solid var(--line); box-shadow: 0 10px 30px rgba(16,24,40,.12) !important; }
+        .modal-content .modal-header { background: linear-gradient(#fbfcfe, #fff); border-bottom: 1px solid #eef1f4; }
         .bootstrap-select > .dropdown-toggle, .bootstrap-select .dropdown-menu,
-        .ui-datepicker, .ui-widget-content, .jstree-default .jstree-anchor { border-radius: 2px !important; }
-        .btn:disabled, .btn.disabled { opacity: .5; cursor: not-allowed; }
-        /* Primary = teal accent (match the desktop theme) */
-        .btn-primary { background-color: #0f766e; border-color: #0f766e; }
-        .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary:first-child:active {
-            background-color: #0b5c55 !important; border-color: #0b5c55 !important; }
-        .btn-outline-primary { color: #0f766e; border-color: #0f766e; }
-        .btn-outline-primary:hover { background-color: #0f766e; border-color: #0f766e; color: #fff; }
-        .text-bg-primary { background-color: #0f766e !important; }
-        .text-primary { color: #0f766e !important; }
-        a { color: #0f766e; }
-        code { background: #f8fafc; border: 1px solid #e2e8f0; padding: .05rem .3rem; border-radius: 2px;
-            font-family: "SFMono-Regular","Consolas","Liberation Mono",monospace; font-size: .86em; color: #0f766e; }
-        .alert { border-radius: 2px !important; box-shadow: none !important; }
-        .dpm-loading { font-size: .82rem; color: #94a3b8; padding: 1rem; text-align: center; }
+        .ui-datepicker, .ui-widget-content, .jstree-default .jstree-anchor { border-radius: 7px !important; }
+
+        /* ===== Reusable elegant components (.ax-*) ===== */
+        .ax-stack > * + * { margin-top: 1rem; }
+        .ax-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; }
+        .ax-eyebrow { font-size: .64rem; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; color: var(--amber); display: inline-flex; gap: .4rem; align-items: center; }
+        .ax-title { font-size: 1.32rem; font-weight: 600; color: var(--ink); margin: .2rem 0 0; letter-spacing: -.01em; }
+        .ax-sub { font-size: .82rem; color: var(--muted); margin: .25rem 0 0; }
+        .ax-card { background: #fff; border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 1px 2px rgba(16,24,40,.04); overflow: hidden; }
+        .ax-panel-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; padding: 1rem 1.1rem; border-bottom: 1px solid #eef1f4; background: linear-gradient(#fbfcfe, #fff); }
+        .ax-panel-title { font-size: 1.02rem; font-weight: 600; color: var(--ink); margin: .18rem 0 0; }
+        .ax-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+        .ax-stat { position: relative; overflow: hidden; background: #fff; border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 1px 2px rgba(16,24,40,.04); padding: .85rem 1rem; }
+        .ax-stat::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--blue); }
+        .ax-stat-k { font-size: .66rem; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--faint); }
+        .ax-stat-v { font-size: 1.6rem; font-weight: 600; color: var(--blue); line-height: 1.1; margin-top: .25rem; font-variant-numeric: tabular-nums; }
+        .ax-stat-v.sm { font-size: .95rem; font-weight: 500; color: var(--muted); margin-top: .5rem; }
+        .ax-table { width: 100%; margin: 0; font-size: .84rem; }
+        .ax-table thead th { text-align: left; font-size: .66rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--faint); padding: .6rem 1.1rem; border-bottom: 1px solid #eef1f4; background: #fff; }
+        .ax-table tbody td { padding: .7rem 1.1rem; border-bottom: 1px solid #f2f4f7; vertical-align: middle; }
+        .ax-table tbody tr:hover { background: var(--band); }
+        .ax-badge { display: inline-flex; padding: .12rem .5rem; background: var(--blue-soft); color: var(--blue); border: 1px solid var(--blue-bd); border-radius: 6px; font-size: .7rem; font-weight: 600; }
     </style>
     @stack('styles')
 </head>
