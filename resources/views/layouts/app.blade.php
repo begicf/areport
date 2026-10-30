@@ -206,10 +206,19 @@
                                     </a>
 
                                     <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                        @if(Route::has('areport-pro.settings.index'))
+                                            <a class="dropdown-item" href="{{ route('areport-pro.settings.index') }}">
+                                                <i class="fas fa-gear me-2 text-muted"></i>{{ __('Settings') }}
+                                            </a>
+                                        @endif
+                                        <a class="dropdown-item" href="{{ url('/taxonomy/managing') }}">
+                                            <i class="fas fa-layer-group me-2 text-muted"></i>{{ __('Taxonomies') }}
+                                        </a>
+                                        <div class="dropdown-divider"></div>
                                         <a class="dropdown-item" href="{{ route('logout') }}"
                                            onclick="event.preventDefault();
                                                              document.getElementById('logout-form').submit();">
-                                            {{ __('Sign out') }}
+                                            <i class="fas fa-right-from-bracket me-2 text-muted"></i>{{ __('Sign out') }}
                                         </a>
 
                                         <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
