@@ -26,8 +26,8 @@
         .eyebrow{font-size:.68rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--amber)}
 
         /* top nav */
-        .topnav{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.88);backdrop-filter:saturate(180%) blur(8px);border-bottom:1px solid var(--line)}
-        .topnav .row{display:flex;align-items:center;gap:1.2rem;height:62px}
+        .topnav{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line);box-shadow:0 1px 3px rgba(16,24,40,.05)}
+        .topnav .lrow{display:flex;align-items:center;gap:1.2rem;height:62px;flex-wrap:nowrap}
         .brand{display:flex;align-items:center;gap:.6rem}
         .brand img{height:30px}
         .brand b{font-size:1.02rem;color:var(--ink)}
@@ -59,7 +59,7 @@
 
         /* trust strip */
         .trust{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--band)}
-        .trust .row{display:flex;flex-wrap:wrap;gap:1.4rem 2.6rem;justify-content:center;padding:1rem 0}
+        .trust .lrow{display:flex;flex-wrap:wrap;gap:1.4rem 2.6rem;justify-content:center;padding:1rem 0}
         .trust .t{font-size:.84rem;color:#52606d;display:flex;align-items:center;gap:.55rem;font-weight:500}
         .trust .t i{color:var(--amber)}
 
@@ -104,10 +104,10 @@
         .cta-band .btn-primary:hover{background:var(--amber)}
 
         footer{border-top:1px solid var(--line);padding:2rem 0;color:var(--muted);font-size:.85rem}
-        footer .row{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between}
+        footer .lrow{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between}
 
         @media (max-width:900px){
-            .hero .grid,.feat,.benefits,.flow,.trust .row{grid-template-columns:1fr}
+            .hero .grid,.feat,.benefits,.flow{grid-template-columns:1fr}
             .hero h1{font-size:2.1rem}
             .feat.rev .ftext{order:0}
             .shot.tilt{transform:none}
@@ -119,7 +119,7 @@
 
 {{-- ===== Top navigation ===== --}}
 <header class="topnav">
-    <div class="wrap row">
+    <div class="wrap lrow">
         <a class="brand" href="{{ url('/') }}">
             <img src="{{ asset('images/logo.svg') }}" alt="AReport">
             <span><b>{{ config('app.name', 'AReport') }}</b><small>Regulatory reporting</small></span>
@@ -175,7 +175,7 @@
 
 {{-- ===== Trust strip ===== --}}
 <div class="trust">
-    <div class="wrap row">
+    <div class="wrap lrow">
         <span class="t"><i class="fas fa-layer-group"></i> Framework → Table group → Table</span>
         <span class="t"><i class="fas fa-cubes"></i> Dimensions, domains &amp; members</span>
         <span class="t"><i class="fas fa-file-import"></i> Import &amp; export instances</span>
@@ -294,7 +294,7 @@
 </section>
 
 <footer>
-    <div class="wrap row">
+    <div class="wrap lrow">
         <div class="brand"><img src="{{ asset('images/logo.svg') }}" alt="AReport" style="height:24px"><span><b style="font-size:.95rem">{{ config('app.name', 'AReport') }}</b></span></div>
         <div>© {{ date('Y') }} {{ config('app.name', 'AReport') }} · Financial reporting workspace</div>
         <a target="_blank" href="https://github.com/begicf/areport"><i class="fab fa-github"></i> GitHub</a>
