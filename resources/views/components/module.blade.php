@@ -17,10 +17,29 @@
 
                 <div class="modal-body">
                     <div class="row g-4">
+                        @php
+                            $__entityCls = \Begicf\AReportPro\Models\DpmEntity::class;
+                            $__entities = class_exists($__entityCls) ? $__entityCls::orderByDesc('is_default')->orderBy('name')->get() : collect();
+                            $__settingsUrl = \Route::has('areport-pro.settings.index') ? route('areport-pro.settings.index') : url('/pro/settings');
+                        @endphp
                         <div class="col-lg-4">
                             <label for="datepicker" class="form-label">Reporting period</label>
                             <input placeholder="Select date" class="form-control" name="period" id="datepicker" required>
-                            <p class="app-form-help mt-2">Choose the reporting date before selecting table groups.</p>
+
+                            <label for="entitySelect" class="form-label mt-3">Reporting entity</label>
+                            <select name="entity_id" id="entitySelect" class="form-select" required>
+                                <option value="">— select entity —</option>
+                                @foreach($__entities as $e)
+                                    <option value="{{ $e->id }}" @selected($e->is_default)>{{ $e->name }} ({{ $e->lei }})</option>
+                                @endforeach
+                            </select>
+                            <p class="app-form-help mt-2">
+                                @if($__entities->isEmpty())
+                                    No entities yet — <a href="{{ $__settingsUrl }}" target="_blank" rel="noopener">add one in Settings</a> first.
+                                @else
+                                    <a href="{{ $__settingsUrl }}" target="_blank" rel="noopener"><i class="fas fa-plus"></i> Add a new entity</a>
+                                @endif
+                            </p>
                         </div>
 
                         <div class="col-lg-8">

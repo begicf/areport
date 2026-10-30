@@ -162,6 +162,7 @@
             <div id="validationResult" class="app-report-validation" style="display:none"></div>
 
             <input type="hidden" id="tableCode" name="tableCode">
+            <input type="hidden" id="reportEntityId" value="{{ $entity_id ?? '' }}">
 
             <div id="cellInspector" class="app-report-inspector" aria-live="polite" aria-label="Cell details">
                 <div class="app-report-inspector-bar">
@@ -534,6 +535,7 @@
                 'period': '{{$period}}',
                 'module': '{{$mod}}',
                 'module_name': '{{$module_name}}',
+                'entity_id': document.getElementById('reportEntityId') ? document.getElementById('reportEntityId').value : '',
                 'sheet': (sheet ? sheet : $('#sheets').find(':selected').val()),
                 'tab': $('#export_table_path').val(),
 

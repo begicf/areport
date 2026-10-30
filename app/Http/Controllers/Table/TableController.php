@@ -45,6 +45,7 @@ class TableController extends Controller
             $_groups = json_decode($fact_module->groups);
             $module_path = $fact_module->module_path;
             $module_name = $fact_module->module_name;
+            $entity_id = $fact_module->entity_id;
 
         elseif ($request->get('table')):
 
@@ -74,6 +75,7 @@ class TableController extends Controller
 
             $module_path = $request->get('module_path');
             $module_name = $request->get('module_name');
+            $entity_id = $request->get('entity_id');
 
             Session::flash('groups', $_groups);
 
@@ -89,6 +91,7 @@ class TableController extends Controller
             'period' => $this->_period,
             'mod' => preg_replace('/\\\\/', '\\\\\\\\', $module_path),
             'module_name' => $module_name,
+            'entity_id' => $entity_id ?? null,
             'group' => $request->get('mod')
         ]);
 
@@ -436,6 +439,7 @@ class TableController extends Controller
     {
 
         $mod = $this->getNormalizeModule(\request('module'));
+        $entityId = \request('entity_id') ?: null;
 
         if (Session::has('groups')):
             FactModule::updateOrCreate(
@@ -447,10 +451,19 @@ class TableController extends Controller
                 [
                     'period' => \request('period'),
                     'taxonomy_id' => $this->_taxonomy->id,
+                    'entity_id' => $entityId,
                     'module_name' => \request('module_name'),
                     'module_path' => $mod,
                     'groups' => json_encode(Session::get('groups'))
                 ]);
+
+        elseif ($entityId):
+            // Keep the chosen reporting entity on an already-created instance.
+            FactModule::where([
+                ['period', \request('period')],
+                ['module_path', $mod],
+                ['taxonomy_id', $this->_taxonomy->id],
+            ])->update(['entity_id' => $entityId]);
 
         endif;
 
