@@ -25,6 +25,18 @@
         /* The cells the validator flagged — what the reporter must fix. */
         #table_form td.dpm-cell-fail { background: #fee2e2 !important; outline: 2px solid #dc2626; outline-offset: -2px; }
         #table_form td.dpm-cell-fail input, #table_form td.dpm-cell-fail select { border-color: #dc2626 !important; background: #fff1f1; }
+
+        /* Dense reporting workspace — space is precious here */
+        .app-report-toolbar-tight { padding: .4rem .6rem; gap: .5rem; align-items: center; }
+        .app-report-rowbar { display: flex; gap: .4rem; padding: .45rem .6rem; border-top: 1px solid #eef1f4; }
+        .app-report-controls-bar { gap: .6rem !important; }
+        .app-report-panel, .app-report-controls { padding: .6rem .7rem !important; }
+        /* Compact data grid + smaller font for large tables */
+        #table_form table { font-size: .72rem; }
+        #table_form table th, #table_form table td { padding: .16rem .32rem !important; }
+        #table_form .xbrl-input, #table_form .xbrl-input-text, #table_form .xbrl-input-decimal,
+        #table_form .xbrl-select, #table_form input, #table_form select {
+            font-size: .72rem !important; padding: .04rem .2rem !important; min-height: 0 !important; }
     </style>
 
     <div class="app-page app-report-page">
@@ -130,32 +142,13 @@
                 </div>
             </div>
 
-            <div class="app-report-toolbar">
+            <div class="app-report-toolbar app-report-toolbar-tight">
                 <div id="button_group" class="app-report-groupbar"></div>
                 <div id="sheets" class="app-report-sheets"></div>
                 @if(Route::has('areport-pro.dpm-model.index'))
-                    <div class="app-report-row-actions app-report-translate-actions">
-                        <button type="button" class="btn app-report-translate-btn" id="openTranslationWorkspace" disabled>
-                            <i class="fas fa-language"></i>
-                            <span>Translate</span>
-                        </button>
-                    </div>
-                @endif
-                <div id="openY" class="app-report-row-actions" style="display: none">
-                    <button type="button" class="btn btn-outline-secondary" id="addRow">
-                        <i class="fas fa-plus"></i>
-                        Add row
-                    </button>
-                    <button type="button" class="btn btn-outline-secondary" id="delRow">
-                        <i class="fas fa-minus"></i>
-                        Remove row
-                    </button>
-                </div>
-                @if(Route::has('areport-pro.dpm-model.index'))
-                    <div class="app-report-row-actions app-report-validate-actions">
-                        <button type="button" class="btn btn-primary" id="validateInstanceBtn" disabled>
-                            <i class="fas fa-circle-check"></i>
-                            Validate
+                    <div class="app-report-row-actions ms-auto">
+                        <button type="button" class="btn btn-sm btn-primary" id="validateInstanceBtn" disabled>
+                            <i class="fas fa-circle-check"></i> Validate
                         </button>
                     </div>
                 @endif
@@ -199,6 +192,12 @@
                     </form>
                 </div>
             </div>
+
+            {{-- Open-axis row controls live below the table --}}
+            <div id="openY" class="app-report-rowbar" style="display: none">
+                <button type="button" class="btn btn-sm btn-outline-secondary" id="addRow"><i class="fas fa-plus"></i> Add row</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" id="delRow"><i class="fas fa-minus"></i> Remove row</button>
+            </div>
         </section>
 
     </div>
@@ -226,6 +225,9 @@
                     return error.response.data;
                 }
 
+                if (typeof error.response.data.error === 'string' && error.response.data.error.trim() !== '') {
+                    return error.response.data.error;
+                }
                 if (typeof error.response.data.message === 'string' && error.response.data.message.trim() !== '') {
                     return error.response.data.message;
                 }
