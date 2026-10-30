@@ -39,8 +39,8 @@
             font-size: .72rem !important; padding: .04rem .2rem !important; min-height: 0 !important; }
 
         /* ===== Office-style ribbon toolbar ===== */
-        .ribbon { display: flex; align-items: stretch; gap: 0; background: #fff; border: 1px solid var(--line);
-            border-radius: 9px; box-shadow: 0 1px 2px rgba(16,24,40,.04); padding: .35rem .5rem; margin-bottom: .6rem; overflow-x: auto; }
+        .ribbon { display: flex; align-items: stretch; flex-wrap: wrap; gap: .2rem 0; background: #fff; border: 1px solid var(--line);
+            border-radius: 9px; box-shadow: 0 1px 2px rgba(16,24,40,.04); padding: .35rem .5rem; margin-bottom: .6rem; position: relative; z-index: 5; }
         .rib-title { display: flex; flex-direction: column; justify-content: center; padding: .1rem .9rem .1rem .3rem; min-width: 0; }
         .rib-kicker { font-size: .56rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--amber); }
         .rib-name { font-size: .92rem; font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px; }
@@ -54,7 +54,7 @@
         .rib-btn:hover { background: var(--blue-soft); border-color: var(--blue-bd); color: var(--ink); }
         .rib-btn.dropdown-toggle::after { display: none; }
         .rib-select { height: 34px; border: 1px solid var(--line); border-radius: 7px; font-size: .82rem; padding: 0 .5rem; min-width: 160px; background: #fff; }
-        .ribbon .dropdown-menu { font-size: .85rem; }
+        .ribbon .dropdown-menu { font-size: .85rem; z-index: 1060; box-shadow: 0 10px 30px rgba(16,24,40,.14); }
     </style>
 
     <div class="app-page app-report-page">
