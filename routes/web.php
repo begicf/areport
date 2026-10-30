@@ -47,6 +47,7 @@ Route::group(['prefix' => 'table', 'middleware' => 'auth'], function () {
     Route::post('/import', 'Table\TableController@importTable');
     Route::post('/save', 'Table\TableController@saveTable');
     Route::post('/get_data', 'Table\TableController@getData');
+    Route::post('/validate', 'Table\TableController@validateInstance');
 
 });
 
