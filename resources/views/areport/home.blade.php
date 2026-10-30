@@ -21,12 +21,11 @@
         .home-path { max-width: 540px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--faint);
             font-family: "SFMono-Regular","Consolas",monospace; font-size: .7rem; margin-top: .25rem; display: block; }
         .home-open-form { display: inline-flex; margin: 0; }
-        .home-open-btn { padding: .3rem .8rem; background: var(--blue-soft); border: 1px solid var(--blue-bd); color: var(--blue);
-            font-size: .76rem; font-weight: 600; border-radius: 7px; display: inline-flex; align-items: center; gap: .4rem; transition: all .15s ease; }
+        .home-open-btn { width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center;
+            background: var(--blue-soft); border: 1px solid var(--blue-bd); color: var(--blue); border-radius: 8px; transition: all .15s ease; }
         .home-open-btn:hover, .home-open-btn:focus { color: #fff; background: var(--blue); border-color: var(--blue);
-            box-shadow: 0 1px 3px rgba(47,85,125,.25); }
-        .home-open-btn i { font-size: .72rem; opacity: .8; }
-        .home-open-btn:hover i { opacity: 1; }
+            box-shadow: 0 1px 4px rgba(47,85,125,.3); }
+        .home-open-btn i { font-size: .8rem; }
 
         .home-dashboard .fixed-table-pagination { padding: .7rem 1.1rem; font-size: .78rem; }
         .home-dashboard .pagination .page-link { border-radius: 7px !important; border: 1px solid var(--line); margin: 0 .12rem; color: #52606d; }
@@ -167,8 +166,8 @@
                 "<input type='hidden' name='_token' value='{{ csrf_token() }}'>" +
                 "<input type='hidden' name='period' value='" + escapeHtml(row.period || '') + "'>" +
                 "<input type='hidden' name='id' value='" + escapeHtml(row.id || '') + "'>" +
-                "<button name='view_home' value='true' class='btn home-open-btn' type='submit'>" +
-                "<span class='fas fa-folder-open' aria-hidden='true'></span> Open</button></form>";
+                "<button name='view_home' value='true' class='btn home-open-btn' type='submit' title='Open' aria-label='Open'>" +
+                "<i class='fas fa-up-right-from-square' aria-hidden='true'></i></button></form>";
         }
 
         function ajaxRequest(params) {
