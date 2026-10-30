@@ -152,7 +152,6 @@
                     <img height="45" src="{{ asset('images/logo.svg') }}" alt="{{ config('app.name', 'AReport') }}">
                     <span class="app-navbar-copy">
                         <span class="app-navbar-title">{{ config('app.name', 'AReport') }}</span>
-                        <span class="app-navbar-subtitle">Financial reporting workspace</span>
                     </span>
                 </a>
                 <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
