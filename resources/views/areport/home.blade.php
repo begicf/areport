@@ -2,7 +2,7 @@
 
 @push('styles')
     <style>
-        .home-dashboard { padding: 1.4rem 1.6rem 2rem; max-width: 1200px; margin: 0 auto; }
+        .home-dashboard { padding: 1.4rem 1.6rem 2rem; }
 
         .home-status-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem;
             padding: .7rem 1.1rem; border-bottom: 1px solid #f1f3f6; font-size: .78rem; }
@@ -21,9 +21,12 @@
         .home-path { max-width: 540px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--faint);
             font-family: "SFMono-Regular","Consolas",monospace; font-size: .7rem; margin-top: .25rem; display: block; }
         .home-open-form { display: inline-flex; margin: 0; }
-        .home-open-btn { padding: .34rem .8rem; background: var(--blue); border: 1px solid var(--blue-d); color: #fff;
-            font-size: .76rem; font-weight: 500; border-radius: 7px; display: inline-flex; align-items: center; gap: .4rem; }
-        .home-open-btn:hover, .home-open-btn:focus { color: #fff; background: var(--blue-d); }
+        .home-open-btn { padding: .3rem .8rem; background: var(--blue-soft); border: 1px solid var(--blue-bd); color: var(--blue);
+            font-size: .76rem; font-weight: 600; border-radius: 7px; display: inline-flex; align-items: center; gap: .4rem; transition: all .15s ease; }
+        .home-open-btn:hover, .home-open-btn:focus { color: #fff; background: var(--blue); border-color: var(--blue);
+            box-shadow: 0 1px 3px rgba(47,85,125,.25); }
+        .home-open-btn i { font-size: .72rem; opacity: .8; }
+        .home-open-btn:hover i { opacity: 1; }
 
         .home-dashboard .fixed-table-pagination { padding: .7rem 1.1rem; font-size: .78rem; }
         .home-dashboard .pagination .page-link { border-radius: 7px !important; border: 1px solid var(--line); margin: 0 .12rem; color: #52606d; }

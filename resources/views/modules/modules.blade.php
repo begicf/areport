@@ -13,13 +13,13 @@
                 </div>
 
                 <div class="app-page-header-meta">
-                    <span class="text-uppercase small text-muted fw-semibold">Active taxonomy</span>
+                    <span class="ax-tax-label">Active taxonomy</span>
                     @if(!empty($activeTaxonomy))
-                        <span class="badge rounded-pill text-bg-primary">{{ $activeTaxonomy->name }}</span>
+                        <span class="ax-tax-badge">{{ $activeTaxonomy->name }}</span>
                     @else
-                        <span class="badge rounded-pill text-bg-secondary">Not set</span>
+                        <span class="ax-tax-badge is-unset">Not set</span>
                     @endif
-                    <a href="{{ url('/taxonomy/managing') }}" class="btn btn-sm btn-outline-secondary">
+                    <a href="{{ url('/taxonomy/managing') }}" class="btn btn-sm btn-outline-primary">
                         Manage taxonomy
                     </a>
                 </div>

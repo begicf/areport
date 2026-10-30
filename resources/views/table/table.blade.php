@@ -133,7 +133,7 @@
             <div class="app-report-toolbar">
                 <div id="button_group" class="app-report-groupbar"></div>
                 <div id="sheets" class="app-report-sheets"></div>
-                @if(Route::has('areport-pro.dpm-architect.index'))
+                @if(Route::has('areport-pro.dpm-model.index'))
                     <div class="app-report-row-actions app-report-translate-actions">
                         <button type="button" class="btn app-report-translate-btn" id="openTranslationWorkspace" disabled>
                             <i class="fas fa-language"></i>
@@ -151,7 +151,7 @@
                         Remove row
                     </button>
                 </div>
-                @if(Route::has('areport-pro.dpm-architect.index'))
+                @if(Route::has('areport-pro.dpm-model.index'))
                     <div class="app-report-row-actions app-report-validate-actions">
                         <button type="button" class="btn btn-primary" id="validateInstanceBtn" disabled>
                             <i class="fas fa-circle-check"></i>
@@ -214,7 +214,7 @@
         var aspectNode = null;
         var tableCode = null;
         var activeInspectorCell = null;
-        var translationWorkspaceUrl = @json(Route::has('areport-pro.dpm-architect.index') ? route('areport-pro.dpm-architect.index') : null);
+        var translationWorkspaceUrl = @json(Route::has('areport-pro.dpm-model.index') ? route('areport-pro.dpm-model.index') : null);
 
         function hidePleaseWait() {
             window.appModal.hide('pleaseWaitDialog');
