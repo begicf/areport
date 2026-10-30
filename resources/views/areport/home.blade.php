@@ -2,10 +2,10 @@
 
 @push('styles')
     <style>
-        .home-dashboard { padding: 1.4rem 1.6rem 2rem; }
+        .home-dashboard { padding: .9rem 1rem 1.6rem; }
 
         .home-status-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem;
-            padding: .7rem 1.1rem; border-bottom: 1px solid #f1f3f6; font-size: .78rem; }
+            padding: .45rem .9rem; border-bottom: 1px solid #f1f3f6; font-size: .76rem; }
         .home-status-label { display: inline-flex; align-items: center; gap: .5rem; color: var(--muted); }
         .home-dashboard .bootstrap-table .fixed-table-toolbar { padding: 0 1.1rem; }
         .home-dashboard .bootstrap-table .fixed-table-toolbar .search input {
