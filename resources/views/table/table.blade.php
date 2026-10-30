@@ -37,99 +37,92 @@
         #table_form .xbrl-input, #table_form .xbrl-input-text, #table_form .xbrl-input-decimal,
         #table_form .xbrl-select, #table_form input, #table_form select {
             font-size: .72rem !important; padding: .04rem .2rem !important; min-height: 0 !important; }
+
+        /* ===== Office-style ribbon toolbar ===== */
+        .ribbon { display: flex; align-items: stretch; gap: 0; background: #fff; border: 1px solid var(--line);
+            border-radius: 9px; box-shadow: 0 1px 2px rgba(16,24,40,.04); padding: .35rem .5rem; margin-bottom: .6rem; overflow-x: auto; }
+        .rib-title { display: flex; flex-direction: column; justify-content: center; padding: .1rem .9rem .1rem .3rem; min-width: 0; }
+        .rib-kicker { font-size: .56rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--amber); }
+        .rib-name { font-size: .92rem; font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px; }
+        .rib-sep { width: 1px; background: var(--line); margin: .3rem .35rem; align-self: stretch; }
+        .rib-group { display: flex; flex-direction: column; align-items: center; gap: .25rem; padding: .1rem .35rem; }
+        .rib-btns { display: flex; align-items: center; gap: .25rem; }
+        .rib-cap { font-size: .54rem; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--faint); }
+        .rib-btn { display: flex; flex-direction: column; align-items: center; gap: .18rem; border: 1px solid transparent; background: transparent;
+            border-radius: 7px; padding: .3rem .55rem; color: #3a4654; font-size: .66rem; font-weight: 500; cursor: pointer; min-width: 54px; line-height: 1.05; }
+        .rib-btn i { font-size: 1.05rem; color: var(--blue); }
+        .rib-btn:hover { background: var(--blue-soft); border-color: var(--blue-bd); color: var(--ink); }
+        .rib-btn.dropdown-toggle::after { display: none; }
+        .rib-select { height: 34px; border: 1px solid var(--line); border-radius: 7px; font-size: .82rem; padding: 0 .5rem; min-width: 160px; background: #fff; }
+        .ribbon .dropdown-menu { font-size: .85rem; }
     </style>
 
     <div class="app-page app-report-page">
-        <div class="app-report-topbar">
-            <section class="app-page-header app-report-header">
-                <div class="app-page-kicker">
-                    <i class="fas fa-table"></i>
-                    Report editor
-                </div>
-                <h1 class="app-page-title">{{ $module_name }}</h1>
-                <p class="app-page-copy">
-                    Dense workspace for group switching, import, export, and direct data entry.
-                </p>
-            </section>
+        <div class="ribbon" role="toolbar" aria-label="Workspace controls">
+            <div class="rib-title">
+                <span class="rib-kicker"><i class="fas fa-table"></i> Report editor</span>
+                <span class="rib-name" title="{{ $module_name }}">{{ $module_name }}</span>
+            </div>
 
-            <section class="app-panel app-report-controls">
-                <div class="app-panel-header">
-                    <div>
-                        <h2 class="app-panel-title">Workspace controls</h2>
-                        <p class="app-panel-copy">Compact actions for navigation, export, and import.</p>
-                    </div>
-                </div>
-
-                <div class="app-report-controls-bar" role="toolbar" aria-label="Table controls">
-                    <button type="button" class="btn btn-primary app-report-instance-btn" onclick="module()">
-                        <i class="fas fa-table"></i>
-                        New instance
+            <div class="rib-sep"></div>
+            <div class="rib-group">
+                <div class="rib-btns">
+                    <button type="button" class="rib-btn" onclick="module()" title="Start a new instance">
+                        <i class="fas fa-file-circle-plus"></i><span>New</span>
                     </button>
-
-                    <div class="app-report-field app-report-group-field">
-                        <label for="group" class="form-label">Table group</label>
-                        <select id="group" onchange="changeTable(this,'G')" class="form-select">
-                            @foreach($groups as $key=>$row)
-                                <option value="{{$row}}">
-                                    {{$key}}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="app-report-field app-report-export-field">
-                        <label class="form-label d-block">Export</label>
-                        <div class="dropdown">
-                            <button id="btnGroupDrop1" type="button" class="btn btn-outline-secondary dropdown-toggle"
-                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                Export
-                            </button>
-                            <form id="export_table" method="post" action="table/export">
-                                @csrf
-                                <input name="period" type="hidden" value="{{$period}}">
-                                <input name="mod" type="hidden" value="{{$mod}}">
-                                <input id="export_table_path" name="table" type="hidden">
-
-                                <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                    <button class="dropdown-item" name="export_type" value="xlsx" type="submit">
-                                        <i class="text-success fas fa-file-excel"></i>
-                                        Export as .xlsx
-                                    </button>
-                                    <button class="dropdown-item" name="export_type" value="pdf" type="submit">
-                                        <i class="text-danger fas fa-file-pdf"></i>
-                                        Export as .pdf
-                                    </button>
-                                    <button class="dropdown-item" name="export_type" value="html" type="submit">
-                                        <i class="text-primary fas fa-file-code"></i>
-                                        Export as .html
-                                    </button>
-                                    <button class="dropdown-item" formaction="/instance/export" type="submit">
-                                        <i class="fas fa-file-alt"></i>
-                                        Export as XBRL-XML instance
-                                    </button>
-                                    <button class="dropdown-item" formaction="/instance/export-csv" type="submit">
-                                        <i class="fas fa-file-archive"></i>
-                                        Export as xBRL-CSV package
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-                    <form id="import" class="app-report-import-form" method="POST" enctype="multipart/form-data">
-                        {{ csrf_field() }}
-                        <div class="app-report-field app-report-file-field">
-                            <label for="fileToUpload" class="form-label">Source file</label>
-                            <input type="file" name="fileToUpload" id="fileToUpload" class="form-control">
-                            <input id="sheetcodeImport" name="sheetcode" type="hidden"/>
-                        </div>
-
-                        <div class="app-report-import-actions">
-                            <button class="btn btn-primary" value="1">Import</button>
-                        </div>
-                    </form>
                 </div>
-            </section>
+                <span class="rib-cap">Instance</span>
+            </div>
+
+            <div class="rib-sep"></div>
+            <div class="rib-group">
+                <div class="rib-btns">
+                    <select id="group" onchange="changeTable(this,'G')" class="rib-select" aria-label="Table group">
+                        @foreach($groups as $key=>$row)
+                            <option value="{{$row}}">{{$key}}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <span class="rib-cap">Table group</span>
+            </div>
+
+            <div class="rib-sep"></div>
+            <div class="rib-group">
+                <div class="rib-btns">
+                    <button type="button" class="rib-btn" onclick="document.getElementById('fileToUpload').click()" title="Import a source file">
+                        <i class="fas fa-file-import"></i><span>Import</span>
+                    </button>
+                    <div class="dropdown">
+                        <button type="button" class="rib-btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Export the instance">
+                            <i class="fas fa-file-export"></i><span>Export</span>
+                        </button>
+                        <form id="export_table" method="post" action="table/export">
+                            @csrf
+                            <input name="period" type="hidden" value="{{$period}}">
+                            <input name="mod" type="hidden" value="{{$mod}}">
+                            <input id="export_table_path" name="table" type="hidden">
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <button class="dropdown-item" name="export_type" value="xlsx" type="submit"><i class="text-success fas fa-file-excel"></i> Export as .xlsx</button>
+                                <button class="dropdown-item" name="export_type" value="pdf" type="submit"><i class="text-danger fas fa-file-pdf"></i> Export as .pdf</button>
+                                <button class="dropdown-item" name="export_type" value="html" type="submit"><i class="text-primary fas fa-file-code"></i> Export as .html</button>
+                                <div class="dropdown-divider"></div>
+                                <button class="dropdown-item" formaction="/instance/export" type="submit"><i class="fas fa-file-alt"></i> Export as XBRL-XML instance</button>
+                                <button class="dropdown-item" formaction="/instance/export-csv" type="submit"><i class="fas fa-file-archive"></i> Export as xBRL-CSV package</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <span class="rib-cap">Data</span>
+            </div>
+
+            {{-- Hidden import form: the Import button opens the picker, which auto-submits via the existing handler --}}
+            <form id="import" class="d-none" method="POST" enctype="multipart/form-data">
+                {{ csrf_field() }}
+                <input type="hidden" name="import" value="1">
+                <input type="file" name="fileToUpload" id="fileToUpload"
+                       onchange="this.value && (this.form.requestSubmit ? this.form.requestSubmit() : this.form.submit())">
+                <input id="sheetcodeImport" name="sheetcode" type="hidden"/>
+            </form>
         </div>
 
         @include('flash.flash-message')
