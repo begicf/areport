@@ -63,6 +63,21 @@ class InstanceController extends Controller
         return $lei ?: env('LEI_CODE', '12345678912345678912');
     }
 
+    /**
+     * A filename slug for the export, built from the reporting entity name
+     * (Settings) — EBA instances carry only the LEI, so the readable entity
+     * name is surfaced in the download filename instead.
+     */
+    private function fileSlug(): string
+    {
+        $cls = \Begicf\AReportPro\Models\DpmSetting::class;
+        $name = class_exists($cls) ? ($cls::get('entity_name') ?: null) : null;
+        $base = $name ?: $this->reportingLei();
+        $slug = trim(preg_replace('/[^A-Za-z0-9]+/', '_', (string) $base), '_');
+
+        return substr($slug, 0, 40) ?: 'instance';
+    }
+
     public function exportInstance()
     {
         $module = $this->getNormalizeModule(request('mod'));
@@ -88,7 +103,7 @@ class InstanceController extends Controller
 
         return response()->streamDownload(function () use ($file) {
             echo $file;
-        }, 'areport_'.date("dmYHis").'.xbrl', ['Content-Type' => 'text/xml']);
+        }, 'areport_'.$this->fileSlug().'_'.date("dmYHis").'.xbrl', ['Content-Type' => 'text/xml']);
 
 
     }
@@ -121,7 +136,7 @@ class InstanceController extends Controller
 
         return response()->download(
             $file['path'],
-            $file['filename'],
+            'areport_'.$this->fileSlug().'_'.date('dmYHis').'.zip',
             ['Content-Type' => 'application/zip']
         )->deleteFileAfterSend(true);
     }
