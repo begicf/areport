@@ -1,140 +1,132 @@
 # AReport
 
-AReport is data entry and export application for supervisory reporting taxonomies built with the DPM/XBRL model. It renders taxonomy tables as editable HTML forms, stores facts in a relational database, and exports reporting instances in multiple formats.
+AReport is a web application for supervisory reporting with DPM/XBRL taxonomies (EBA, ECB and national extensions). It turns the taxonomy's tables into editable forms, stores the reported facts in a relational database, checks them, and exports filing-ready `xBRL-CSV` and `xBRL-XML` instances.
 
-The application uses the companion package [`begicf/areport-dpm-xbrl`](https://github.com/begicf/areport-dpm-xbrl) to parse taxonomy files, render tables, and prepare export payloads.
+Taxonomy parsing, table rendering and the instance writers live in the companion package [`begicf/areport-dpm-xbrl`](https://github.com/begicf/areport-dpm-xbrl).
 
-## Current State
+Live demo: <https://demo.areport.net>
 
-The current development branch includes the following notable updates:
+## Features
 
-- Upgraded the application to Laravel `13.3.0`
-- Upgraded the UI stack to Bootstrap `5.3.8`
-- Reworked the shared layout for full-width, dense financial-reporting screens
-- Standardized labels and UI copy to English
-- Added active taxonomy visibility in the navigation and taxonomy management flow
-- Improved the module explorer with compact search and expand/collapse-all behavior
-- Added support for DPM `1.0` and DPM `2.0` taxonomy workflows
-- Fixed taxonomy scoping so the application no longer mixes facts from different active taxonomies
-- Restored legacy DPM `1.0` rendering behavior while continuing compatibility work for DPM `2.0` taxonomies
-- Improved xBRL XML export and added an xBRL-CSV package export path aligned with local EBA sample packages
-- Added regression coverage for export writer behavior
+### Taxonomies
+- Upload taxonomy packages (ZIP) and switch the active taxonomy; every instance and fact is scoped to its taxonomy.
+- DPM `1.0` and DPM `2.0` taxonomies (tested with EBA 4.2 and 4.4), including open tables, typed dimensions and owner extensions (e.g. a national regulator's modules next to EBA's).
+- The taxonomy page shows the frameworks and module versions each package contains.
+- Module explorer with an owner filter (All / EBA / own), search, and expand or collapse all.
 
-## Main Features
+### Reporting
+- Instances belong to a user and are addressed by id. Each instance has a reporting entity (LEI and name), a reference date and filing settings.
+- Every template renders as an HTML form:
+  - Enumerations become dropdowns that follow the hierarchy (indented members, members of other domains).
+  - Percentages are entered as %.
+  - Open tables add rows with their key.
+  - Typed z-axes add sheets by key value (`Add key`), with suggestions of identifiers already used in the instance (e.g. C_27 → C_28/C_29).
+- Explicit save, autosave and an audit trail. Large sheets save without hitting PHP's `max_input_vars`.
+- Live validation on the form: cells that break a rule are marked red (error) or amber (warning), and a tooltip on the cell shows the rule.
+- Instance status and a home dashboard with a status filter.
 
-- Web-based XBRL/DPM data entry
-- HTML rendering of taxonomy tables
-- Import from spreadsheet and structured files
-- Export to `.xlsx`, `.pdf`, `.html`, `xBRL-XML`, and `xBRL-CSV`
-- Taxonomy upload and active taxonomy switching
-- Database-backed storage of reporting facts and instances
-- Local development with a symlinked parser package
+### Checks and export
+- Filing indicators for every template of the module.
+- Pre-export checks:
+  - open-table rows and typed sheets must have their key;
+  - no `xBRL-XML` from reference date 31.03.2026;
+  - other EBA filing rules.
+- `xBRL-CSV` report packages and `xBRL-XML` instances following the EBA filing rules:
+  - one context per member set, and one fact per concept and context;
+  - shared datapoints reported once;
+  - open-table rows carry their keys;
+  - typed members are written correctly.
+- On the 10 EBA 4.2 sample modules that were tested, exports match the official samples fact for fact.
+- Export dialog option to check the exported instance with [Arelle](https://arelle.org) (offline, against the local taxonomy copy).
+- Export to `.xlsx`, `.pdf` and `.html`, and import from spreadsheets and structured files.
+
+### Workspace
+- Settings for reporting entities (LEI lookup in the GLEIF register), the taxonomy owner and regulator, and translation languages.
+- Sign-in requires a verified email address.
+- Optional demo mode that shares one user's instances with every signed-in user.
+- Public landing page with a spam-protected contact form.
+
+### Private plugin: AReport Pro
+The optional `begicf/areport-pro` package is private, not public. When it is installed, it adds:
+- **DPM Architect**: author tables, modules, the data dictionary and validation rules, then generate the XBRL taxonomy (schemas, linkbases, `*-lab-<lang>.xml`).
+- **Validation**: DPM 2.0 / DPM-XL rules, evaluated by the separate `dpm-xl-service`.
+- **Label translation**: labels translated in the Architect and the dictionary, with optional AI suggestions from Claude.
+
+AReport works without the plugin; the related screens and actions are simply hidden.
 
 ## Requirements
 
-- PHP `8.3+`
-- Composer
-- Node.js and npm
-- A supported database for Laravel
-- PHP ZIP extension
+- PHP `8.3+` with the `zip` and `dom` extensions
+- Composer, Node.js and npm
+- MySQL/MariaDB (or another database supported by Laravel)
+- Optional: Arelle (`arelleCmdLine`) for checking exported instances
 
-## Local Development Setup
+The application runs on Laravel `13`, Bootstrap `5.3`, PhpSpreadsheet and mPDF.
 
-Clone the application:
+## Local development
 
 ```bash
 git clone https://github.com/begicf/areport.git
+git clone https://github.com/begicf/areport-dpm-xbrl.git   # sibling folder, symlinked by Composer
 cd areport
-```
 
-Install dependencies:
+composer install
+npm install && npm run prod
 
-```bash
-composer update
-npm install
-```
-
-Create the environment file and generate the app key:
-
-```bash
 cp .env.example .env
 php artisan key:generate
-```
+php artisan migrate --seed
+php artisan storage:link
 
-Run the database setup:
-
-```bash
-php artisan migrate:fresh --seed
-```
-
-Build frontend assets:
-
-```bash
-npm run prod
-```
-
-Start the application:
-
-```bash
 php artisan serve
 ```
 
-## Environment Notes
+`composer.json` points `begicf/areport-dpm-xbrl` at `../areport-dpm-xbrl` (path repository, symlinked), so changes to the library apply right away. The private `areport-pro` plugin is linked the same way from `../areport-pro` when it is present.
 
-Additional environment variables used by the application:
+## Configuration
 
-```dotenv
-UPLOAD=1
-LEI_CODE=12345678912345678912
-```
+The main application variables in `.env`:
 
-For large taxonomy uploads, increase PHP limits in `php.ini`:
+| Variable | Purpose |
+|---|---|
+| `UPLOAD` | `1` allows taxonomy uploads from the UI |
+| `LEI_CODE` | fallback LEI when no reporting entity is set |
+| `AREPORT_CONTACT_TO` | recipient of contact form messages (default `MAIL_FROM_ADDRESS`) |
+| `AREPORT_DEMO_SHARED_USER_ID` | demo mode: whose instances every signed-in user sees (`0` = off) |
+| `AREPORT_EDITION`, `AREPORT_EXTENSION_PROVIDERS` | edition label and extra service providers |
+
+With the AReport Pro plugin:
+
+| Variable | Purpose |
+|---|---|
+| `AREPORT_PRO_ARELLE_CMD` | path to `arelleCmdLine` (e.g. a venv's `bin/arelleCmdLine`) |
+| `AREPORT_PRO_DPMXL_SERVICE_URL` | DPM-XL service (default `http://127.0.0.1:8077`) |
+| `AREPORT_PRO_DPM_OWNER_*`, `AREPORT_PRO_DPM_REGULATOR_*` | owner and regulator of authored taxonomies (also editable under Settings) |
+| `ANTHROPIC_API_KEY`, `AREPORT_PRO_AI_MODEL` | AI translation with Claude (can also be set under Settings › AI translation) |
+
+For large taxonomy uploads, raise the PHP limits in `php.ini`:
 
 ```ini
 max_execution_time = 6000
 upload_max_filesize = 4000M
 post_max_size = 4000M
-max_input_vars = 4000
 ```
 
-## Taxonomy Notes
-
-- Taxonomy files are typically stored under `storage/app/public/tax`
-- The application is being maintained with support for both DPM `1.0` and DPM `2.0` taxonomy structures
-- The currently active taxonomy is controlled from the taxonomy management UI
-- Recent work focused on keeping DPM `1.0` flows stable while improving DPM `2.0` compatibility
+Taxonomy packages are unpacked under `storage/app/public/tax/<folder>`.
 
 ## Testing
-
-Run the backend test suite with:
 
 ```bash
 php artisan test
 ```
 
-Useful maintenance commands:
+The tests use an in-memory SQLite database. Tests that need the private plugin are skipped when it is not installed.
 
-```bash
-php artisan view:cache
-php artisan route:list
-php -l path/to/file.php
-```
+## Deployment
 
-## Export Notes
+Each push to `master` deploys <https://demo.areport.net> through GitHub Actions (`.github/workflows/deploy.yml`). The deploy pulls the sibling repositories, runs `composer install` and the migrations, then reloads the application. A change that needs a new `.env` value has to be set on the server separately.
 
-The application currently contains two main supervisory export paths:
-
-- Legacy `xBRL-XML` export
-- `xBRL-CSV` report package export
-
-Recent export work included:
-
-- normalization of filing indicator handling
-- better XML context generation, including scenario members
-- datapoint-based CSV generation aligned with local EBA sample instances
-- improved parameter generation for CSV report packages
-
-## Related Repository
+## Related repositories
 
 - Application: <https://github.com/begicf/areport>
-- Parser package: <https://github.com/begicf/areport-dpm-xbrl>
+- Taxonomy parser, renderer and instance writers: <https://github.com/begicf/areport-dpm-xbrl>
