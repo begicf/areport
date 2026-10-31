@@ -153,7 +153,7 @@ class FilingHelpersTest extends TestCase
         $this->assertSame('uBAM', $fact->getAttribute('unitRef'));
         $this->assertSame('-3', $fact->getAttribute('decimals'));
         $this->assertSame('iso4217:BAM', $xpath->evaluate('string(//xbrli:unit[@id="uBAM"]/xbrli:measure)'));
-        $this->assertSame('false', $xpath->evaluate('string(//find:filingIndicator[.="C_02.00"]/@filed)'));
-        $this->assertSame('', $xpath->evaluate('string(//find:filingIndicator[.="C_01.00"]/@filed)'));
+        $this->assertSame('false', $xpath->evaluate('string(//find:filingIndicator[.="C_02.00"]/@find:filed)'));
+        $this->assertSame('', $xpath->evaluate('string(//find:filingIndicator[.="C_01.00"]/@find:filed)'));
     }
 }
