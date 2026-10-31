@@ -91,6 +91,8 @@ class FactHeader extends Model
                 continue;
             endif;
 
+            $rowKeys = self::buildRowKeyContextMap($result->factTable);
+
             foreach ($result->factTable as $row):
                 $parsedCode = self::parseCrCode($row->cr_code);
                 $columnCode = $parsedCode['column_code'] ?? null;
@@ -100,6 +102,21 @@ class FactHeader extends Model
                 $rawContext = self::decodeRawContext($row->xbrl_context_key_raw);
                 $context = self::sanitizeRawContext($rawContext);
                 $meta = self::extractRawMeta($rawContext);
+
+                // Open rows: the row's key cells (counterparty, country…) are part of every
+                // value fact's identity, as in the xBRL-XML export; xBRL-CSV wants them flat.
+                $rowKey = $rowKeys[self::buildRowGroupKey($row->cr_sheet_code, $rowCode)] ?? null;
+                if (!empty($row->metric) && $rowKey) {
+                    foreach ($rowKey as $dimension => $value) {
+                        if ($dimension === 'typedMember') {
+                            foreach ($value as $typedDimension => $typed) {
+                                $context[$typedDimension] ??= $typed['value'];
+                            }
+                            continue;
+                        }
+                        $context[$dimension] ??= $value;
+                    }
+                }
 
                 $facts[] = [
                     'fact_header_id' => $row->fact_header_id,
