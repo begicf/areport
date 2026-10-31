@@ -124,6 +124,15 @@ Stavke 1–10 i UI: Završeno; Postavke: U radu; stavka 11 (DPM 2.0 model): Otvo
 - Napomena: CSS klasa `.vr` je zauzeta u Bootstrapu (vertikalna linija) — ne koristiti kao korijensku.
 - Stara pravila iz XBRL formula (`dpm_validation_rules`, 4.0/4.2) ostaju za legacy validator.
 
+### Sprint 9 — popravke s liste „ne radi“ (2026-10-31)
+- Reporting validator izvršava vlastita pravila za FBA module (`InstanceValidator::ownModuleFor` → Module po `metadata.generated.path`; `selectOwnRules`), plus EBA pravila za EBA tabele unutar FBA modula. Izvještaj: „own rules (DPM Architect Validations)“.
+- Generisani paket nosi `val/<modul>-rules.json` + `.csv`.
+- FBA modul može sadržavati EBA tabele (import/pre/extends preko zvaničnog URL-a, EBA template + filing indicator); biblioteka ModuleTree i `ModulesController::group` razrješavaju apsolutne URL-ove.
+- Vlastita hijerarhija nad EBA domenom: biblioteka čita labele/namespace EBA članova iz njihovog mem.xsd.
+- Rječnik: nazivi EBA domena iz exp/typ labela; standardna labela ima prednost nad verbose.
+- **Arelle provjera**: modul i xBRL-CSV paket validni (0 grešaka). Postavka: `python3 -m venv <dir>/arelle-venv && <dir>/arelle-venv/bin/pip install arelle-release`; keš `<dir>/arelle-home/arelle/cache/http/<host>` → symlink na `tax/eba44/<host>` (www.eba.europa.eu, www.eurofiling.info, www.xbrl.org, www.fba.ba); pokretanje `XDG_CONFIG_HOME=<dir>/arelle-home arelleCmdLine --file http://www.fba.ba/.../mod/spn_fba1.xsd --validate --internetConnectivity=offline`.
+- Demo: instanca 19 (SPN_FBA1 s EBA C_01.00), hijerarhija AS_FBA1 nad EBA domenom AS, metrika fba_m4.
+
 ### Posljednji commitovi
 - `areport-pro` … 01fd60b (rječnik), 901bea3 (UI rječnika), cc66605 (generisanje modula) — pushano
 - `areport` b7017d2 — test faktorizacije hiperkocki — pushano
@@ -131,7 +140,7 @@ Stavke 1–10 i UI: Završeno; Postavke: U radu; stavka 11 (DPM 2.0 model): Otvo
 - `dpm-xl-service` 08a5e33 — `where` / `group by`
 
 ## Otvoreno / sljedeći koraci
-1. **SLJEDEĆE:** reporting validator da izvršava vlastita pravila (dpm_operations) za FBA module; pravila u generisanom paketu; EBA tabele unutar FBA modula; vlastita hijerarhija nad EBA domenom (labele EBA članova); labele EBA domena; provjera paketa Arelle-om.
+1. **SLJEDEĆE:** dogovoriti s korisnikom (UI editora koordinata: članovi samo iz domene dimenzije; Arelle provjera kao dugme u Architectu; …).
 2. Tipizirana key dimenzija: `resolveTypedDomainRef` u biblioteci traži `typ.xsd` relativno na host tabele; za FBA tabele treba fallback na EBA host.
 3. Validacija uzorka u Architectu ne prenosi dimenzije iz CSV-a → `where` pravila na uzorku daju „nedostaju podaci“.
 4. Ubrzati ANTLR parsiranje DPM 2.0 pravila (prvi prolaz ~20 s); moguć brzi put za v0.9.
