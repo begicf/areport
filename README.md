@@ -48,7 +48,7 @@ Live demo: <https://demo.areport.net>
 
 ### Private plugin: AReport Pro
 The optional `begicf/areport-pro` package is private, not public. When it is installed, it adds:
-- **DPM Architect**: author tables, modules, the data dictionary and validation rules, then generate the XBRL taxonomy (schemas, linkbases, `*-lab-<lang>.xml`).
+- **DPM Architect**: author tables, modules, the data dictionary and validation rules, then generate the XBRL taxonomy (schemas, linkbases, `*-lab-<lang>.xml`). **Export** packs the chosen frameworks as an XBRL taxonomy package, with an optional Arelle check of every module.
 - **Validation**: DPM 2.0 / DPM-XL rules, evaluated by the separate `dpm-xl-service`.
 - **Label translation**: labels translated in the Architect and the dictionary, with optional AI suggestions from Claude.
 
