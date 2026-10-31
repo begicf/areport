@@ -301,16 +301,16 @@ class TableController extends Controller
 
 
         $methode = str_replace(".", "", $path['filename']);
-        $file_name = $_FILES['fileToUpload']['name'];
-        $tpn_name = $_FILES['fileToUpload']['tmp_name'];
+        $upload = $request->file('fileToUpload');
+        abort_unless($upload && $upload->isValid(), 422, 'Choose a file to import.');
+        $file_name = $upload->getClientOriginalName();
+        $tpn_name = $upload->getRealPath();
 
         $import['ext'] = pathinfo($file_name, PATHINFO_EXTENSION);
 
         if ($import['ext'] == 'xbrl'):
 
-            $upload = new UploadXbrl($tpn_name);
-
-            $import['file'] = $upload->Instance();
+            return response()->json($this->importXbrl($request, $tpn_name));
 
         elseif ($import['ext'] == 'xlsx'):
 
@@ -332,6 +332,35 @@ class TableController extends Controller
         return $import;
     }
 
+
+    /**
+     * xBRL-XML instance → values for the table (and sheet) open on the form, keyed by
+     * cell id. Only tables of the taxonomy can be read.
+     */
+    private function importXbrl(Request $request, string $file): array
+    {
+        $instance = $this->bindInstance();
+        abort_unless($instance, 404, 'Instance not found.');
+
+        $table = realpath((string) $request->get('tab'));
+        $root = realpath(storage_path('app/public/tax'));
+        abort_unless($table && $root && str_starts_with($table, $root . DIRECTORY_SEPARATOR) && str_ends_with($table, '.xsd'), 422, 'Open a table first.');
+
+        $sheet = json_decode((string) $request->get('sheet'), true);
+        $sheetDims = is_array($sheet) ? $sheet : [];
+
+        try {
+            $result = \App\Support\XbrlInstanceImport::forTable($file, $table, $sheetDims, $this->_taxonomy->folder ?? null, (int) ($instance->monetary_scale ?: 1000));
+        } catch (\InvalidArgumentException $e) {
+            abort(422, $e->getMessage());
+        }
+
+        return [
+            'ext' => 'xbrl',
+            'file' => $result['values'],
+            'summary' => ['facts' => $result['facts'], 'matched' => $result['matched'], 'typed' => $result['typed']],
+        ];
+    }
 
     private function ImportXMLJSON($format, $tpn_name)
     {

@@ -91,6 +91,19 @@ class InstanceOwnershipAndSaveTest extends TestCase
         $this->actingAs($alice)->get('/table/history?id='.$bobInstance->id)->assertNotFound();
     }
 
+    public function testAnXbrlImportOnlyReadsTablesOfTheTaxonomy(): void
+    {
+        $tax = $this->taxonomy('eba44', true);
+        $alice = $this->user('alice@example.com');
+        $instance = $this->instanceFor($alice, $tax);
+        $file = \Illuminate\Http\UploadedFile::fake()->createWithContent('instance.xbrl', '<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance"/>');
+
+        $this->actingAs($alice)->post('/table/import', ['instance_id' => $instance->id, 'tab' => base_path('composer.json'), 'fileToUpload' => $file])
+            ->assertStatus(422);
+        $this->actingAs($alice)->post('/table/import', ['instance_id' => $instance->id, 'tab' => '', 'fileToUpload' => $file])
+            ->assertStatus(422);
+    }
+
     public function testInstancesOfANonActiveTaxonomyStayListed(): void
     {
         $this->taxonomy('eba40', true);
