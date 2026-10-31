@@ -280,7 +280,7 @@ class TableController extends Controller
 
         if (is_array($array) && count(current($array)) > 1):
 
-            $buttonGroup = "<div class='btn - group' role='group' aria-label='Basic example'>";
+            $buttonGroup = "<div class='app-table-group' role='group' aria-label='Tables of this group'>";
             foreach (current($array) as $key => $row):
                 $active = ($row == $table) ? 'active' : '';
                 $buttonGroup .= "<button type='button' onclick='changeTable(this, \"T\")' value='$row'  class='btn btn-primary $active'>" . Format::getAfterSpecChar($key, '_t', 2) . "</button>";
