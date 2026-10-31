@@ -526,6 +526,13 @@ class TableController extends Controller
         }
         $context['indicators'] = $indicators;
 
+        // Rules straight from the EBA DPM 2.0 database when one defines this module version.
+        $moduleVid = \AReportDpmXBRL\Library\ModuleInfo::load((string) ($instance->taxonomy->folder ?? ''), (string) $instance->module_path)['module_vid'] ?? null;
+        $database = $validatorClass::dpm2DatabaseFor($moduleVid);
+        if ($database) {
+            $context['dpm2'] = ['database' => $database, 'module_vid' => $moduleVid];
+        }
+
         return $context;
     }
 
@@ -534,6 +541,7 @@ class TableController extends Controller
     {
         $tableModel = \Begicf\AReportPro\Models\Dpm\DpmTable::class;
         $cellValues = [];
+        $tolerance = [];
         $codes = [];
         // The framework named by the module path (…/fws/corep/…) in the instance's own
         // taxonomy — the one its rules were imported under.
@@ -556,23 +564,29 @@ class TableController extends Controller
                     ->first();
                 $framework = $t?->framework;
             }
-            $cells = FactHeader::getCRData($header->table_path, $module->periodYmd(), $module->module_path, null, true, null, $module->id) ?? [];
-            foreach ($cells as $maybeSheet => $rows) {   // $all=true → [sheet][crcode][...]; flatten
-                $rowset = (is_array($rows) && ! isset($rows['integer']) && ! isset($rows['string'])) ? $rows : [$maybeSheet => $rows];
-                foreach ($rowset as $crCode => $vals) {
-                    if (! is_string($crCode) || ! preg_match('/^c([^r]+)r(.+)$/i', $crCode, $m)) {
-                        continue;
-                    }
-                    $v = $vals['string'] ?? null;
-                    if ($v === '' || $v === null) {
-                        continue;
-                    }
-                    $cellValues['t'.$tcode.',r'.strtolower($m[2]).',c'.strtolower($m[1])] = is_numeric($v) ? ($v + 0) : $v;
+            // Values as reported (amounts × the instance's unit, percentages as ratios), with
+            // the half-width of their rounding for interval arithmetic (0.5·10^-decimals).
+            foreach ($header->factTable()->get(['cr_code', 'string_value', 'metric']) as $fact) {
+                if (! preg_match('/^c([^r]+)r(.+)$/i', (string) $fact->cr_code, $m)) {
+                    continue;
+                }
+                $v = $fact->string_value;
+                if ($v === '' || $v === null) {
+                    continue;
+                }
+                $key = 't'.$tcode.',r'.strtolower($m[2]).',c'.strtolower($m[1]);
+                $kind = is_numeric($v) ? \AReportDpmXBRL\Library\MetricTypes::kind((string) ($module->taxonomy->folder ?? ''), $fact->metric) : null;
+                $scaled = $kind ? \AReportDpmXBRL\Library\FactValue::forKind($kind, (string) $v, (int) ($module->monetary_scale ?: 1000)) : $v;
+                $cellValues[$key] = is_numeric($scaled) ? ($scaled + 0) : $scaled;
+                $decimals = ['monetary' => $module->decimals_monetary ?? -3, 'percentage' => $module->decimals_percentage ?? 4,
+                    'integer' => $module->decimals_integer ?? 0, 'decimal' => $module->decimals_decimal ?? 2][$kind] ?? null;
+                if ($decimals !== null) {
+                    $tolerance[$key] = 0.5 * (10 ** (-$decimals));
                 }
             }
         }
 
-        return ['cells' => $cellValues, 'codes' => array_keys($codes), 'framework' => $framework];
+        return ['cells' => $cellValues, 'codes' => array_keys($codes), 'framework' => $framework, 'tolerance' => $tolerance];
     }
 
     /**
@@ -621,16 +635,25 @@ class TableController extends Controller
         $error = null;
         if (! $validator->available()) {
             $error = 'DPM-XL service is offline — start it to run validation.';
-        } elseif (! $built['framework']) {
-            $error = 'No DPM framework found for this module.';
         } elseif (empty($built['cells'])) {
             $error = 'This instance has no saved values to validate.';
         } else {
-            $report = $validator->report($built['framework'], $built['cells'], $built['codes'], $this->validationContext($module));
-            if (isset($report['error'])) {
-                $error = $report['error'];
+            $context = $this->validationContext($module);
+            if ($context) {
+                $context['tolerance'] = $built['tolerance'];
+            }
+            // DPM 2.0 database rules need no imported framework; the legacy rules do.
+            $framework = $built['framework'] ?? (! empty($context['dpm2']) ? new \Begicf\AReportPro\Models\Dpm\Framework() : null);
+            if (! $framework) {
+                $error = 'No DPM framework found for this module.';
             } else {
-                $module->stamp(['validated_at' => now(), 'validation_summary' => $report['summary']]);
+                $report = $validator->report($framework, $built['cells'], $built['codes'], $context);
+                if (isset($report['error'])) {
+                    $error = $report['error'];
+                } else {
+                    $module->stamp(['validated_at' => now(), 'validation_summary' => $report['summary']]);
+                }
+                $meta['rules_source'] = ! empty($context['dpm2']) ? 'EBA DPM 2.0 database '.$context['dpm2']['database']->label : 'taxonomy validation linkbases';
             }
         }
 
