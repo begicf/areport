@@ -21,7 +21,7 @@ class FactTable extends Model
     {
 
 
-        parse_str($req, $res);
+        $res = \App\Support\FormQuery::parse((string) $req);
 
         $cr_sheet = null;
         if (isset($sheet)):

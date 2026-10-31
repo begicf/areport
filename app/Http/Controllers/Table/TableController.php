@@ -458,7 +458,7 @@ class TableController extends Controller
         }
 
         // Form fields are c<col>r<row>[value]; build the cell keys the rules use: t<table>,r<row>,c<col>.
-        parse_str((string) $request->get('table_data'), $form);
+        $form = \App\Support\FormQuery::parse((string) $request->get('table_data'));
         $tcode = strtolower($table->code);
         $cellValues = [];
         foreach ($form as $name => $payload) {
