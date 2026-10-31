@@ -25,6 +25,10 @@
         /* The cells the validator flagged — what the reporter must fix. */
         #table_form td.dpm-cell-fail { background: #fee2e2 !important; outline: 2px solid #dc2626; outline-offset: -2px; }
         #table_form td.dpm-cell-fail input, #table_form td.dpm-cell-fail select { border-color: #dc2626 !important; background: #fff1f1; }
+.app-typed-sheet { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+        .app-typed-sheet .app-sheet-select { max-width: 320px; }
+        .app-typed-sheet-add { display: flex; gap: .35rem; }
+        .app-typed-sheet-add input { width: 200px; }
         #table_form td.dpm-cell-warn { background: #fff7ed !important; outline: 2px solid #f59e0b; outline-offset: -2px; }
         #table_form td.dpm-cell-warn input, #table_form td.dpm-cell-warn select { border-color: #f59e0b !important; background: #fffbeb; }
         .dpm-val-toggle { background: none; border: 0; color: #2f557d; font-size: .76rem; font-weight: 600; padding: .2rem 0; cursor: pointer; }
@@ -1441,6 +1445,29 @@
                     window.alert('The open sheet could not be saved, so it stays open. Check the save status and try again.');
                 });
             });
+
+        // Typed z-axis (one sheet per key value, e.g. a covered bond issue): add a key.
+        $("#sheets").on("click", "#sheetKeyAdd", function () {
+            const box = this.closest('.app-typed-sheet');
+            const input = document.getElementById('sheetKeyNew');
+            const value = (input.value || '').trim();
+            if (!value) { input.focus(); return; }
+            const select = document.getElementById('sheet');
+            const code = 'k:' + value;
+            let option = Array.from(select.options).find(function (o) { return o.text === value; });
+            if (!option) {
+                const typed = {};
+                typed[box.dataset.dimension] = { typ: box.dataset.typ, value: value };
+                option = new Option(value, JSON.stringify({ typedMember: typed, sheet: code }));
+                select.add(option);
+            }
+            input.value = '';
+            select.value = option.value;
+            $(select).trigger('change');
+        });
+        $("#sheets").on("keydown", "#sheetKeyNew", function (e) {
+            if (e.key === 'Enter') { e.preventDefault(); $('#sheetKeyAdd').trigger('click'); }
+        });
 
         function switchSheet(nextSheetValue) {
                 $(".xbrl-input,.xbrl-input-open,.xbrl-input-text ").each(function () {

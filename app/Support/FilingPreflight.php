@@ -79,10 +79,22 @@ class FilingPreflight
             $meta = is_file($json) ? json_decode((string) file_get_contents($json), true) : null;
             $template = is_array($meta['tableTemplates'] ?? null) ? reset($meta['tableTemplates']) : null;
             $keys = [];
+            $sheetKeys = [];
             foreach ((array) ($template['columns'] ?? []) as $name => $col) {
                 $doc = $col['eba:documentation'] ?? [];
+                if (($doc['headerDirection'] ?? '') === 'Z' && ! in_array($name, ['datapoint', 'factValue'], true) && ($col['tc:constraints']['type'] ?? '') === 'xs:string') {
+                    $sheetKeys[] = $name;   // typed z-axis: each sheet is named by its key value
+                }
                 if (! in_array($name, ['datapoint', 'factValue'], true) && ($doc['headerDirection'] ?? '') === 'X' && ! empty($doc['headerCode'])) {
                     $keys[strtolower('c'.$doc['headerCode'])] = $name;
+                }
+            }
+            if ($sheetKeys) {
+                $table = strtoupper(basename(dirname((string) $header->table_path)));
+                foreach ($header->factTable->groupBy('cr_sheet_code') as $sheet => $rows) {
+                    if (! str_starts_with((string) $sheet, 'k:') && $rows->contains(fn ($f) => ! empty($f->metric) && trim((string) $f->string_value) !== '')) {
+                        $out[] = ['table' => $table, 'row' => 'sheet', 'column' => implode(', ', $sheetKeys).' — choose or add the sheet key before entering data'];
+                    }
                 }
             }
             if (! $keys) {
