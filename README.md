@@ -85,7 +85,9 @@ php artisan storage:link
 php artisan serve
 ```
 
-`composer.json` points `begicf/areport-dpm-xbrl` at `../areport-dpm-xbrl` (path repository, symlinked), so changes to the library apply right away. The private `areport-pro` plugin is linked the same way from `../areport-pro` when it is present.
+`composer.json` points `begicf/areport-dpm-xbrl` at `../areport-dpm-xbrl` (path repository, symlinked), so changes to the library apply right away.
+
+The private `areport-pro` plugin is not a Composer dependency: when its folder sits next to the application (`../areport-pro`, or the folders listed in `AREPORT_PLUGIN_PATHS`), it is loaded from its own `composer.json` (autoload and Laravel providers). Without it, AReport runs as the open-source core.
 
 ## Configuration
 

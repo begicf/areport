@@ -29,6 +29,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Local plugins
+    |--------------------------------------------------------------------------
+    |
+    | Private plugins (e.g. AReport Pro) are not Composer dependencies of this
+    | public repository: a plugin folder found here (relative to the project root,
+    | comma-separated) is loaded from its own composer.json — PSR-4 autoload and
+    | Laravel providers. A missing folder is skipped, so the core runs without it.
+    |
+    */
+
+    'plugin_paths' => array_filter(array_map('trim', explode(',', env('AREPORT_PLUGIN_PATHS', '../areport-pro')))),
+
+    /*
+    |--------------------------------------------------------------------------
     | Extension Views
     |--------------------------------------------------------------------------
     |
