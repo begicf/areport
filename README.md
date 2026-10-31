@@ -4,7 +4,9 @@ AReport is a web application for supervisory reporting with DPM/XBRL taxonomies 
 
 Taxonomy parsing, table rendering and the instance writers live in the companion package [`begicf/areport-dpm-xbrl`](https://github.com/begicf/areport-dpm-xbrl).
 
-Live demo: <https://demo.areport.net>
+Website: <https://areport.net>
+
+[![AReport — taxonomy-driven reporting, modelled and validated in one workspace](docs/images/landing.png)](https://areport.net)
 
 ## Features
 
