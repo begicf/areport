@@ -52,7 +52,7 @@ return [
     */
 
     'contact' => [
-        'to' => env('AREPORT_CONTACT_TO', env('MAIL_FROM_ADDRESS')),
+        'to' => env('AREPORT_CONTACT_TO', 'info@areport.net'),
         'min_seconds' => (int) env('AREPORT_CONTACT_MIN_SECONDS', 4),
         'max_links' => (int) env('AREPORT_CONTACT_MAX_LINKS', 2),
     ],

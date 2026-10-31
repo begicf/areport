@@ -91,7 +91,7 @@ The main application variables in `.env`:
 |---|---|
 | `UPLOAD` | `1` allows taxonomy uploads from the UI |
 | `LEI_CODE` | fallback LEI when no reporting entity is set |
-| `AREPORT_CONTACT_TO` | recipient of contact form messages (default `MAIL_FROM_ADDRESS`) |
+| `AREPORT_CONTACT_TO` | recipient of contact form messages (default `info@areport.net`) |
 | `AREPORT_DEMO_SHARED_USER_ID` | demo mode: whose instances every signed-in user sees (`0` = off) |
 | `AREPORT_EDITION`, `AREPORT_EXTENSION_PROVIDERS` | edition label and extra service providers |
 
