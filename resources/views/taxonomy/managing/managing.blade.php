@@ -2,6 +2,18 @@
 
 @push('styles')
     <style>
+        .tx-page { padding: .9rem 1rem 1.6rem; }
+        .tx-page .app-panel { padding: 0; overflow: hidden; }
+        .tx-page table.table { margin: 0; }
+        .tx-page table.table thead th { font-size: .6rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: #94a3b8; background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: .5rem .75rem; white-space: nowrap; }
+        .tx-page table.table td { padding: .7rem .75rem; border-color: #f1f5f9; }
+        .tx-page tr.is-active td { background: #fdf8f1; }
+        .tx-page tr.is-active td:first-child { box-shadow: inset 3px 0 0 #e4902f; }
+        .tx-page .tax-name { font-weight: 600; color: #0f172a; }
+        .tx-page .tax-pkg { font-size: .76rem; color: #64748b; }
+        .tx-page .tax-active-tag { font-size: .58rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; background: #fdf3e7; color: #b8691b; border-radius: 4px; padding: 0 .35rem; margin-left: .35rem; }
+        .tx-page .app-form-stack { gap: 0; }
+        .tx-page .tx-actions { display: flex; justify-content: flex-end; padding: .7rem .9rem; border-top: 1px solid #eef2f7; }
         .tax-fw { display: inline-block; font-size: .72rem; font-weight: 600; color: var(--blue); background: #eef3f9; border: 1px solid #dbe4ef; border-radius: 5px; padding: .08rem .45rem; margin: 0 .25rem .25rem 0; }
         .tax-fw small { font-weight: 500; color: #64748b; }
         .tax-fws { white-space: normal !important; min-width: 420px; }
@@ -9,19 +21,27 @@
 @endpush
 
 @section('content')
-    <div class="app-page">
-        <section class="app-page-header">
-            <div class="app-page-kicker">
-                <i class="fas fa-sitemap"></i>
-                Taxonomy management
+    @php
+        $activeTax = $tax->firstWhere('active', true);
+        $activeFw = $activeTax ? ($frameworks[$activeTax->id] ?? []) : [];
+    @endphp
+    <div class="tx-page ax-stack">
+        <div class="ax-head">
+            <div>
+                <span class="ax-eyebrow"><i class="fas fa-sitemap"></i> Taxonomy management</span>
+                <h1 class="ax-title">Taxonomies</h1>
+                <p class="ax-sub">Choose the taxonomy you report against and remove packages you no longer need.</p>
             </div>
-            <h1 class="app-page-title">Manage uploaded taxonomies</h1>
-            <p class="app-page-copy">
-                Select the active taxonomy for reporting and remove unused packages from the workspace.
-            </p>
-        </section>
+        </div>
 
         @include('flash.flash-message')
+
+        <section class="ax-seg" aria-label="Taxonomy overview">
+            <div class="ax-seg-item c-slate"><div class="k">Packages</div><div class="v">{{ $tax->count() }}</div><div class="d">uploaded to the workspace</div></div>
+            <div class="ax-seg-item c-amber active"><div class="k">Active</div><div class="v txt">{{ $activeTax->name ?? '—' }}</div><div class="d">used for new reports</div></div>
+            <div class="ax-seg-item c-blue"><div class="k">Frameworks</div><div class="v">{{ count($activeFw) }}</div><div class="d">in the active taxonomy</div></div>
+            <div class="ax-seg-item c-green"><div class="k">Versions</div><div class="v">{{ collect($activeFw)->flatten()->count() }}</div><div class="d">framework versions it contains</div></div>
+        </section>
 
         <section class="app-panel">
             <form method="post" class="app-form-stack">
@@ -40,7 +60,7 @@
                         </thead>
                         <tbody>
                         @foreach($tax as $row)
-                            <tr>
+                            <tr class="{{ $row->active ? 'is-active' : '' }}">
                                 <td class="text-center">
                                     <div class="form-check d-inline-flex align-items-center justify-content-center">
                                         <input class="form-check-input" type="radio" name="tax_active"
@@ -49,11 +69,10 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <label class="form-check-label fw-semibold mb-0" for="tax_active_{{ $row->id }}">
-                                        {{ $row->name }}
-                                    </label>
+                                    <label class="form-check-label tax-name mb-0" for="tax_active_{{ $row->id }}">{{ $row->name }}</label>
+                                    @if($row->active)<span class="tax-active-tag">active</span>@endif
                                 </td>
-                                <td>{{ $row->original_name }}</td>
+                                <td class="tax-pkg">{{ $row->original_name }}</td>
                                 <td class="tax-fws">
                                     @forelse(($frameworks[$row->id] ?? []) as $fw => $versions)
                                         @php
@@ -71,7 +90,7 @@
                                 </td>
                                 <td class="text-center">
                                     <button onclick='deleteTaxonomy(@json($row))' {{ $row->active == true ? 'disabled' : '' }}
-                                            type="button" class="btn btn-outline-danger">
+                                            type="button" class="btn btn-sm btn-outline-danger" title="Remove this package">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </td>
@@ -81,8 +100,8 @@
                     </table>
                 </div>
 
-                <div class="app-actions justify-content-end">
-                    <button class="btn btn-primary px-4" type="submit">
+                <div class="tx-actions">
+                    <button class="btn btn-sm btn-primary px-3" type="submit">
                         <i class="fas fa-check"></i>
                         Set active taxonomy
                     </button>
