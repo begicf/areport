@@ -168,7 +168,7 @@
         </div>
         <div class="shot tilt">
             <div class="shot-bar"><span class="shot-dot" style="background:#ef6a5f"></span><span class="shot-dot" style="background:#f5bf4f"></span><span class="shot-dot" style="background:#61c454"></span></div>
-            <img src="{{ asset('images/landing/workspace.png') }}" alt="AReport reporting workspace">
+            <img src="{{ asset('images/landing/workspace.png') }}?v={{ @filemtime(public_path('images/landing/workspace.png')) }}" alt="AReport reporting workspace">
         </div>
     </div>
 </div>
@@ -238,7 +238,7 @@
             </div>
             <div class="shot">
                 <div class="shot-bar"><span class="shot-dot" style="background:#ef6a5f"></span><span class="shot-dot" style="background:#f5bf4f"></span><span class="shot-dot" style="background:#61c454"></span></div>
-                <img src="{{ asset('images/landing/architect.png') }}" alt="DPM Architect">
+                <img src="{{ asset('images/landing/architect.png') }}?v={{ @filemtime(public_path('images/landing/architect.png')) }}" alt="DPM Architect">
             </div>
         </div>
 
@@ -257,7 +257,7 @@
             </div>
             <div class="shot">
                 <div class="shot-bar"><span class="shot-dot" style="background:#ef6a5f"></span><span class="shot-dot" style="background:#f5bf4f"></span><span class="shot-dot" style="background:#61c454"></span></div>
-                <img src="{{ asset('images/landing/validation.png') }}" alt="Validation report of an instance">
+                <img src="{{ asset('images/landing/validation.png') }}?v={{ @filemtime(public_path('images/landing/validation.png')) }}" alt="Validation report of an instance">
             </div>
         </div>
 
@@ -276,7 +276,7 @@
             </div>
             <div class="shot">
                 <div class="shot-bar"><span class="shot-dot" style="background:#ef6a5f"></span><span class="shot-dot" style="background:#f5bf4f"></span><span class="shot-dot" style="background:#61c454"></span></div>
-                <img src="{{ asset('images/landing/form.png') }}" alt="Reporting form with cells marked by live validation">
+                <img src="{{ asset('images/landing/form.png') }}?v={{ @filemtime(public_path('images/landing/form.png')) }}" alt="Reporting form with cells marked by live validation">
             </div>
         </div>
     </div>
