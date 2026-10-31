@@ -92,7 +92,8 @@
         .app-report-toolbar.app-report-toolbar-tight { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem .9rem; margin: 0 0 .55rem; }
         .app-report-toolbar-tight .report-title { flex: 0 1 auto; max-width: 48%; }
         .app-report-toolbar-tight .app-report-groupbar { flex: 0 0 auto; gap: .3rem; }
-        #button_group > div { display: flex; gap: .25rem; }
+        #button_group > div { display: flex; gap: 0; }
+        #button_group .btn + .btn { margin-left: -1px !important; }
         #button_group .btn { padding: .12rem .5rem !important; font-size: .72rem !important; min-height: 0 !important; line-height: 1.35; border-radius: 0 !important; box-shadow: none !important; }
         .app-report-toolbar-tight .app-report-sheets { flex: 0 1 auto; min-width: 0; }
         .app-report-toolbar-tight .app-report-sheets > * { width: auto; }
