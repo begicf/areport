@@ -1,6 +1,6 @@
 # AReport — kontekst za nastavak rada
 
-Stanje na dan 2026-10-31. Ovaj fajl se čita na početku nove sesije i ažurira na kraju svake veće cjeline.
+Stanje na dan 2026-10-31 (popodne). Ovaj fajl se čita na početku nove sesije i ažurira na kraju svake veće cjeline.
 
 ## Repozitoriji (/Users/beg/Dev)
 
@@ -20,7 +20,7 @@ Detaljna arhitektura Architecta: `areport-pro/docs/DPM_ARCHITECT.md`.
   nohup .venv/bin/python -m uvicorn main:app --app-dir /Users/beg/Dev/dpm-xl-service --host 127.0.0.1 --port 8077 &
   ```
 - Python testovi: `cd dpm-xl-service && .venv/bin/python -m pytest -q tests` (15 prolazi).
-- PHP testovi: `cd areport && php artisan test` (38 prolazi, SQLite in-memory).
+- PHP testovi: `cd areport && php artisan test` (42 prolazi, SQLite in-memory).
 - Login: `test@areport.net` / `test` (user id 1).
 - Screenshot: puppeteer `/Users/beg/Dev/mica_pacioli/node_modules/puppeteer`, chromium `/opt/homebrew/bin/chromium`; skripta `/tmp/dpm_preview/shot.js <path> <out>`.
 - Alati: `mdbtools`, `sevenzip` (`7zz`), `antlr` (`/opt/homebrew/opt/antlr/antlr-4.13.2-complete.jar`), `psql`.
@@ -92,17 +92,29 @@ Stavke 1–10 i UI: Završeno; Postavke: U radu; stavka 11 (DPM 2.0 model): Otvo
 - **PHP validacija:** `InstanceValidator::dpm2DatabaseFor(moduleVid)`, `selectDpm2Rules` (operationscope: isactive, fromsubmissiondate, težina, preduslov `{v_X}`). `TableController::moduleCellValues` vraća skalirane vrijednosti, `tolerance` (0,5·10^-decimals), sheet `s…`, `dims`. Izvještaj: „Rules: EBA DPM 2.0 database …“, „Fails for: …“.
 - **Rezultati:** instanca 12 → 271 pravilo, 2 greške, 3 upozorenja (isto kao legacy); EBA uzorak COREP OF → 1.218 pravila, ~20 s prvi prolaz.
 
+### Sprint 5 — Architect na DPM 2.0 + generisanje taksonomije (2026-10-31)
+- **Navigacija Taxonomy | DPM 2.0** u Architectu: izbor baze i izdanja, stablo framework → verzija modula → tabele; mreža s data pointima; properties ćelije (dp, metrika, kontekst) i zaglavlja (metrika, dimenzije, key); verzije tabele + poređenje. Deep link `?dpm2=<db>:<tablevid>`.
+- **„Use as basis“** (`Dpm2TableAdopter`, `POST /pro/dpm2/databases/{db}/tables/{vid}/adopt`): DPM 2.0 tabela → extension/authored tabela (ordinate s RC, labelom, abstract, metrikom i dimenzijama kao XBRL QName; key zaglavlja s dimenzijom + hijerarhijom + članovima; isključene/nepostojeće ćelije → `dpm_disabled_cells`); `metadata.dpm2`. Framework se predodabire iz DPM 2.0 baze.
+- Pravilo: property na key zaglavlju = dimenzija, inače metrika (`Property.IsMetric` nije pouzdan, npr. qCDF).
+- **`DpmDictionaryResolver`**: indeks svih `dict/` foldera taksonomije (metrike, verzije dimenzija, domene, članovi, uloge hijerarhija), keš `storage/app/dpm-dict-index/<folder>.json`; `frameworkDimensions(fw)` = namespace dimenzija koje koriste EBA tabele frameworka (npr. COREP → `dim/4.0`), radi kompatibilnosti.
+- **`DpmTaxonomyGenerator`**: za authored/extension tabelu piše u `tax/<folder>/<owner host>/eu/fr/xbrl/crr/fws/<fw>/<ver>/tab/<code>/`: `.xsd`, `-rend.xml` (ruleNode / aspectNode; open-row key kolone → y breakdowns), `-def.xml` (hiperkocke tačno nad otvorenim ćelijama, zajedničke liste članova key-a preko targetRole), `-lab-en`, `-lab-codes`, `-lab-<lang>`. Apsolutni URL-ovi na EBA rječnik.
+- UI: Generate / Preview (render kroz reporting renderer) / Download zip u Properties tabele. Endpointi `dpm-model.table.generate|generated-zip|generated-preview`.
+- **Round trip**: C_01.00, C_06.02, C_07.00.a (adopt iz DPM 2.0 → generisanje → render) identični EBA originalu ćeliju po ćeliju (C_07.00.a: 887 otvorenih, 429 zatvorenih, 28 sheetova).
+- Biblioteka: `Normalise::resolveHref` (apsolutni href → lokalni root), naziv tabele s `_EXT` sufiksom.
+- Fix: close/open ćelije čitao Response umjesto JSON-a; `destroyTable` briše i zatvorene ćelije; authored mreža prikazuje zatvorene ćelije + meni close/open.
+
 ### Posljednji commitovi
-- `areport-pro` 1312b8f — poređenje verzija tabele
-- `areport` 39d7075 — sheet i dims u vrijednostima validacije
+- `areport-pro` 121db41 (DPM 2.0 u Architectu), 2932a21 (generator taksonomije) — pushano
+- `areport` b7017d2 — test faktorizacije hiperkocki — pushano
+- `areport-dpm-xbrl` 59f460a — resolveHref — pushano
 - `dpm-xl-service` 08a5e33 — `where` / `group by`
-- `areport-dpm-xbrl` 6a06a71 — `module_vid` u ModuleInfo
 
 ## Otvoreno / sljedeći koraci
-1. **SLJEDEĆE:** Architect na DPM 2.0 podacima — izbor izdanja i DPM 2.0 tabele u stablu Architecta, kao osnova za autoriranje i generisanje taksonomije (uključujući zatvorene ćelije u definition linkbase).
-2. Validacija uzorka u Architectu ne prenosi dimenzije iz CSV-a → `where` pravila na uzorku daju „nedostaju podaci“.
-3. Ubrzati ANTLR parsiranje DPM 2.0 pravila (prvi prolaz ~20 s); moguć brzi put za v0.9.
-4. Historija izmjena prikazuje šifre članova umjesto labela; nema organizacija/timova (vlasništvo po korisniku); `DpmSetting` je globalan.
-5. Testni entitet „Apple Inc.“ još u bazi.
-6. Razdjelnici hiljada u poljima i rokovi predaje nisu urađeni.
-7. Moguće: Excel s pravilima, kvartalni „small packages“ s deaktivacijama.
+1. **SLJEDEĆE:** generisanje na nivou modula/frameworka: `mod/<modul>.xsd` (entry point s tableGroup/filing indicators), FBA rječnik (authored dimenzije/članovi/metrike → `dict/`), taxonomy package (`META-INF/catalog.xml`, `taxonomyPackage.xml`), validacijska pravila (`val/`), te prikaz generisane tabele na reporting strani (`/table`).
+2. Tipizirana key dimenzija: `resolveTypedDomainRef` u biblioteci traži `typ.xsd` relativno na host tabele; za FBA tabele treba fallback na EBA host.
+3. Validacija uzorka u Architectu ne prenosi dimenzije iz CSV-a → `where` pravila na uzorku daju „nedostaju podaci“.
+4. Ubrzati ANTLR parsiranje DPM 2.0 pravila (prvi prolaz ~20 s); moguć brzi put za v0.9.
+5. Historija izmjena prikazuje šifre članova umjesto labela; nema organizacija/timova (vlasništvo po korisniku); `DpmSetting` je globalan.
+6. Testni entitet „Apple Inc.“ još u bazi.
+7. Razdjelnici hiljada u poljima i rokovi predaje nisu urađeni.
+8. Moguće: Excel s pravilima, kvartalni „small packages“ s deaktivacijama.
