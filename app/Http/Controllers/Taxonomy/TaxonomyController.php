@@ -41,13 +41,33 @@ class TaxonomyController extends Controller
 
         if (!$tax->isEmpty()):
 
-            return view('taxonomy.managing.managing', ['tax' => $tax]);
+            $frameworks = $tax->mapWithKeys(fn ($t) => [$t->id => $this->frameworksIn((string) $t->folder)]);
+
+            return view('taxonomy.managing.managing', ['tax' => $tax, 'frameworks' => $frameworks]);
 
         else:
 
             return redirect('/home')->with('warning', 'Please upload a taxonomy!');
 
         endif;
+    }
+
+    /**
+     * Frameworks a taxonomy package contains, read from its folder:
+     * ['COREP' => ['3.4', '4.0', '4.2'], 'DORA' => ['4.0'], …].
+     */
+    private function frameworksIn(string $folder): array
+    {
+        $fws = storage_path('app/public/tax/'.$folder.'/www.eba.europa.eu/eu/fr/xbrl/crr/fws');
+        $result = [];
+        foreach (glob($fws.'/*', GLOB_ONLYDIR) ?: [] as $dir) {
+            $versions = array_map('basename', glob($dir.'/*', GLOB_ONLYDIR) ?: []);
+            natsort($versions);
+            $result[strtoupper(basename($dir))] = array_values($versions);
+        }
+        ksort($result);
+
+        return $result;
     }
 
     /**
