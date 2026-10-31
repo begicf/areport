@@ -57,6 +57,9 @@ Route::group(['prefix' => 'table', 'middleware' => 'auth'], function () {
 Route::group(['prefix' => 'instance', 'middleware' => 'auth'], function () {
     Route::post('/export', 'Export\InstanceController@exportInstance');
     Route::post('/export-csv', 'Export\InstanceController@exportCsvInstance');
+    Route::post('/preflight', 'Export\InstanceController@preflight');
+    Route::get('/settings', 'Export\InstanceController@settings');
+    Route::post('/settings', 'Export\InstanceController@updateSettings');
 
 });
 

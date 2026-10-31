@@ -26,6 +26,8 @@
                             <label for="datepicker" class="form-label">Reporting period</label>
                             <input placeholder="Select date" class="form-control" name="period" id="datepicker" required>
 
+                            <p class="app-form-help mt-1 mb-0">A period end, e.g. 31.12.2026.</p>
+
                             <label for="entitySelect" class="form-label mt-3">Reporting entity</label>
                             <select name="entity_id" id="entitySelect" class="form-select" required>
                                 <option value="">— select entity —</option>
@@ -40,6 +42,12 @@
                                     <a href="{{ $__settingsUrl }}" target="_blank" rel="noopener"><i class="fas fa-plus"></i> Add a new entity</a>
                                 @endif
                             </p>
+
+                            <label for="consolidationSelect" class="form-label mt-2">Consolidation scope</label>
+                            <select name="consolidation" id="consolidationSelect" class="form-select" required>
+                                <option value="CON">Consolidated (CON)</option>
+                                <option value="IND">Individual / solo (IND)</option>
+                            </select>
                         </div>
 
                         <div class="col-lg-8">

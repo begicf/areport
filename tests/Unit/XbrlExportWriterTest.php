@@ -46,7 +46,9 @@ class XbrlExportWriterTest extends TestCase
         @unlink($package['path']);
 
         $this->assertStringContainsString("datapoint,factValue,qEBB\n", $tableCsv);
-        $this->assertStringContainsString("dp3291879,91347,eba_qEC:qx1\n", $tableCsv);
+        // A monetary datapoint ($decimalsMonetary) entered in thousands is reported as an absolute amount,
+        // the same value the xBRL-XML writer emits.
+        $this->assertStringContainsString("dp3291879,91347000,eba_qEC:qx1\n", $tableCsv);
         $this->assertStringContainsString("C_07.00,true\n", $filingIndicators);
         $this->assertStringNotContainsString('C_07.00.a', $filingIndicators);
         $this->assertStringContainsString("decimalsInteger,0\n", $parameters);
