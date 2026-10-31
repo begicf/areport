@@ -556,6 +556,7 @@ class TableController extends Controller
         $form = \App\Support\FormQuery::parse((string) $request->get('table_data'));
         $tcode = strtolower($table->code);
         $cellValues = [];
+        $dims = [];
         foreach ($form as $name => $payload) {
             if (! is_array($payload) || ! array_key_exists('value', $payload)) {
                 continue;
@@ -569,6 +570,13 @@ class TableController extends Controller
             }
             $key = 't'.$tcode.',r'.strtolower($m[2]).',c'.strtolower($m[1]);
             $cellValues[$key] = is_numeric($v) ? ($v + 0) : $v;
+            // The cell's dimensions by code (CEG, qEEA, …) for [where …] / group by, as the full report has them.
+            $dim = json_decode((string) ($payload['dim'] ?? ''), true);
+            foreach (is_array($dim) ? $dim : [] as $d => $member) {
+                if (is_string($member) && str_contains((string) $d, ':') && str_contains($member, ':')) {
+                    $dims[$key][substr($d, strrpos($d, ':') + 1)] = $member;
+                }
+            }
         }
 
         if (empty($cellValues)) {
@@ -576,6 +584,9 @@ class TableController extends Controller
         }
 
         $context = $this->validationContext($this->_instance, [$table->code]);
+        if ($context && ! empty($dims)) {
+            $context['dims'] = $dims;
+        }
         $result = $validator->validate($table->framework, $cellValues, [$table->code], $context);
         if (isset($result['error'])) {
             return response()->json(['ok' => false, 'error' => $result['error']], 422);
