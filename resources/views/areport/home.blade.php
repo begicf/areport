@@ -50,18 +50,23 @@
         .mod-val-facts span { font-size: .72rem; background: #f8fafc; border: 1px solid var(--line); padding: .05rem .4rem; border-radius: 3px; }
         .mod-val-err { color: #b91c1c; font-size: .85rem; } .mod-val-okmsg { color: #16a34a; } .mod-val-note { color: #b45309; font-size: .82rem; }
 
-        .home-tiles { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .6rem; }
-        .home-tile { text-align: left; border: 1px solid var(--line); border-radius: 10px; background: #fff; padding: .6rem .8rem;
-            box-shadow: 0 1px 2px rgba(16,24,40,.04); border-top: 3px solid var(--line); cursor: pointer; transition: box-shadow .15s ease; }
-        .home-tile:hover { box-shadow: 0 2px 8px rgba(16,24,40,.08); }
-        .home-tile.active { outline: 2px solid var(--blue); outline-offset: -1px; }
-        .home-tile .k { font-size: .62rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--faint); }
-        .home-tile .v { font-size: 1.45rem; font-weight: 700; line-height: 1.15; font-variant-numeric: tabular-nums; color: var(--ink); }
-        .home-tile .d { font-size: .68rem; color: var(--faint); }
-        .home-tile.t-draft { border-top-color: #94a3b8; }
-        .home-tile.t-errors { border-top-color: #dc2626; } .home-tile.t-errors .v { color: #b91c1c; }
-        .home-tile.t-ready { border-top-color: #4a9d6e; } .home-tile.t-ready .v { color: #166534; }
-        .home-tile.t-exported { border-top-color: #6d5ab5; } .home-tile.t-exported .v { color: #5b4a9e; }
+        /* Status filter: one segmented bar, a colour per status (no top rules). */
+        .home-tiles { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border: 1px solid #cbd5e1; border-radius: 8px; background: #fff; overflow: hidden; }
+        .home-tile { --c: #2f557d; --tint: #eef3f9; text-align: left; border: 0; border-left: 1px solid #e2e8f0; background: #fff; padding: .55rem .85rem;
+            cursor: pointer; transition: background .15s ease; display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: .6rem; }
+        .home-tile:first-child { border-left: 0; }
+        .home-tile:hover { background: #f8fafc; }
+        .home-tile.active { background: var(--tint); }
+        .home-tile .k { font-size: .66rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: #64748b; display: flex; align-items: center; gap: .4rem; }
+        .home-tile .k::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--c); flex: 0 0 auto; }
+        .home-tile.active .k { color: var(--c); }
+        .home-tile .v { grid-row: 1 / span 2; grid-column: 2; font-size: 1.45rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; color: var(--c); }
+        .home-tile .d { font-size: .68rem; color: #94a3b8; margin-top: .1rem; }
+        .home-tile.t-all { --c: #2f557d; --tint: #eef3f9; }
+        .home-tile.t-draft { --c: #64748b; --tint: #f1f5f9; }
+        .home-tile.t-errors { --c: #c62828; --tint: #fdeeee; }
+        .home-tile.t-ready { --c: #2e7d4f; --tint: #e9f6ee; }
+        .home-tile.t-exported { --c: #6d4fc2; --tint: #f1edfb; }
         .home-st { display: inline-flex; align-items: center; gap: .3rem; font-size: .7rem; font-weight: 600; padding: .14rem .5rem; border-radius: 999px; white-space: nowrap; }
         .home-st.draft { background: #f1f5f9; color: #52606d; }
         .home-st.errors { background: #fdecec; color: #b91c1c; }
@@ -71,7 +76,7 @@
         .home-changed { font-size: .76rem; color: #52606d; white-space: nowrap; font-variant-numeric: tabular-nums; }
         .home-changed small { display: block; color: var(--faint); font-size: .68rem; }
         .home-scope { font-size: .62rem; font-weight: 700; color: #52606d; background: #f1f5f9; border-radius: 4px; padding: .02rem .35rem; margin-left: .3rem; }
-        @media (max-width: 991.98px) { .home-tiles { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 991.98px) { .home-tiles { grid-template-columns: repeat(2, 1fr); } .home-tile { border-top: 1px solid #e2e8f0; } }
 
         .home-dashboard .fixed-table-pagination { padding: .7rem 1.1rem; font-size: .78rem; }
         .home-dashboard .pagination .page-link { border-radius: 7px !important; border: 1px solid var(--line); margin: 0 .12rem; color: #52606d; }
@@ -104,7 +109,7 @@
         @include('flash.flash-message')
 
         <section class="home-tiles" aria-label="Instances by status">
-            <button type="button" class="home-tile active" data-status="all"><div class="k">All instances</div><div class="v" id="tileAll">0</div><div class="d">everything you report</div></button>
+            <button type="button" class="home-tile t-all active" data-status="all"><div class="k">All instances</div><div class="v" id="tileAll">0</div><div class="d">everything you report</div></button>
             <button type="button" class="home-tile t-draft" data-status="draft"><div class="k">To validate</div><div class="v" id="tileDraft">0</div><div class="d">not validated or changed since</div></button>
             <button type="button" class="home-tile t-errors" data-status="errors"><div class="k">With errors</div><div class="v" id="tileErrors">0</div><div class="d">blocking rules failed</div></button>
             <button type="button" class="home-tile t-ready" data-status="ready"><div class="k">Ready to file</div><div class="v" id="tileReady">0</div><div class="d">validated, no errors</div></button>
