@@ -533,6 +533,11 @@ class TableController extends Controller
             $context['dpm2'] = ['database' => $database, 'module_vid' => $moduleVid];
         }
 
+        // The owner's own module (generated in the DPM Architect): its authored rules apply too.
+        if (method_exists($validatorClass, 'ownModuleFor') && ($own = $validatorClass::ownModuleFor($instance->module_path))) {
+            $context['own_module_id'] = $own->id;
+        }
+
         return $context;
     }
 
@@ -658,8 +663,8 @@ class TableController extends Controller
                 $context['tolerance'] = $built['tolerance'];
                 $context['dims'] = $built['dims'];
             }
-            // DPM 2.0 database rules need no imported framework; the legacy rules do.
-            $framework = $built['framework'] ?? (! empty($context['dpm2']) ? new \Begicf\AReportPro\Models\Dpm\Framework() : null);
+            // DPM 2.0 database rules and the owner's own rules need no imported framework; the legacy rules do.
+            $framework = $built['framework'] ?? ((! empty($context['dpm2']) || ! empty($context['own_module_id'])) ? new \Begicf\AReportPro\Models\Dpm\Framework() : null);
             if (! $framework) {
                 $error = 'No DPM framework found for this module.';
             } else {
@@ -669,7 +674,10 @@ class TableController extends Controller
                 } else {
                     $module->stamp(['validated_at' => now(), 'validation_summary' => $report['summary']]);
                 }
-                $meta['rules_source'] = ! empty($context['dpm2']) ? 'EBA DPM 2.0 database '.$context['dpm2']['database']->label : 'taxonomy validation linkbases';
+                $meta['rules_source'] = ! empty($context['dpm2']) ? 'EBA DPM 2.0 database '.$context['dpm2']['database']->label : (! empty($context['own_module_id']) ? 'own rules (DPM Architect Validations)' : 'taxonomy validation linkbases');
+                if (! empty($context['dpm2']) && ! empty($context['own_module_id'])) {
+                    $meta['rules_source'] .= ' + own rules';
+                }
             }
         }
 
