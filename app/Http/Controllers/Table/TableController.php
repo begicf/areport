@@ -542,6 +542,7 @@ class TableController extends Controller
         $tableModel = \Begicf\AReportPro\Models\Dpm\DpmTable::class;
         $cellValues = [];
         $tolerance = [];
+        $dims = [];
         $codes = [];
         // The framework named by the module path (…/fws/corep/…) in the instance's own
         // taxonomy — the one its rules were imported under.
@@ -566,7 +567,7 @@ class TableController extends Controller
             }
             // Values as reported (amounts × the instance's unit, percentages as ratios), with
             // the half-width of their rounding for interval arithmetic (0.5·10^-decimals).
-            foreach ($header->factTable()->get(['cr_code', 'string_value', 'metric']) as $fact) {
+            foreach ($header->factTable()->get(['cr_code', 'cr_sheet_code', 'string_value', 'metric', 'xbrl_context_key_raw']) as $fact) {
                 if (! preg_match('/^c([^r]+)r(.+)$/i', (string) $fact->cr_code, $m)) {
                     continue;
                 }
@@ -575,6 +576,20 @@ class TableController extends Controller
                     continue;
                 }
                 $key = 't'.$tcode.',r'.strtolower($m[2]).',c'.strtolower($m[1]);
+                // A z-axis sheet adds a component (s0010, or the sheet member's code).
+                $sheet = (string) $fact->cr_sheet_code;
+                if ($sheet !== '' && $sheet !== '000') {
+                    $key .= ',s'.strtolower(preg_replace('/[^A-Za-z0-9.]/', '', $sheet));
+                }
+                // The data point's dimensions by code (CEG, qEEA, …) for [where …] / group by.
+                $raw = json_decode((string) $fact->xbrl_context_key_raw, true);
+                if (is_array($raw)) {
+                    foreach ($raw as $dim => $member) {
+                        if (is_string($member) && ! in_array($dim, ['metric', 'typ', 'sheet', 'order'], true) && str_contains($dim, ':')) {
+                            $dims[$key][substr($dim, strrpos($dim, ':') + 1)] = $member;
+                        }
+                    }
+                }
                 $kind = is_numeric($v) ? \AReportDpmXBRL\Library\MetricTypes::kind((string) ($module->taxonomy->folder ?? ''), $fact->metric) : null;
                 $scaled = $kind ? \AReportDpmXBRL\Library\FactValue::forKind($kind, (string) $v, (int) ($module->monetary_scale ?: 1000)) : $v;
                 $cellValues[$key] = is_numeric($scaled) ? ($scaled + 0) : $scaled;
@@ -586,7 +601,7 @@ class TableController extends Controller
             }
         }
 
-        return ['cells' => $cellValues, 'codes' => array_keys($codes), 'framework' => $framework, 'tolerance' => $tolerance];
+        return ['cells' => $cellValues, 'codes' => array_keys($codes), 'framework' => $framework, 'tolerance' => $tolerance, 'dims' => $dims];
     }
 
     /**
@@ -641,6 +656,7 @@ class TableController extends Controller
             $context = $this->validationContext($module);
             if ($context) {
                 $context['tolerance'] = $built['tolerance'];
+                $context['dims'] = $built['dims'];
             }
             // DPM 2.0 database rules need no imported framework; the legacy rules do.
             $framework = $built['framework'] ?? (! empty($context['dpm2']) ? new \Begicf\AReportPro\Models\Dpm\Framework() : null);
