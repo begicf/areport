@@ -14,6 +14,7 @@ Website: <https://areport.net>
 - Upload taxonomy packages (ZIP) and switch the active taxonomy; every instance and fact is scoped to its taxonomy.
 - DPM `1.0` and DPM `2.0` taxonomies (tested with EBA 4.2 and 4.4), including open tables, typed dimensions and owner extensions (e.g. a national regulator's modules next to EBA's).
 - The taxonomy page shows the frameworks and module versions each package contains.
+- Add an extension package (e.g. a national regulator's taxonomy built on EBA's) to an uploaded taxonomy: its modules appear next to EBA's and resolve offline.
 - Module explorer with an owner filter (All / EBA / own), search, and expand or collapse all.
 
 ### Reporting
@@ -32,6 +33,7 @@ Website: <https://areport.net>
 - Pre-export checks:
   - open-table rows and typed sheets must have their key;
   - no `xBRL-XML` from reference date 31.03.2026;
+  - counterparties of C 28.00 / C 29.00 must be identified in C 27.00;
   - other EBA filing rules.
 - `xBRL-CSV` report packages and `xBRL-XML` instances following the EBA filing rules:
   - one context per member set, and one fact per concept and context;
@@ -50,7 +52,7 @@ Website: <https://areport.net>
 
 ### Private plugin: AReport Pro
 The optional `begicf/areport-pro` package is private, not public. When it is installed, it adds:
-- **DPM Architect**: author tables, modules, the data dictionary and validation rules, then generate the XBRL taxonomy (schemas, linkbases, `*-lab-<lang>.xml`). **Export** packs the chosen frameworks as an XBRL taxonomy package, with an optional Arelle check of every module.
+- **DPM Architect**: author tables, modules, the data dictionary and validation rules, then generate the XBRL taxonomy (schemas, linkbases, `*-lab-<lang>.xml`). **Export** packs the chosen frameworks as an XBRL taxonomy package, with an optional Arelle check of every module. **Releases** lock a framework version (snapshot, release notes from the changes since the last release, the package as published) and continue in the next version.
 - **Validation**: DPM 2.0 / DPM-XL rules, evaluated by the separate `dpm-xl-service`.
 - **Label translation**: labels translated in the Architect and the dictionary, with optional AI suggestions from Claude.
 

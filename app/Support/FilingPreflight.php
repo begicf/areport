@@ -127,6 +127,67 @@ class FilingPreflight
     }
 
     /**
+     * Identifiers that must be registered in another table first: a key of an open
+     * table refers to a row of the register (COREP large exposures: every counterparty
+     * of C 28.00 / C 29.00 — and every group code of C 29.00 — is identified in C 27.00).
+     */
+    public const KEY_REGISTERS = [
+        ['register' => 'C_27.00', 'key' => 'qINC', 'refs' => ['qINC', 'qGCC']],
+    ];
+
+    /** @return array<int, array{table: string, key: string, value: ?string, register: string}> value null = register table missing */
+    public function keysNotInRegister(): array
+    {
+        $root = storage_path('app/public/tax/'.($this->instance->taxonomy->folder ?? ''));
+        $values = [];   // table code => key column name => [value => true]
+        foreach ($this->instance->factHeader()->with('factTable')->get() as $header) {
+            $json = $root.'/'.preg_replace('/\.xsd$/i', '.json', ltrim((string) $header->table_path, '/'));
+            $meta = is_file($json) ? json_decode((string) file_get_contents($json), true) : null;
+            $template = is_array($meta['tableTemplates'] ?? null) ? reset($meta['tableTemplates']) : null;
+            $keys = [];
+            foreach ((array) ($template['columns'] ?? []) as $name => $col) {
+                $doc = $col['eba:documentation'] ?? [];
+                if (! in_array($name, ['datapoint', 'factValue'], true) && ($doc['headerDirection'] ?? '') === 'X' && ! empty($doc['headerCode'])) {
+                    $keys[strtolower('c'.$doc['headerCode'])] = $name;
+                }
+            }
+            if (! $keys) {
+                continue;
+            }
+            $table = strtoupper(basename(dirname((string) $header->table_path)));
+            foreach ($header->factTable as $f) {
+                $v = trim((string) $f->string_value);
+                if ($v !== '' && preg_match('/^(c[0-9a-z._-]+?)r\d+$/i', (string) $f->cr_code, $m) && isset($keys[strtolower($m[1])])) {
+                    $values[$table][$keys[strtolower($m[1])]][$v] = true;
+                }
+            }
+        }
+
+        $out = [];
+        foreach (self::KEY_REGISTERS as $rule) {
+            $registered = $values[$rule['register']][$rule['key']] ?? null;
+            foreach ($values as $table => $cols) {
+                if ($table === $rule['register']) {
+                    continue;
+                }
+                foreach ($rule['refs'] as $ref) {
+                    foreach (array_keys($cols[$ref] ?? []) as $v) {
+                        if ($registered === null) {
+                            $out[] = ['table' => $table, 'key' => $ref, 'value' => null, 'register' => $rule['register']];
+                            continue 3;
+                        }
+                        if (! isset($registered[$v])) {
+                            $out[] = ['table' => $table, 'key' => $ref, 'value' => (string) $v, 'register' => $rule['register']];
+                        }
+                    }
+                }
+            }
+        }
+
+        return $out;
+    }
+
+    /**
      * @param string $format 'csv' | 'xml'
      * @return array{ok: bool, checks: array<int, array{level: string, code: string, message: string}>, package: ?string}
      */
@@ -202,6 +263,17 @@ class FilingPreflight
         // country column); without it the fact has no identity (xBRL-CSV tcre:missingValue).
         foreach ($this->openRowsWithoutKey() as $miss) {
             $add('error', 'open_row_key_missing', "{$miss['table']} row {$miss['row']}: enter {$miss['column']} — the row holds values but its key is empty.");
+        }
+
+        // Identifiers used in an open table must first be identified in their register table.
+        $unregistered = $this->keysNotInRegister();
+        foreach (array_slice($unregistered, 0, 10) as $u) {
+            $add('error', 'key_not_in_register', $u['value'] === null
+                ? "{$u['table']} uses {$u['key']} codes, but {$u['register']} (where they are identified) holds no data."
+                : "{$u['table']}: {$u['key']} \"{$u['value']}\" is not identified in {$u['register']}. Add it there first.");
+        }
+        if (count($unregistered) > 10) {
+            $add('error', 'key_not_in_register', '… and '.(count($unregistered) - 10)." more code(s) not identified in {$unregistered[0]['register']}.");
         }
 
         // Validation (the instance's last full run against the module's rules)
