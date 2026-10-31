@@ -49,7 +49,13 @@ class FactTable extends Model
                 continue;
             }
 
-            $value = is_string($row['value']) ? trim($row['value']) : $row['value'];
+            $value = $row['value'];
+            // An enumeration set (multiple select) is stored as its members, space-separated
+            // (the lexical form of an XBRL enumeration set).
+            if (is_array($value)) {
+                $value = implode(' ', array_values(array_unique(array_filter(array_map('trim', $value), 'strlen'))));
+            }
+            $value = is_string($value) ? trim($value) : $value;
             $submitted[$key] = true;
 
             // "0" is a reported value; only an empty field means "no value".
