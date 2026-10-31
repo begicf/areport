@@ -86,6 +86,45 @@
             .ax-summary { grid-template-columns: repeat(2, 1fr); }
             .ax-head { flex-direction: column; align-items: flex-start; }
         }
+
+        /* v2 — same language as the Architect's Structure view: flat, accent rule, one toolbar */
+        .home-tiles, .home-tile, .home-list, .home-search input, .home-st, .home-period, .home-tax, .ax-badge, .home-scope,
+        .home-act, .home-open, .home-dashboard .pagination .page-link { border-radius: 2px !important; }
+        .home-tile.active { box-shadow: inset 0 -2px 0 var(--c); }
+        .home-list { --c: #2f557d; --tint: #eef3f9; background: #fff; border: 1px solid #e2e8f0; border-left: 3px solid var(--c); }
+        .home-list[data-status="draft"] { --c: #64748b; --tint: #f1f5f9; }
+        .home-list[data-status="errors"] { --c: #c62828; --tint: #fdeeee; }
+        .home-list[data-status="ready"] { --c: #2e7d4f; --tint: #e9f6ee; }
+        .home-list[data-status="exported"] { --c: #6d4fc2; --tint: #f1edfb; }
+        .home-list-h { display: flex; align-items: center; gap: .6rem; padding: .5rem .8rem; background: var(--tint); border-bottom: 1px solid #e2e8f0; flex-wrap: wrap; }
+        .home-list-i { color: var(--c); font-size: .8rem; }
+        .home-list-t { font-size: .88rem; font-weight: 700; color: #0f172a; margin: 0; }
+        .home-list-n { font-size: .68rem; font-weight: 700; color: var(--c); background: #fff; border: 1px solid var(--c); padding: 0 .4rem; line-height: 1.5; font-variant-numeric: tabular-nums; }
+        .home-search { position: relative; flex: 1 1 260px; max-width: 420px; margin-left: .6rem; }
+        .home-search i { position: absolute; left: .6rem; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: .72rem; }
+        .home-search input { width: 100%; height: 30px; border: 1px solid #cbd5e1; background: #fff; padding: 0 .6rem 0 1.8rem; font-size: .78rem; outline: none; }
+        .home-search input:focus { border-color: var(--c); box-shadow: 0 0 0 2px rgba(47,85,125,.12); }
+        .home-list-h .home-status-label { margin-left: auto; font-size: .72rem; color: #64748b; }
+        .home-table thead th { font-size: .6rem !important; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #94a3b8 !important;
+            background: #fff !important; border-bottom: 1px solid #eef2f7 !important; padding: .45rem .8rem !important; }
+        .home-table tbody td { padding: .42rem .8rem !important; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+        .home-table tbody tr:hover td { background: #f8fafc; }
+        .home-period { background: transparent; padding: 0; color: #334155; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .76rem; font-weight: 500; }
+        .home-module-title { font-size: .84rem; }
+        .home-st { border: 1px solid transparent; }
+        .home-st.errors { border-color: #f6cdcd; } .home-st.validated { border-color: #cce6d8; } .home-st.exported { border-color: #ddd6f3; }
+        .home-act { width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid transparent; background: transparent;
+            color: #94a3b8; font-size: .78rem; text-decoration: none; padding: 0; }
+        .home-act:hover { color: #2f557d; background: #eef3f9; border-color: #dbe4ef; }
+        .home-act.is-val:hover { color: #2e7d4f; background: #e9f6ee; border-color: #cce6d8; }
+        .home-act:disabled { opacity: .35; cursor: not-allowed; }
+        .home-open { height: 28px; padding: 0 .65rem; border: 1px solid #2f557d; background: #fff; color: #2f557d; font-size: .74rem; font-weight: 600; display: inline-flex; align-items: center; gap: .35rem; }
+        .home-open:hover { background: #2f557d; color: #fff; }
+        .home-open i { font-size: .66rem; }
+        .home-dashboard .fixed-table-pagination { border-top: 1px solid #eef2f7; }
+        .home-dashboard .bootstrap-table .fixed-table-container { border: 0; }
+        .home-dashboard .bootstrap-table .fixed-table-toolbar { display: none; }
+        .home-table tbody td .home-module-caption { margin-top: 0; }
     </style>
 @endpush
 
@@ -116,35 +155,31 @@
             <button type="button" class="home-tile t-exported" data-status="exported"><div class="k">Exported</div><div class="v" id="tileExported">0</div><div class="d">package produced, unchanged since</div></button>
         </section>
 
-        <section class="ax-card" id="moduleRegistry">
-            <div class="ax-panel-head">
-                <div>
-                    <span class="ax-eyebrow"><i class="fas fa-list-ul"></i> Instances</span>
-                    <h2 class="ax-panel-title" id="homeListTitle">All instances</h2>
+        <section class="home-list" id="moduleRegistry" data-status="all">
+            <header class="home-list-h">
+                <i class="fas fa-list-ul home-list-i"></i>
+                <h2 class="home-list-t" id="homeListTitle">All instances</h2>
+                <span class="home-list-n" id="homeListCount">0</span>
+                <div class="home-search">
+                    <i class="fas fa-search" aria-hidden="true"></i>
+                    <label for="homeSearch" class="visually-hidden">Search instances</label>
+                    <input type="search" id="homeSearch" placeholder="Search by name, entity, LEI or framework…" autocomplete="off">
                 </div>
-                <div id="homeTableToolbar"></div>
-            </div>
-
-            <div class="home-status-bar">
-                <div class="home-status-label">
-                    <i class="fas fa-circle-notch"></i>
-                    <span id="homeTableStatus">The table is ready.</span>
-                </div>
-                <div class="home-status-label" style="color:var(--faint)">Validate an instance to update its status; export runs the pre-export checks.</div>
-            </div>
+                <span class="home-status-label"><i class="fas fa-circle-notch"></i> <span id="homeTableStatus">The table is ready.</span></span>
+            </header>
+            <div id="homeTableToolbar" class="d-none"></div>
 
             <table id="table"
                    data-toggle="table"
                    data-toolbar="#homeTableToolbar"
                    data-ajax="ajaxRequest"
-                   data-search="true"
                    data-side-pagination="server"
                    data-page-size="12"
                    data-page-list="[12, 24, 48, 96, all]"
                    data-pagination="true"
                    data-sort-name="changed_at"
                    data-sort-order="desc"
-                   data-classes="table ax-table align-middle mb-0">
+                   data-classes="table home-table align-middle mb-0">
                 <thead>
                 <tr>
                     <th data-field="period" data-width="120" data-sortable="true" data-formatter="periodFormatter">Reference date</th>
@@ -152,7 +187,7 @@
                     <th data-field="status" data-width="190" data-sortable="true" data-formatter="statusFormatter">Status</th>
                     <th data-field="module_path" data-width="230" data-formatter="modulePathFormatter">Framework</th>
                     <th data-field="changed_at" data-width="160" data-sortable="true" data-formatter="changedFormatter">Last change</th>
-                    <th data-field="open" data-width="130" data-align="right" data-formatter="actionOpen">Actions</th>
+                    <th data-field="open" data-width="150" data-align="right" data-formatter="actionOpen"></th>
                 </tr>
                 </thead>
             </table>
@@ -166,7 +201,7 @@
         const statusElement = document.getElementById('homeTableStatus');
         const statusIcon = document.querySelector('.home-status-label i');
         const loadMetaElement = document.getElementById('homeLoadMeta');
-        let statusFilter = 'all';
+        let statusFilter = 'all', searchText = '';
 
         function escapeHtml(value) { return $('<div>').text(value ?? '').html(); }
 
@@ -189,6 +224,7 @@
 
         function updateDashboard(data) {
             const st = data.stats || {};
+            document.getElementById('homeListCount').textContent = data.total ?? 0;
             document.getElementById('tileAll').textContent = st.all || 0;
             document.getElementById('tileDraft').textContent = st.draft || 0;
             document.getElementById('tileErrors').textContent = st.errors || 0;
@@ -234,15 +270,15 @@
 
         function actionOpen(value, row) {
             const valBtn = validationAvailable
-                ? "<a class='btn home-val-btn' href='{{ url('/table/validation-report') }}?id=" + encodeURIComponent(row.id || '') + "' target='_blank' rel='noopener' title='Validate' aria-label='Validate'><i class='fas fa-circle-check'></i></a>"
-                : "<button type='button' class='btn home-val-btn' title='Validation plugin not installed' aria-label='Validate (unavailable)' disabled><i class='fas fa-circle-check'></i></button>";
-            const histBtn = "<a class='btn home-val-btn home-hist-btn' href='{{ url('/table/history') }}?id=" + encodeURIComponent(row.id || '') + "' title='Change history' aria-label='Change history'><i class='fas fa-clock-rotate-left'></i></a>";
+                ? "<a class='home-act is-val' href='{{ url('/table/validation-report') }}?id=" + encodeURIComponent(row.id || '') + "' target='_blank' rel='noopener' title='Validate' aria-label='Validate'><i class='fas fa-circle-check'></i></a>"
+                : "<button type='button' class='home-act' title='Validation plugin not installed' aria-label='Validate (unavailable)' disabled><i class='fas fa-circle-check'></i></button>";
+            const histBtn = "<a class='home-act' href='{{ url('/table/history') }}?id=" + encodeURIComponent(row.id || '') + "' title='Change history' aria-label='Change history'><i class='fas fa-clock-rotate-left'></i></a>";
             return "<div class='home-actions'>" + histBtn + valBtn +
                 "<form method='POST' action='{{ url('/table') }}' class='home-open-form'>" +
                 "<input type='hidden' name='_token' value='{{ csrf_token() }}'>" +
                 "<input type='hidden' name='id' value='" + escapeHtml(row.id || '') + "'>" +
-                "<button name='view_home' value='true' class='btn home-open-btn' type='submit' title='Open' aria-label='Open'>" +
-                "<i class='fas fa-up-right-from-square' aria-hidden='true'></i></button></form></div>";
+                "<button name='view_home' value='true' class='home-open' type='submit' title='Open the instance' aria-label='Open'>" +
+                "Open <i class='fas fa-arrow-right' aria-hidden='true'></i></button></form></div>";
         }
 
         function ajaxRequest(params) {
@@ -252,8 +288,8 @@
                 data: {
                     _token: '{{ csrf_token() }}',
                     sort: params.data.sort, order: params.data.order,
-                    offset: params.data.offset, limit: params.data.limit, search: params.data.search,
-                    status: statusFilter,
+                    offset: params.data.offset, limit: params.data.limit,
+                    status: statusFilter, search: searchText,
                 },
                 success: function (data) {
                     updateDashboard(data);
@@ -273,11 +309,17 @@
                 statusFilter = tile.dataset.status;
                 document.querySelectorAll('.home-tile').forEach(t => t.classList.toggle('active', t === tile));
                 document.getElementById('homeListTitle').textContent = tile.querySelector('.k').textContent;
+                document.getElementById('moduleRegistry').dataset.status = statusFilter;
                 $table.bootstrapTable('refresh', { pageNumber: 1 });
             });
         });
 
         $('#refreshHomeTable').on('click', function () { $table.bootstrapTable('refresh', { silent: true }); });
+        let searchTimer = null;
+        document.getElementById('homeSearch').addEventListener('input', function (e) {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(function () { searchText = e.target.value.trim(); $table.bootstrapTable('refresh', { pageNumber: 1 }); }, 250);
+        });
         $table.on('search.bs.table sort.bs.table page-change.bs.table', function () { updateStatus('Updating the view…', 'loading'); });
     </script>
 @endpush

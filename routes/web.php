@@ -60,6 +60,7 @@ Route::group(['prefix' => 'instance', 'middleware' => 'auth'], function () {
     Route::post('/export', 'Export\InstanceController@exportInstance');
     Route::post('/export-csv', 'Export\InstanceController@exportCsvInstance');
     Route::post('/preflight', 'Export\InstanceController@preflight');
+    Route::post('/arelle', 'Export\InstanceController@arelleValidate');
     Route::get('/settings', 'Export\InstanceController@settings');
     Route::post('/settings', 'Export\InstanceController@updateSettings');
 

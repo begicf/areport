@@ -163,7 +163,7 @@
             <div class="meta">
                 <span class="m"><i class="fas fa-circle-check"></i> EBA DPM 1.0 &amp; 2.0</span>
                 <span class="m"><i class="fas fa-circle-check"></i> xBRL-XML · OIM CSV · JSON</span>
-                <span class="m"><i class="fas fa-circle-check"></i> DPM-XL validation</span>
+                <span class="m"><i class="fas fa-circle-check"></i> DPM-XL · Arelle</span>
             </div>
         </div>
         <div class="shot tilt">
@@ -177,7 +177,7 @@
 <div class="trust">
     <div class="wrap lrow">
         <span class="t"><i class="fas fa-layer-group"></i> Framework → Table group → Table</span>
-        <span class="t"><i class="fas fa-cubes"></i> Dimensions, domains &amp; members</span>
+        <span class="t"><i class="fas fa-file-zipper"></i> Generated XBRL taxonomy packages</span>
         <span class="t"><i class="fas fa-file-import"></i> Import &amp; export instances</span>
         <span class="t"><i class="fas fa-shield-halved"></i> Rule-based data quality</span>
     </div>
@@ -228,12 +228,12 @@
             <div class="ftext">
                 <span class="pill amber"><i class="fas fa-compass-drafting"></i> Plugin · DPM Architect</span>
                 <h3>Author your own data point model</h3>
-                <p>A full DPM modelling environment: build frameworks, table groups and tables, define dimensions, domains and members, and nest the structure visually — with DPM 1.0, 2.0 and newer support.</p>
+                <p>A full DPM modelling environment: build frameworks, modules and tables, start from any EBA DPM 2.0 table, and generate the XBRL taxonomy your reporters file against — with DPM 1.0, 2.0 and newer support.</p>
                 <ul>
-                    <li><i class="fas fa-check"></i> Visual structure editor with X / Y / Z axes and parent–child nesting</li>
-                    <li><i class="fas fa-check"></i> Dictionary of dimensions, domains, members &amp; metrics with search</li>
-                    <li><i class="fas fa-check"></i> Write &amp; edit validation rules in DPM-XL, the official EBA grammar</li>
-                    <li><i class="fas fa-check"></i> Groundwork for generating taxonomy &amp; module artefacts</li>
+                    <li><i class="fas fa-check"></i> Structure editor for X / Y / Z axes: metric, dimensions and open (key) axes per coordinate</li>
+                    <li><i class="fas fa-check"></i> Data dictionary of metrics, dimensions, domains, members &amp; hierarchies</li>
+                    <li><i class="fas fa-check"></i> Validation rules in DPM-XL, alongside EBA's 12,000+ operations</li>
+                    <li><i class="fas fa-check"></i> Generates tables, modules and a taxonomy package, checked with Arelle</li>
                 </ul>
             </div>
             <div class="shot">
@@ -250,14 +250,14 @@
                 <p>A dedicated DPM-XL engine runs the framework’s business rules against your instance and shows precisely what to fix — right on the reporting form.</p>
                 <ul>
                     <li><i class="fas fa-check"></i> Powered by the official EBA DPM-XL ANTLR grammar</li>
-                    <li><i class="fas fa-check"></i> Validate a live form or an imported EBA sample instance</li>
-                    <li><i class="fas fa-check"></i> Failing cells are highlighted in red, with the rule and its facts</li>
-                    <li><i class="fas fa-check"></i> Supports both legacy and OIM cell notations</li>
+                    <li><i class="fas fa-check"></i> A validation report per instance: errors, warnings, missing data, with the facts behind each rule</li>
+                    <li><i class="fas fa-check"></i> Failing cells are highlighted in red on the reporting form</li>
+                    <li><i class="fas fa-check"></i> The exported xBRL-XML or xBRL-CSV file is checked with Arelle before you file</li>
                 </ul>
             </div>
             <div class="shot">
                 <div class="shot-bar"><span class="shot-dot" style="background:#ef6a5f"></span><span class="shot-dot" style="background:#f5bf4f"></span><span class="shot-dot" style="background:#61c454"></span></div>
-                <img src="{{ asset('images/landing/validation.png') }}" alt="Instance validation">
+                <img src="{{ asset('images/landing/validation.png') }}" alt="Validation report of an instance">
             </div>
         </div>
     </div>
@@ -270,9 +270,9 @@
         <h2>From taxonomy to compliant filing in four steps</h2>
     </div>
     <div class="flow">
-        <div class="step"><div class="n">1</div><h4>Model</h4><p>Load an EBA taxonomy or author your own structure in DPM Architect.</p></div>
+        <div class="step"><div class="n">1</div><h4>Model</h4><p>Load an EBA taxonomy or author your own tables in DPM Architect and generate their taxonomy.</p></div>
         <div class="step"><div class="n">2</div><h4>Report</h4><p>Open a module and enter submission data in real reporting tables.</p></div>
-        <div class="step"><div class="n">3</div><h4>Validate</h4><p>Run DPM-XL rules and fix the cells highlighted on the form.</p></div>
+        <div class="step"><div class="n">3</div><h4>Validate</h4><p>Run DPM-XL rules, fix the cells highlighted on the form, and check the file with Arelle.</p></div>
         <div class="step"><div class="n">4</div><h4>Export</h4><p>Produce a valid xBRL-XML, OIM CSV or JSON instance to file.</p></div>
     </div>
 </section>

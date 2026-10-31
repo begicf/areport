@@ -127,24 +127,11 @@ class InstanceController extends Controller
     public function exportInstance()
     {
         $fact_module = $this->instance(['taxonomy', 'factHeader']);
-        $module = $fact_module->module_path;
-        $period = $fact_module->periodYmd();
 
         $this->_entityId = $fact_module->entity_id ?? null;
         $preflight = $this->guard($fact_module, 'xml');
 
-        $find = [];
-
-        foreach ($fact_module->factHeader as $row):
-            $find[] = $row->table_path;
-        endforeach;
-
-        $data = FactHeader::prepareDataForXbrl($fact_module->id, $period);
-
-
-        $instance =
-            new CreateXBRLFromDB($period, $fact_module->entityIdentifier($this->reportingLei()), $module, $data, $find, $fact_module->taxonomy->folder);
-        $file = $instance->setOptions($fact_module->exportOptions())->writeXbrl();
+        $file = $this->xbrlXml($fact_module);
         $filename = $preflight['package'] ?: 'areport_'.$this->fileSlug().'_'.date("dmYHis").'.xbrl';
         $fact_module->stamp(['exported_at' => now(), 'export_format' => 'xml', 'export_package' => $filename]);
 
@@ -155,26 +142,73 @@ class InstanceController extends Controller
 
     }
 
+    /** The instance as an xBRL-XML document. */
+    private function xbrlXml(FactModule $fact_module): string
+    {
+        $period = $fact_module->periodYmd();
+        $find = $fact_module->factHeader->pluck('table_path')->all();
+        $data = FactHeader::prepareDataForXbrl($fact_module->id, $period);
+        $instance = new CreateXBRLFromDB($period, $fact_module->entityIdentifier($this->reportingLei()), $fact_module->module_path, $data, $find, $fact_module->taxonomy->folder);
+
+        return $instance->setOptions($fact_module->exportOptions())->writeXbrl();
+    }
+
+    /** The instance as an xBRL-CSV report package: ['path' => zip, 'filename' => …]. */
+    private function xbrlCsvPackage(FactModule $fact_module): array
+    {
+        $period = $fact_module->periodYmd();
+        $data = FactHeader::prepareDataForXbrlCsv($fact_module->id, $period);
+        $instance = new CreateXBRLCsvPackage($period, $fact_module->entityIdentifier($this->reportingLei()), $fact_module->module_path, $data, $fact_module->taxonomy->folder);
+
+        return $instance->setOptions($fact_module->exportOptions())->writePackage();
+    }
+
+    /**
+     * Validate the instance as it would be exported (xBRL-XML or xBRL-CSV) with Arelle,
+     * offline against the local taxonomy: XBRL 2.1, dimensions, data types, units…
+     */
+    public function arelleValidate(Request $request)
+    {
+        $cls = \Begicf\AReportPro\Services\ArelleValidator::class;
+        abort_unless(class_exists($cls) && $cls::available(), 422, 'Arelle is not configured (AREPORT_PRO_ARELLE_CMD).');
+        $format = $request->get('format') === 'xml' ? 'xml' : 'csv';
+        $fact_module = $this->instance($format === 'xml' ? ['taxonomy', 'factHeader'] : ['taxonomy', 'factHeader.factTable']);
+        $this->_entityId = $fact_module->entity_id ?? null;
+
+        if ($format === 'xml') {
+            $path = tempnam(sys_get_temp_dir(), 'areport').'.xbrl';
+            file_put_contents($path, $this->xbrlXml($fact_module));
+        } else {
+            // Arelle recognises a report package by its .zip name.
+            $package = $this->xbrlCsvPackage($fact_module);
+            $path = sys_get_temp_dir().'/'.uniqid('areport_').'_'.basename($package['filename']);
+            rename($package['path'], $path);
+        }
+        try {
+            $result = (new $cls($fact_module->taxonomy))->validate($path);
+        } catch (\RuntimeException $e) {
+            abort(422, $e->getMessage());
+        } finally {
+            @unlink($path);
+        }
+        // Temp file names mean nothing to the user.
+        foreach ($result['messages'] as &$m) {
+            if ($m['ref'] && str_starts_with((string) $m['ref'], sys_get_temp_dir())) {
+                $m['ref'] = null;
+            }
+        }
+
+        return response()->json($result + ['format' => $format, 'messages' => array_slice($result['messages'], 0, 300)]);
+    }
+
     public function exportCsvInstance()
     {
         $fact_module = $this->instance(['taxonomy', 'factHeader.factTable']);
-        $module = $fact_module->module_path;
-        $period = $fact_module->periodYmd();
 
         $this->_entityId = $fact_module->entity_id ?? null;
         $this->guard($fact_module, 'csv');
 
-        $data = FactHeader::prepareDataForXbrlCsv($fact_module->id, $period);
-
-        $instance = new CreateXBRLCsvPackage(
-            $period,
-            $fact_module->entityIdentifier($this->reportingLei()),
-            $module,
-            $data,
-            $fact_module->taxonomy->folder
-        );
-
-        $file = $instance->setOptions($fact_module->exportOptions())->writePackage();
+        $file = $this->xbrlCsvPackage($fact_module);
         $fact_module->stamp(['exported_at' => now(), 'export_format' => 'csv', 'export_package' => $file['filename']]);
 
         // The archive is named like the package folder inside it (EBA convention).
