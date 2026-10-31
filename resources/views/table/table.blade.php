@@ -95,6 +95,9 @@
         #button_group > div { display: flex; gap: 0; }
         #button_group .btn + .btn { margin-left: -1px !important; }
         #button_group .btn { padding: .12rem .5rem !important; font-size: .72rem !important; min-height: 0 !important; line-height: 1.35; border-radius: 0 !important; box-shadow: none !important; }
+        #button_group .btn { background: #fff !important; color: #475569 !important; border: 1px solid #cbd5e1 !important; font-weight: 600; }
+        #button_group .btn:hover { background: #f1f5f9 !important; color: #1e293b !important; }
+        #button_group .btn.active { background: #2f557d !important; color: #fff !important; border-color: #2f557d !important; position: relative; z-index: 1; }
         .app-report-toolbar-tight .app-report-sheets { flex: 0 1 auto; min-width: 0; }
         .app-report-toolbar-tight .app-report-sheets > * { width: auto; }
         .app-report-toolbar-tight .app-report-sheets select { max-width: 340px; }
