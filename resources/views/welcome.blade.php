@@ -79,6 +79,9 @@
         .plugins{background:var(--band);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
         .feat{display:grid;grid-template-columns:repeat(2,1fr);gap:3rem;align-items:center;padding:3.2rem 0}
         .feat.rev .ftext{order:2}
+        .pill.private{background:#f8fafc;border-color:#cbd5e1;color:#475569}
+        .private-note{display:inline-block;max-width:640px;margin-top:.9rem;line-height:1.5;padding:.5rem .9rem;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#475569;font-size:.86rem}
+        .private-note i{color:#64748b;margin-right:.4rem}
         .pill{display:inline-flex;align-items:center;gap:.5rem;padding:.3rem .7rem;border-radius:999px;background:#fff;border:1px solid var(--blue-bd);color:var(--blue);font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
         .pill.amber{border-color:#f0d9bd;color:var(--amber);background:#fff}
         .feat h3{font-size:1.55rem;letter-spacing:-.01em;margin:.9rem 0 0;font-weight:700;color:#16202c}
@@ -149,7 +152,7 @@
             <h1>Taxonomy-driven reporting, <span class="hl">modelled and validated</span> in one workspace.</h1>
             <p class="lead">
                 AReport turns EBA taxonomies into a working reporting environment — browse modules,
-                fill submission data, and export valid xBRL. Two built-in plugins let you
+                fill submission data, and export valid xBRL. Two private plugins let you
                 <strong>author the data model</strong> and <strong>validate every figure</strong> before you file.
             </p>
             <div class="cta">
@@ -218,15 +221,16 @@
 <div class="plugins" id="plugins">
     <div class="wrap">
         <div class="sec-head" style="padding-top:3.4rem">
-            <span class="eyebrow">Two built-in plugins</span>
+            <span class="eyebrow">Two private plugins</span>
             <h2>Model the data. Validate the data.</h2>
-            <p>AReport ships with two optional power tools that extend the core workspace.</p>
+            <p>Two optional power tools extend the core workspace.</p>
+            <p class="private-note"><i class="fas fa-lock"></i> DPM Architect and the Validation plugin are <b>not publicly available</b> — they are not part of the open-source AReport and are provided separately, on request.</p>
         </div>
 
         {{-- DPM Architect --}}
         <div class="feat">
             <div class="ftext">
-                <span class="pill amber"><i class="fas fa-compass-drafting"></i> Plugin · DPM Architect</span>
+                <span class="pill amber"><i class="fas fa-compass-drafting"></i> Plugin · DPM Architect</span> <span class="pill private"><i class="fas fa-lock"></i> Not public</span>
                 <h3>Author your own data point model</h3>
                 <p>A full DPM modelling environment: build frameworks, modules and tables, start from any EBA DPM 2.0 table, and generate the XBRL taxonomy your reporters file against — with DPM 1.0, 2.0 and newer support.</p>
                 <ul>
@@ -245,7 +249,7 @@
         {{-- Validation --}}
         <div class="feat rev">
             <div class="ftext">
-                <span class="pill"><i class="fas fa-shield-halved"></i> Plugin · Validation</span>
+                <span class="pill"><i class="fas fa-shield-halved"></i> Plugin · Validation</span> <span class="pill private"><i class="fas fa-lock"></i> Not public</span>
                 <h3>Catch every broken figure before you file</h3>
                 <p>A dedicated DPM-XL engine runs the framework’s business rules against your instance and shows precisely what to fix — right on the reporting form.</p>
                 <ul>
@@ -264,7 +268,7 @@
         {{-- Live validation on the form --}}
         <div class="feat">
             <div class="ftext">
-                <span class="pill"><i class="fas fa-bolt"></i> Live on the form</span>
+                <span class="pill"><i class="fas fa-bolt"></i> Live on the form · Validation plugin</span> <span class="pill private"><i class="fas fa-lock"></i> Not public</span>
                 <h3>See what breaks a rule while you enter the data</h3>
                 <p>As soon as a table opens — and again after every change — the rules run in the background and the form marks the cells to look at. No separate step, no guessing which figure is wrong.</p>
                 <ul>
