@@ -64,6 +64,57 @@ class FilingPreflight
     }
 
     /**
+     * Rows of open tables that hold values but miss a key column. Key columns come
+     * from the table's xBRL-CSV metadata (columns other than datapoint/factValue,
+     * laid out along X); a key cell is c<headerCode>r<row>.
+     *
+     * @return array<int, array{table: string, row: int, column: string}>
+     */
+    public function openRowsWithoutKey(): array
+    {
+        $root = storage_path('app/public/tax/'.($this->instance->taxonomy->folder ?? ''));
+        $out = [];
+        foreach ($this->instance->factHeader()->with('factTable')->get() as $header) {
+            $json = $root.'/'.preg_replace('/\.xsd$/i', '.json', ltrim((string) $header->table_path, '/'));
+            $meta = is_file($json) ? json_decode((string) file_get_contents($json), true) : null;
+            $template = is_array($meta['tableTemplates'] ?? null) ? reset($meta['tableTemplates']) : null;
+            $keys = [];
+            foreach ((array) ($template['columns'] ?? []) as $name => $col) {
+                $doc = $col['eba:documentation'] ?? [];
+                if (! in_array($name, ['datapoint', 'factValue'], true) && ($doc['headerDirection'] ?? '') === 'X' && ! empty($doc['headerCode'])) {
+                    $keys[strtolower('c'.$doc['headerCode'])] = $name;
+                }
+            }
+            if (! $keys) {
+                continue;
+            }
+            $cells = [];
+            $valueRows = [];
+            foreach ($header->factTable as $f) {
+                if (! preg_match('/^(c[0-9a-z._-]+?)r(\d+)$/i', (string) $f->cr_code, $m)) {
+                    continue;
+                }
+                $cells[$f->cr_sheet_code][strtolower($m[1])][(int) $m[2]] = trim((string) $f->string_value) !== '';
+                if (! empty($f->metric) && ! isset($keys[strtolower($m[1])])) {
+                    $valueRows[$f->cr_sheet_code][(int) $m[2]] = true;
+                }
+            }
+            $table = strtoupper(basename(dirname((string) $header->table_path)));
+            foreach ($valueRows as $sheet => $rows) {
+                foreach (array_keys($rows) as $row) {
+                    foreach ($keys as $col => $name) {
+                        if (empty($cells[$sheet][$col][$row])) {
+                            $out[] = ['table' => $table, 'row' => $row, 'column' => $name.' ('.substr($col, 1).')'];
+                        }
+                    }
+                }
+            }
+        }
+
+        return $out;
+    }
+
+    /**
      * @param string $format 'csv' | 'xml'
      * @return array{ok: bool, checks: array<int, array{level: string, code: string, message: string}>, package: ?string}
      */
@@ -133,6 +184,12 @@ class FilingPreflight
         }
         if ($reported === 0) {
             $add('error', 'no_data', 'No template holds data, so there is nothing to report.');
+        }
+
+        // Open rows: every row with values needs its key (e.g. the counterparty or
+        // country column); without it the fact has no identity (xBRL-CSV tcre:missingValue).
+        foreach ($this->openRowsWithoutKey() as $miss) {
+            $add('error', 'open_row_key_missing', "{$miss['table']} row {$miss['row']}: enter {$miss['column']} — the row holds values but its key is empty.");
         }
 
         // Validation (the instance's last full run against the module's rules)
