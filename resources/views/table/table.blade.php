@@ -99,6 +99,12 @@
         .app-report-toolbar-tight .app-report-sheets select { max-width: 340px; }
         .app-report-toolbar-tight .app-typed-sheet { flex-wrap: nowrap; }
         .app-report-toolbar-tight .app-report-groupbar:empty, .app-report-toolbar-tight .app-report-sheets:empty { display: none; }
+        /* Abstract rows (headings such as "VaR"): the renderer drops their side borders
+           (xbrl-none-left/right) — keep the row-code cell and the data area framed. */
+        #table_form tr:has(> td.xbrl-row-abstract) > td:first-child,
+        #table_form tr:has(> td.xbrl-row-abstract) > td.xbrl-row-abstract ~ td {
+            border-left: 1px solid var(--bs-border-color, #dee2e6) !important;
+            border-right: 1px solid var(--bs-border-color, #dee2e6) !important; }
         /* Cells keep a sensible minimum width; the table itself fills the panel. */
         #table_form td.xbrl-td { min-width: 7.5rem; }
         #table_form td:has(> .xbrl-input-text), #table_form td:has(> textarea) { min-width: 16rem; }
