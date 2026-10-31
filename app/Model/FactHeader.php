@@ -237,22 +237,26 @@ class FactHeader extends Model
      * @param null $sheet
      * @return array
      */
-    public static function getCRData($table_path, $period, $module_path, $sheet = null, $all = null, $taxonomyId = null): ?array
+    public static function getCRData($table_path, $period, $module_path, $sheet = null, $all = null, $taxonomyId = null, $moduleId = null): ?array
     {
 
         $data = [];
         $r = 0;
 
-        $factModuleQuery = FactModule::query()->where([
-            ['period', '=', $period],
-            ['module_path', '=', $module_path]
-        ]);
+        if (!is_null($moduleId)) {
+            $fact_module = FactModule::query()->find($moduleId);
+        } else {
+            $factModuleQuery = FactModule::query()->where([
+                ['period', '=', $period],
+                ['module_path', '=', $module_path]
+            ]);
 
-        if (!is_null($taxonomyId)) {
-            $factModuleQuery->where('taxonomy_id', '=', $taxonomyId);
+            if (!is_null($taxonomyId)) {
+                $factModuleQuery->where('taxonomy_id', '=', $taxonomyId);
+            }
+
+            $fact_module = $factModuleQuery->first();
         }
-
-        $fact_module = $factModuleQuery->first();
 
 
         if (!is_null($fact_module)):

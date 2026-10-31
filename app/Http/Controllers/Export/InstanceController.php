@@ -14,6 +14,7 @@ use AReportDpmXBRL\Library\Format;
 class InstanceController extends Controller
 {
     private $_entityId = null;
+    private $_taxonomy;
 
     public function __construct()
     {
@@ -47,6 +48,27 @@ class InstanceController extends Controller
         return $result;
     }
 
+
+    /**
+     * The instance to export: by instance_id (the signed-in user's own), else the legacy
+     * period + module lookup in the active taxonomy. 404 when neither matches.
+     */
+    private function instance(array $with): FactModule
+    {
+        if (request()->filled('instance_id')) {
+            $fact_module = FactModule::query()->with($with)->find(request('instance_id'));
+        } else {
+            $fact_module = FactModule::where([
+                ['period', '=', request('period')],
+                ['module_path', '=', $this->getNormalizeModule(request('mod'))],
+                ['taxonomy_id', '=', $this->_taxonomy->id],
+            ])->with($with)->first();
+        }
+
+        abort_unless($fact_module, 404, 'Instance not found for export.');
+
+        return $fact_module;
+    }
 
     private function getNormalizeModule($module)
     {
@@ -101,13 +123,9 @@ class InstanceController extends Controller
 
     public function exportInstance()
     {
-        $module = $this->getNormalizeModule(request('mod'));
-
-        $fact_module = FactModule::where([
-            ['period', '=', request('period')],
-            ['module_path', '=', $module],
-            ['taxonomy_id', '=', $this->_taxonomy->id],
-        ])->with(['taxonomy', 'factHeader'])->first();
+        $fact_module = $this->instance(['taxonomy', 'factHeader']);
+        $module = $fact_module->module_path;
+        $period = $fact_module->periodYmd();
 
         $this->_entityId = $fact_module->entity_id ?? null;
 
@@ -117,11 +135,11 @@ class InstanceController extends Controller
             $find[] = $row->table_path;
         endforeach;
 
-        $data = FactHeader::prepareDataForXbrl($fact_module->id, request('period'));
+        $data = FactHeader::prepareDataForXbrl($fact_module->id, $period);
 
 
         $instance =
-            new CreateXBRLFromDB(request('period'), $this->reportingLei(), $module, $data, $find, $fact_module->taxonomy->folder);
+            new CreateXBRLFromDB($period, $this->reportingLei(), $module, $data, $find, $fact_module->taxonomy->folder);
         $file = $instance->writeXbrl();
 
         return response()->streamDownload(function () use ($file) {
@@ -133,24 +151,16 @@ class InstanceController extends Controller
 
     public function exportCsvInstance()
     {
-        $module = $this->getNormalizeModule(request('mod'));
-
-        $fact_module = FactModule::where([
-            ['period', '=', request('period')],
-            ['module_path', '=', $module],
-            ['taxonomy_id', '=', $this->_taxonomy->id],
-        ])->with(['taxonomy', 'factHeader.factTable'])->first();
-
-        if (is_null($fact_module)) {
-            abort(404, 'Active module was not found for xBRL-CSV export.');
-        }
+        $fact_module = $this->instance(['taxonomy', 'factHeader.factTable']);
+        $module = $fact_module->module_path;
+        $period = $fact_module->periodYmd();
 
         $this->_entityId = $fact_module->entity_id ?? null;
 
-        $data = FactHeader::prepareDataForXbrlCsv($fact_module->id, request('period'));
+        $data = FactHeader::prepareDataForXbrlCsv($fact_module->id, $period);
 
         $instance = new CreateXBRLCsvPackage(
-            request('period'),
+            $period,
             $this->reportingLei(),
             $module,
             $data,

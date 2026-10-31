@@ -67,6 +67,16 @@
         .rib-export:hover { background: #efecf8; border-color: #ddd6f1; }
         .rib-check:hover { background: #e7f4f2; border-color: #c7e6e1; }
         .rib-btn:disabled { opacity: .45; cursor: not-allowed; }
+        .rib-meta { font-size: .66rem; color: var(--faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 340px; }
+        .rib-meta b { font-weight: 600; color: #52606d; }
+        .rib-save i { color: #2f557d; }
+        .rib-save:hover { background: #eef3f9; border-color: #dbe4ef; }
+        .rib-save.is-dirty i { color: #c2731f; }
+        .rib-hist i { color: #52606d; }
+        .save-status { font-size: .64rem; font-weight: 600; display: inline-flex; align-items: center; gap: .25rem; margin-top: .1rem; color: #2f8a5a; }
+        .save-status.is-dirty { color: #c2731f; }
+        .save-status.is-saving { color: #64748b; }
+        .save-status.is-error { color: #dc2626; cursor: pointer; text-decoration: underline dotted; }
         /* Cell inspector hidden — reclaim vertical space */
         #cellInspector { display: none !important; }
     </style>
@@ -76,6 +86,13 @@
             <div class="rib-title">
                 <span class="rib-kicker"><i class="fas fa-table"></i> Report editor</span>
                 <span class="rib-name" title="{{ $module_name }}">{{ $module_name }}</span>
+                <span class="rib-meta" title="Reporting entity · reference date · taxonomy">
+                    <b>{{ $entity->name ?? 'No entity' }}</b>@if(!empty($entity?->lei)) · {{ $entity->lei }}@endif
+                    · {{ $period ? \Carbon\Carbon::parse($period)->format('d.m.Y') : '' }} · {{ $taxonomy_name }}
+                </span>
+                <span id="saveStatus" class="save-status" role="status" aria-live="polite">
+                    <i class="fas fa-check"></i><span>{{ $last_saved ? 'Saved '.$last_saved->format('d.m. H:i') : 'Not saved yet' }}</span>
+                </span>
             </div>
 
             <div class="rib-sep"></div>
@@ -84,6 +101,12 @@
                     <button type="button" class="rib-btn rib-new" onclick="module()" title="Start a new instance">
                         <i class="fas fa-file-circle-plus"></i><span>New</span>
                     </button>
+                    <button type="button" class="rib-btn rib-save" id="saveBtn" title="Save (Ctrl+S)">
+                        <i class="fas fa-floppy-disk"></i><span>Save</span>
+                    </button>
+                    <a class="rib-btn rib-hist" href="{{ url('/table/history') }}?id={{ $instance_id }}" target="_blank" rel="noopener" title="Cell-level change history">
+                        <i class="fas fa-clock-rotate-left"></i><span>History</span>
+                    </a>
                 </div>
                 <span class="rib-cap">Instance</span>
             </div>
@@ -114,6 +137,7 @@
                             @csrf
                             <input name="period" type="hidden" value="{{$period}}">
                             <input name="mod" type="hidden" value="{{$mod}}">
+                            <input name="instance_id" type="hidden" value="{{ $instance_id }}">
                             <input id="export_table_path" name="table" type="hidden">
                             <div class="dropdown-menu dropdown-menu-end">
                                 <button class="dropdown-item" name="export_type" value="xlsx" type="submit"><i class="text-success fas fa-file-excel"></i> Export as .xlsx</button>
@@ -145,6 +169,7 @@
             <form id="import" class="d-none" method="POST" enctype="multipart/form-data">
                 {{ csrf_field() }}
                 <input type="hidden" name="import" value="1">
+                <input type="hidden" name="instance_id" value="{{ $instance_id }}">
                 <input type="file" name="fileToUpload" id="fileToUpload"
                        onchange="this.value && (this.form.requestSubmit ? this.form.requestSubmit() : this.form.submit())">
                 <input id="sheetcodeImport" name="sheetcode" type="hidden"/>
@@ -218,6 +243,7 @@
 
         var aspectNode = null;
         var tableCode = null;
+        const instanceId = @json($instance_id);
         var activeInspectorCell = null;
         var translationWorkspaceUrl = @json(Route::has('areport-pro.dpm-model.index') ? route('areport-pro.dpm-model.index') : null);
 
@@ -480,8 +506,14 @@
             axios.post('modules/group', {
 
                 module: '{{$mod}}',
+                instance_id: instanceId,
 
             }).then(function (response) {
+                const entitySelect = document.getElementById('entitySelect');
+                const currentEntity = document.getElementById('reportEntityId');
+                if (entitySelect && currentEntity && currentEntity.value) {
+                    entitySelect.value = currentEntity.value;
+                }
 
                 var optionsHTML = [];
                 var optionsHTMLTo = [];
@@ -528,22 +560,89 @@
         }
 
 
-        function save(sheet = null) {
+        // ---- Saving: explicit Save, autosave, unsaved-changes guard ----
+        // editVersion counts edits; a save only clears "dirty" if nothing was typed while it ran.
+        let editVersion = 0, savedVersion = 0, saveInFlight = null, loadingTable = false, lastSavedText = null;
+        const AUTOSAVE_MS = 30000;
 
-            return axios.post('table/save', {
+        function isDirty() { return editVersion !== savedVersion; }
+
+        function setSaveStatus(state, text) {
+            const el = document.getElementById('saveStatus');
+            if (!el) return;
+            const icons = { saved: 'fa-check', dirty: 'fa-circle', saving: 'fa-circle-notch fa-spin', error: 'fa-triangle-exclamation' };
+            el.className = 'save-status' + (state === 'saved' ? '' : ' is-' + state);
+            el.innerHTML = '<i class="fas ' + icons[state] + '"></i><span>' + escapeInspectorHtml(text) + '</span>';
+            el.title = state === 'error' ? 'Click to retry' : '';
+            $('#saveBtn').toggleClass('is-dirty', state === 'dirty' || state === 'error');
+        }
+
+        function markDirty() {
+            // Rendering a table fires change events of its own; those are not edits.
+            if (loadingTable) return;
+            editVersion++;
+            if (!saveInFlight) setSaveStatus('dirty', 'Unsaved changes');
+        }
+
+        // Persist the open sheet. Resolves when stored; rejects (and says so on screen) when not.
+        function save(sheet = null) {
+            const version = editVersion;
+            const payload = {
+                'instance_id': instanceId,
                 'table_data': $("#table_form").serialize(),
-                'period': '{{$period}}',
-                'module': '{{$mod}}',
-                'module_name': '{{$module_name}}',
-                'entity_id': document.getElementById('reportEntityId') ? document.getElementById('reportEntityId').value : '',
                 'sheet': (sheet ? sheet : $('#sheets').find(':selected').val()),
                 'tab': $('#export_table_path').val(),
+            };
+            setSaveStatus('saving', 'Saving…');
 
+            saveInFlight = axios.post('table/save', payload).then(function (response) {
+                const d = response.data || {};
+                if (!d.ok) throw new Error(d.error || 'Save failed.');
+                if (editVersion === version) {
+                    savedVersion = version;
+                    lastSavedText = 'Saved ' + (d.saved_at || '');
+                    setSaveStatus('saved', lastSavedText);
+                } else {
+                    setSaveStatus('dirty', 'Unsaved changes');
+                }
+                return d;
             }).catch(function (error) {
-                console.error('Draft save failed.', error);
+                const msg = getRequestErrorMessage(error, error && error.message ? error.message : 'Save failed.');
+                setSaveStatus('error', 'Not saved: ' + msg);
+                throw error;
+            }).finally(function () {
+                saveInFlight = null;
             });
 
+            return saveInFlight;
         }
+
+        // Save only when there is something to save (table switches, validation).
+        function saveIfDirty(sheet = null) {
+            return isDirty() ? save(sheet) : Promise.resolve({ ok: true, changes: 0 });
+        }
+
+        $('#table_form').on('input change', 'input:not([type="hidden"]), select, textarea', markDirty);
+        $('#saveBtn').on('click', function () { save().catch(function () {}); });
+        $('#saveStatus').on('click', function () { if (this.classList.contains('is-error')) save().catch(function () {}); });
+
+        document.addEventListener('keydown', function (e) {
+            if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
+                e.preventDefault();
+                save().catch(function () {});
+            }
+        });
+
+        setInterval(function () {
+            if (isDirty() && !saveInFlight && $('#export_table_path').val()) save().catch(function () {});
+        }, AUTOSAVE_MS);
+
+        window.addEventListener('beforeunload', function (e) {
+            if (isDirty() || saveInFlight) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
 
         // ---- Instance validation (reporting flow) ----
         function resetValidation() {
@@ -587,8 +686,9 @@
             box.style.display = 'block';
             box.innerHTML = '<div class="dpm-loading">Running validation…</div>';
             // Persist the draft first so values are consistent, then validate the live form.
-            save().finally(function () {
+            saveIfDirty().catch(function () {}).finally(function () {
                 axios.post('table/validate', {
+                    'instance_id': instanceId,
                     'table_data': $("#table_form").serialize(),
                     'table_code': tableCode,
                     'tab': $('#export_table_path').val()
@@ -633,7 +733,20 @@
             clearFailedCells();
         }
 
+        // Switch table/sheet only after the open one is stored; if saving fails, stay put.
+        let lastGroupValue = null;
+
         function changeTable(selectedOb, type = 'G', sheet = null) {
+            if (sheet == null && isDirty()) {
+                const groupSelect = document.querySelector('#group');
+                save().then(function () {
+                    changeTable(selectedOb, type, sheet);
+                }).catch(function () {
+                    if (type == 'G' && groupSelect && lastGroupValue !== null) groupSelect.value = lastGroupValue;
+                    window.alert('The open table could not be saved, so it stays open. Check the save status and try again.');
+                });
+                return;
+            }
 
             var group;
             var table = null;
@@ -653,9 +766,6 @@
 
             window.appModal.show('pleaseWaitDialog');
 
-            if (sheet == null) {
-                save();
-            }
             $("#tab").empty();
             $("#button_group").empty();
             $("#sheets").empty();
@@ -667,6 +777,7 @@
 
             axios.post('/table/ajax', {
 
+                    'instance_id': instanceId,
                     'group': group,
                     'tab': table,
                     'mod': '{{$mod}}',
@@ -675,6 +786,8 @@
                 }
             ).then(function (response) {
                 tableCode = response.data.tableCode;
+                lastGroupValue = document.querySelector('#group') ? document.querySelector('#group').value : null;
+                loadingTable = true;
 
                 $('#table_form').html(response.data.table);
                 $('#sheets').html(response.data.sheets);
@@ -716,6 +829,7 @@
                         }).insertAfter('#table tbody>tr:last');
 
                         rowCount++;
+                        markDirty();
 
                     });
 
@@ -732,6 +846,7 @@
                         } else {
                             $last.remove();
                             rowCount--;
+                            markDirty();
                         }
                     });
 
@@ -741,13 +856,19 @@
                 window.alert(getRequestErrorMessage(error, 'Unable to load the selected table. Please refresh and try again.'));
             }).finally(function () {
                 hidePleaseWait();
+                // A freshly loaded table matches what is stored; let its own init events settle first.
+                setTimeout(function () {
+                    loadingTable = false;
+                    savedVersion = editVersion;
+                    if (!saveInFlight && lastSavedText) setSaveStatus('saved', lastSavedText);
+                }, 300);
             });
         }
 
         $(document).on('click', '#openTranslationWorkspace', function () {
-            save().finally(function () {
+            saveIfDirty().then(function () {
                 openTranslationWorkspace();
-            });
+            }).catch(function () {});
         });
 
 
@@ -785,6 +906,7 @@
                             $('#' + i).val(data['file'][i]);
                         }
                     }
+                    markDirty();
                 },
                 error: function () {
                     window.alert('Unable to import the selected file. Please verify the file and try again.');
@@ -839,9 +961,16 @@
                     return;
                 }
 
-                save(previousSheetValue);
+                const sheetSelect = this;
+                saveIfDirty(previousSheetValue).then(function () {
+                    switchSheet(nextSheetValue);
+                }).catch(function () {
+                    sheetSelect.value = previousSheetValue;
+                    window.alert('The open sheet could not be saved, so it stays open. Check the save status and try again.');
+                });
+            });
 
-
+        function switchSheet(nextSheetValue) {
                 $(".xbrl-input,.xbrl-input-open,.xbrl-input-text ").each(function () {
 
 
@@ -865,50 +994,7 @@
 
 
                 changeTable(group, gr, nextSheetValue);
-
-                {{--var sheet = $(this).find(':selected').val();--}}
-                {{--axios.post('table/get_data', {--}}
-
-                {{--    period: '{{$period}}',--}}
-                {{--    mod: '{{$mod}}',--}}
-                {{--    tab: $('#export_table_path').val(),--}}
-                {{--    sheet: sheet--}}
-
-                {{--}).then(function (response) {--}}
-
-                {{--    //Set to empty--}}
-                //     $(".xbrl-input,.xbrl-input-open,.xbrl-input-text ").each(function () {
-                //
-                //
-                //         var id = $(this).attr('id');
-                //         if (typeof id !== "undefined") {
-                //             $('#' + id).val('');
-                //         }
-                //
-                //     });
-                //
-
-                {{--    if (aspectNode == true) {--}}
-                {{--        row(response.data.row);--}}
-                {{--    }--}}
-
-                {{--    var data = response.data;--}}
-                {{--    for (var i in data) {--}}
-
-                {{--        if ($('#' + i).is("[type=number]")) {--}}
-                {{--            $('#' + i).val(data[i].integer);--}}
-                {{--        } else {--}}
-                {{--            $('#' + i).val(data[i].string);--}}
-                {{--        }--}}
-
-                {{--    }--}}
-
-
-                {{--});--}}
-
-
-            });
-
+        }
 
     </script>
 @endsection

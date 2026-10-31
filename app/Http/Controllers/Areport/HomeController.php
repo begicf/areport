@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Areport;
 
 use App\Http\Controllers\Controller;
 use App\Model\FactModule;
-use App\Model\Taxonomy;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -32,13 +31,9 @@ class HomeController extends Controller
 
     public function json(Request $request)
     {
+        // Every instance the user owns, whatever taxonomy is active: an instance opens
+        // in its own taxonomy, so switching the active one never hides work.
         $data = FactModule::query();
-
-        $activeTaxonomyId = Taxonomy::query()->where('active', true)->value('id');
-
-        if (!empty($activeTaxonomyId)) {
-            $data->where('taxonomy_id', '=', $activeTaxonomyId);
-        }
 
         $allTotal = (clone $data)->count();
 
@@ -61,11 +56,28 @@ class HomeController extends Controller
 
         $filteredTotal = (clone $data)->count();
 
-        $result = $data->orderBy($sort, $order)
+        $rows = $data->with('taxonomy:id,name,active')
+            ->orderBy($sort, $order)
             ->offset($offset)
             ->limit($limit)
-            ->get()
-            ->toArray();
+            ->get();
+
+        $entityCls = \Begicf\AReportPro\Models\DpmEntity::class;
+        $entities = class_exists($entityCls)
+            ? $entityCls::query()->whereIn('id', $rows->pluck('entity_id')->filter()->unique())->get(['id', 'name', 'lei'])->keyBy('id')
+            : collect();
+
+        $result = $rows->map(function (FactModule $m) use ($entities) {
+            $entity = $entities->get($m->entity_id);
+
+            return array_merge($m->toArray(), [
+                'taxonomy_name' => $m->taxonomy->name ?? null,
+                'taxonomy_active' => (bool) ($m->taxonomy->active ?? false),
+                'entity_name' => $entity->name ?? null,
+                'entity_lei' => $entity->lei ?? null,
+                'updated_label' => $m->updated_at ? $m->updated_at->format('d M Y, H:i') : null,
+            ]);
+        })->all();
 
         return response()->json([
             'all_total' => $allTotal,

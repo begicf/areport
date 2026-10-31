@@ -13,7 +13,7 @@ use AReportDpmXBRL\Library\Format;
 use AReportDpmXBRL\Render;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\DB;
 
 
 class TableController extends Controller
@@ -22,6 +22,7 @@ class TableController extends Controller
 
     private $_period;
     private $_taxonomy;
+    private ?FactModule $_instance = null;
 
     public function __construct()
     {
@@ -32,20 +33,48 @@ class TableController extends Controller
 
     }
 
+    /**
+     * Bind the instance named by the request's instance_id. Scoped to the signed-in
+     * user (FactModule's owner scope), so another user's id is a 404. The instance's
+     * own taxonomy and reference date win over the active taxonomy and the request.
+     * Called from the actions, not the constructor: auth has not run there yet.
+     */
+    private function bindInstance(): ?FactModule
+    {
+        if ($this->_instance === null && request()->filled('instance_id')) {
+            $instance = FactModule::fromRequest();
+            abort_unless($instance, 404, 'Instance not found.');
+
+            $this->_instance = $instance;
+            if ($instance->taxonomy) {
+                $this->_taxonomy = $instance->taxonomy;
+            }
+            $this->_period = $instance->periodYmd();
+        }
+
+        return $this->_instance;
+    }
+
+    /** The chosen entity id if it is one of the user's entities (areport-pro), else null. */
+    private function ownedEntityId($id): ?int
+    {
+        $entityCls = \Begicf\AReportPro\Models\DpmEntity::class;
+        if (! $id || ! class_exists($entityCls)) {
+            return null;
+        }
+
+        return $entityCls::query()->whereKey($id)->value('id');
+    }
+
     public function table(Request $request)
     {
 
 
         if ($request->get('view_home')):
 
-            $fact_module = FactModule::query()
-                ->where('id', '=', $request->get('id'))
-                ->where('taxonomy_id', '=', $this->_taxonomy->id)
-                ->firstOrFail();
-            $_groups = json_decode($fact_module->groups);
-            $module_path = $fact_module->module_path;
-            $module_name = $fact_module->module_name;
-            $entity_id = $fact_module->entity_id;
+            // Any of the user's instances opens in its own taxonomy, active or not.
+            $fact_module = FactModule::query()->with('taxonomy')->findOrFail($request->get('id'));
+            $_groups = json_decode($fact_module->groups, true) ?: [];
 
         elseif ($request->get('table')):
 
@@ -73,11 +102,22 @@ class TableController extends Controller
                 return redirect('/modules')->with('warning', 'Please choose at least one valid table group.');
             }
 
-            $module_path = $request->get('module_path');
-            $module_name = $request->get('module_name');
-            $entity_id = $request->get('entity_id');
-
-            Session::flash('groups', $_groups);
+            // The instance exists from the moment it is opened, so every later call
+            // (save, render, validate, export) addresses it by id. Same module, date
+            // and entity in the same taxonomy reopens it with the new table selection.
+            $fact_module = FactModule::updateOrCreate(
+                [
+                    'taxonomy_id' => $this->_taxonomy->id,
+                    'period' => $this->_period,
+                    'module_path' => $this->getNormalizeModule($request->get('module_path')),
+                    'entity_id' => $this->ownedEntityId($request->get('entity_id')),
+                ],
+                [
+                    'module_name' => $request->get('module_name'),
+                    'groups' => json_encode($_groups),
+                ]
+            );
+            $fact_module->load('taxonomy');
 
         else:
 
@@ -85,13 +125,20 @@ class TableController extends Controller
 
         endif;
 
+        $entityCls = \Begicf\AReportPro\Models\DpmEntity::class;
+        $entity = ($fact_module->entity_id && class_exists($entityCls)) ? $entityCls::find($fact_module->entity_id) : null;
+
         return view('table.table', [
 
             'groups' => $_groups,
-            'period' => $this->_period,
-            'mod' => preg_replace('/\\\\/', '\\\\\\\\', $module_path),
-            'module_name' => $module_name,
-            'entity_id' => $entity_id ?? null,
+            'instance_id' => $fact_module->id,
+            'period' => $fact_module->periodYmd(),
+            'mod' => preg_replace('/\\\\/', '\\\\\\\\', $request->get('view_home') ? $fact_module->module_path : $request->get('module_path')),
+            'module_name' => $fact_module->module_name,
+            'entity_id' => $fact_module->entity_id,
+            'entity' => $entity,
+            'taxonomy_name' => $fact_module->taxonomy->name ?? '',
+            'last_saved' => $fact_module->updated_at,
             'group' => $request->get('mod')
         ]);
 
@@ -115,6 +162,8 @@ class TableController extends Controller
     public function renderTable(Request $request)
     {
 
+
+        $this->bindInstance();
 
         $groups_array = json_decode($request->get('group'), true);
 
@@ -166,7 +215,8 @@ class TableController extends Controller
                 $this->getNormalizeModule(request()->get('mod')),
                 $cr_sheet,
                 null,
-                $this->_taxonomy->id
+                $this->_taxonomy->id,
+                $this->bindInstance()?->id
             );
 
         return (request()->get('json')) ? response()->json($data) : $data;
@@ -191,6 +241,7 @@ class TableController extends Controller
 
     public function exportTable(Request $request)
     {
+        $this->bindInstance();
 
         $tax = Data::getTax($request->get('table'));
 
@@ -200,7 +251,8 @@ class TableController extends Controller
             $this->getNormalizeModule($this->getNormalizeModule($request->get('mod'))),
             null,
             true,
-            $this->_taxonomy->id
+            $this->_taxonomy->id,
+            $this->_instance?->id
         );
 
         $additional['period'] = $this->_period;
@@ -304,53 +356,56 @@ class TableController extends Controller
 
     }
 
+    /**
+     * Save the open table sheet of an instance. The form is the full state of the
+     * sheet: changed values are written, cleared ones removed, each change audited.
+     * Answers JSON so the form can show "Saved 10:22" or a real error.
+     */
     public function saveTable(Request $request)
     {
+        $instance = $this->bindInstance();
 
+        if (! $instance) {
+            return response()->json(['ok' => false, 'error' => 'Instance not found. Reopen it from Home.'], 404);
+        }
 
-        $mod = $this->getNormalizeModule($request->get('module'));
+        $changes = 0;
 
-        $this->saveModule();
+        if ($request->get('table_data') && $request->get('tab')):
 
-        if ($request->get('table_data')):
-
-            $tc = $request->get('tab');
-
+            $cr_sheet = '000';
             if (!empty($request->get('sheet'))):
-                $cr_sheet = (json_decode($request->get('sheet'), true))['sheet'];
+                $cr_sheet = (json_decode($request->get('sheet'), true))['sheet'] ?? '000';
             endif;
 
-            $tab = $this->getNormalizeTable($tc);
+            $tab = $this->getNormalizeTable($request->get('tab'));
 
+            $changes = DB::transaction(function () use ($instance, $tab, $cr_sheet, $request) {
+                $fact_header = FactHeader::updateOrCreate(
+                    [
+                        'module_id' => $instance->id,
+                        'table_path' => $tab,
+                    ],
+                    [
+                        'module_id' => $instance->id,
+                        'table_path' => $tab,
+                        'cr_sheet_code_last' => $cr_sheet,
+                    ]
+                );
 
-            $fact_module = FactModule::where(
-                [
-                    ['period', $this->_period],
-                    ['module_path', $mod],
-                    ['taxonomy_id', $this->_taxonomy->id],
-                ]
-            )->first();
+                return FactTable::storeInstance($request->get('table_data'), $fact_header->id, $request->get('sheet'), $fact_header);
+            });
 
-            if (empty($fact_module->id)):
-                throw new \Exception('An error has occurred! Fetching Fact Module! ');
-            endif;
-
-            $fact_header = FactHeader::updateOrCreate(
-
-                [
-                    'module_id' => $fact_module->id,
-                    'table_path' => $tab,
-                ],
-                [
-                    'module_id' => $fact_module->id,
-                    'table_path' => $tab,
-                    'cr_sheet_code_last' => $cr_sheet ?? '000'
-                ]
-
-            );
-
-            FactTable::storeInstance($request->get('table_data'), $fact_header->id, $request->get('sheet'));
+            if ($changes > 0) {
+                $instance->touch();
+            }
         endif;
+
+        return response()->json([
+            'ok' => true,
+            'changes' => $changes,
+            'saved_at' => now()->format('H:i'),
+        ]);
     }
 
     /**
@@ -360,6 +415,8 @@ class TableController extends Controller
      */
     public function validateInstance(Request $request)
     {
+        $this->bindInstance();
+
         $validatorClass = \Begicf\AReportPro\Services\InstanceValidator::class;
         $tableModel = \Begicf\AReportPro\Models\Dpm\DpmTable::class;
         if (! class_exists($validatorClass) || ! class_exists($tableModel)) {
@@ -457,7 +514,7 @@ class TableController extends Controller
                     ->first();
                 $framework = $t?->framework;
             }
-            $cells = FactHeader::getCRData($header->table_path, $module->period, $module->module_path, null, true, $this->_taxonomy->id) ?? [];
+            $cells = FactHeader::getCRData($header->table_path, $module->periodYmd(), $module->module_path, null, true, null, $module->id) ?? [];
             foreach ($cells as $maybeSheet => $rows) {   // $all=true → [sheet][crcode][...]; flatten
                 $rowset = (is_array($rows) && ! isset($rows['integer']) && ! isset($rows['string'])) ? $rows : [$maybeSheet => $rows];
                 foreach ($rowset as $crCode => $vals) {
@@ -489,13 +546,15 @@ class TableController extends Controller
         }
 
         $module = FactModule::query()
-            ->where('taxonomy_id', $this->_taxonomy->id)
             ->when($request->get('id'), fn ($q) => $q->where('id', $request->get('id')))
-            ->when(! $request->get('id') && $request->get('module_path'), fn ($q) => $q->where('module_path', $request->get('module_path')))
-            ->with('factHeader')
+            ->when(! $request->get('id') && $request->get('module_path'), fn ($q) => $q->where('module_path', $request->get('module_path'))->where('taxonomy_id', $this->_taxonomy->id))
+            ->with(['factHeader', 'taxonomy'])
             ->first();
 
         abort_unless($module, 404, 'Instance not found.');
+        if ($module->taxonomy) {
+            $this->_taxonomy = $module->taxonomy;
+        }
 
         /** @var \Begicf\AReportPro\Services\InstanceValidator $validator */
         $validator = app($validatorClass);
@@ -506,7 +565,7 @@ class TableController extends Controller
 
         $meta = [
             'module' => $module->module_name,
-            'period' => $module->period,
+            'period' => $module->periodYmd(),
             'taxonomy' => $this->_taxonomy->name,
             'entity' => $entity?->name,
             'lei' => $entity?->lei,
@@ -533,39 +592,16 @@ class TableController extends Controller
         return view('table.validation-report', compact('meta', 'report', 'error'));
     }
 
-    private function saveModule()
+    /** Cell-level change history of one instance, newest first. */
+    public function history(Request $request)
     {
+        $module = FactModule::query()->with('taxonomy')->findOrFail($request->get('id'));
 
-        $mod = $this->getNormalizeModule(\request('module'));
-        $entityId = \request('entity_id') ?: null;
+        $audits = $module->audits()->with('user:id,name,email')
+            ->orderByDesc('created_at')->orderByDesc('id')
+            ->paginate(100)->withQueryString();
 
-        if (Session::has('groups')):
-            FactModule::updateOrCreate(
-                [
-                    'period' => \request('period'),
-                    'module_path' => $mod,
-                    'taxonomy_id' => $this->_taxonomy->id,
-                ],
-                [
-                    'period' => \request('period'),
-                    'taxonomy_id' => $this->_taxonomy->id,
-                    'entity_id' => $entityId,
-                    'module_name' => \request('module_name'),
-                    'module_path' => $mod,
-                    'groups' => json_encode(Session::get('groups'))
-                ]);
-
-        elseif ($entityId):
-            // Keep the chosen reporting entity on an already-created instance.
-            FactModule::where([
-                ['period', \request('period')],
-                ['module_path', $mod],
-                ['taxonomy_id', $this->_taxonomy->id],
-            ])->update(['entity_id' => $entityId]);
-
-        endif;
-
-
+        return view('table.history', compact('module', 'audits'));
     }
 
 }
