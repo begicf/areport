@@ -15,6 +15,23 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// SEO: only the landing page is meant to be indexed; the workspace sits behind sign-in.
+Route::get('/robots.txt', function () {
+    $body = "User-agent: *\nAllow: /\$\nDisallow: /home\nDisallow: /table\nDisallow: /taxonomy\nDisallow: /modules\nDisallow: /instance\nDisallow: /pro\nDisallow: /password\n\nSitemap: ".url('/sitemap.xml')."\n";
+
+    return response($body, 200, ['Content-Type' => 'text/plain; charset=UTF-8']);
+});
+Route::get('/sitemap.xml', function () {
+    $lastmod = date('Y-m-d', (int) @filemtime(resource_path('views/welcome.blade.php')) ?: time());
+    $urls = [[url('/'), '1.0', 'weekly']];   // sign-in pages are noindex
+    $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n".'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'."\n";
+    foreach ($urls as [$loc, $priority, $freq]) {
+        $xml .= "  <url><loc>".e($loc)."</loc><lastmod>{$lastmod}</lastmod><changefreq>{$freq}</changefreq><priority>{$priority}</priority></url>\n";
+    }
+
+    return response($xml."</urlset>\n", 200, ['Content-Type' => 'application/xml; charset=UTF-8']);
+});
+
 // Public contact form: at most 3 messages per IP in 10 minutes (plus honeypot / timing checks).
 Route::post('/contact', 'Contact\ContactController@store')->middleware('throttle:3,10')->name('contact.store');
 

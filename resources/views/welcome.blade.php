@@ -3,7 +3,64 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ config('app.name', 'AReport') }} — Taxonomy-driven regulatory reporting</title>
+    @php
+        $seoTitle = 'AReport — EBA DPM & XBRL regulatory reporting software (COREP, FINREP, xBRL-CSV)';
+        $seoDesc = 'AReport turns EBA DPM/XBRL taxonomies into reporting forms: enter COREP, FINREP, DORA or MREL data, validate it with DPM-XL rules and Arelle, and export xBRL-CSV and xBRL-XML filings.';
+        $seoImage = asset('images/landing/workspace.png');
+        $faq = [
+            ['What is AReport?', 'AReport is a web application for supervisory reporting with DPM/XBRL taxonomies. It renders the taxonomy tables as data entry forms, stores the reported facts, checks them and exports filing-ready xBRL-CSV and xBRL-XML instances.'],
+            ['Which taxonomies does AReport support?', 'EBA taxonomies built on DPM 1.0 and DPM 2.0 (tested with EBA 4.2 and 4.4) — frameworks such as COREP, FINREP, DORA, MREL, IRRBB, AE and MICA — including open tables, typed dimensions and national extensions.'],
+            ['Which file formats can I export?', 'xBRL-CSV report packages and xBRL-XML instances following the EBA filing rules, plus Excel, PDF and HTML copies of the tables. Exported instances can be checked with Arelle before filing.'],
+            ['How is the data validated?', 'Business rules written in DPM-XL run on the reported data and mark the cells that break a rule directly on the form: red for errors, amber for warnings. A validation report lists every rule with the facts behind it.'],
+            ['Can I build my own taxonomy?', 'Yes, with the private DPM Architect plugin: design frameworks, modules, tables, the data dictionary and validation rules, and generate an XBRL taxonomy package that is checked with Arelle.'],
+            ['Is AReport open source?', 'The core application is on GitHub. The DPM Architect and Validation plugins are private and provided separately — use the contact form to ask about them.'],
+        ];
+    @endphp
+    <title>{{ $seoTitle }}</title>
+    <meta name="description" content="{{ $seoDesc }}">
+    <meta name="keywords" content="EBA reporting, DPM, XBRL, xBRL-CSV, xBRL-XML, COREP, FINREP, DORA, MREL, regulatory reporting software, supervisory reporting, DPM-XL, Arelle, taxonomy, data point model">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <link rel="canonical" href="{{ url('/') }}">
+    <meta name="theme-color" content="#2f557d">
+    <link rel="icon" href="{{ asset('favicon.ico') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('images/logo.svg') }}">
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="AReport">
+    <meta property="og:title" content="{{ $seoTitle }}">
+    <meta property="og:description" content="{{ $seoDesc }}">
+    <meta property="og:url" content="{{ url('/') }}">
+    <meta property="og:image" content="{{ $seoImage }}">
+    <meta property="og:image:alt" content="AReport reporting workspace">
+    <meta property="og:locale" content="en_US">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $seoTitle }}">
+    <meta name="twitter:description" content="{{ $seoDesc }}">
+    <meta name="twitter:image" content="{{ $seoImage }}">
+
+    <script type="application/ld+json">{!! json_encode([
+        '@context' => 'https://schema.org',
+        '@graph' => [
+            [
+                '@type' => 'SoftwareApplication',
+                'name' => 'AReport',
+                'url' => url('/'),
+                'applicationCategory' => 'BusinessApplication',
+                'applicationSubCategory' => 'Regulatory reporting',
+                'operatingSystem' => 'Web',
+                'description' => $seoDesc,
+                'image' => $seoImage,
+                'screenshot' => [asset('images/landing/workspace.png'), asset('images/landing/form.png'), asset('images/landing/architect.png'), asset('images/landing/validation.png')],
+                'featureList' => ['EBA DPM 1.0 and DPM 2.0 taxonomies', 'COREP, FINREP, DORA, MREL reporting forms', 'xBRL-CSV and xBRL-XML export', 'DPM-XL business rule validation', 'Arelle validation of exported instances', 'DPM Architect: taxonomy authoring (private plugin)'],
+                'offers' => ['@type' => 'Offer', 'price' => '0', 'priceCurrency' => 'EUR', 'description' => 'Demo workspace'],
+                'sameAs' => ['https://github.com/begicf/areport'],
+            ],
+            [
+                '@type' => 'FAQPage',
+                'mainEntity' => array_map(fn ($q) => ['@type' => 'Question', 'name' => $q[0], 'acceptedAnswer' => ['@type' => 'Answer', 'text' => $q[1]]], $faq),
+            ],
+        ],
+    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
 
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
@@ -98,6 +155,13 @@
         .step p{margin:0;font-size:.85rem;color:var(--muted)}
 
         /* CTA */
+        .faq{max-width:860px}
+        .faq details{border:1px solid var(--line);border-radius:10px;padding:.85rem 1.1rem;margin-top:.6rem;background:#fff}
+        .faq summary{cursor:pointer;font-weight:600;color:var(--ink);list-style:none;display:flex;justify-content:space-between;gap:1rem}
+        .faq summary::-webkit-details-marker{display:none}
+        .faq summary::after{content:"+";color:var(--blue);font-weight:700}
+        .faq details[open] summary::after{content:"–"}
+        .faq details p{margin:.6rem 0 0;color:var(--muted);font-size:.93rem}
         .cta-band{background:linear-gradient(135deg,#132a44,#2f557d 70%,#356089);color:#fff;border-radius:18px;padding:2.6rem;text-align:center;overflow:hidden;position:relative}
         .cta-band h2{font-size:1.8rem;margin:0 0 .5rem;font-weight:700;letter-spacing:-.01em}
         .cta-band p{color:rgba(255,255,255,.82);margin:0 0 1.4rem}
@@ -150,7 +214,8 @@
             <a href="#features">Features</a>
             <a href="#plugins">Plugins</a>
             <a href="#workflow">Workflow</a>
-            <a href="#contact">Contact</a>
+            <a href="#faq">FAQ</a>
+                <a href="#contact">Contact</a>
             <a target="_blank" href="https://github.com/begicf/areport">GitHub</a>
         </nav>
         <div class="right">
@@ -381,6 +446,19 @@
             .finally(function () { btn.disabled = false; });
     });
 </script>
+
+{{-- ===== FAQ (also in the FAQPage structured data above) ===== --}}
+<section class="pad wrap" id="faq">
+    <div class="sec-head">
+        <span class="eyebrow">FAQ</span>
+        <h2>Questions about EBA DPM / XBRL reporting with AReport</h2>
+    </div>
+    <div class="faq" style="margin:1.6rem auto 0">
+        @foreach($faq as $i => $q)
+            <details @if($i === 0) open @endif><summary>{{ $q[0] }}</summary><p>{{ $q[1] }}</p></details>
+        @endforeach
+    </div>
+</section>
 
 {{-- ===== Final CTA ===== --}}
 <section class="wrap" style="padding-bottom:3.5rem">

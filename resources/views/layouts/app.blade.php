@@ -7,7 +7,10 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Areport') }}</title>
+    <title>@hasSection('title')@yield('title') · @endif{{ config('app.name', 'AReport') }}</title>
+    {{-- Only the landing page is indexed; sign-in pages and the workspace are not. --}}
+    <meta name="robots" content="noindex, follow">
+    <meta name="description" content="AReport — EBA DPM & XBRL regulatory reporting: forms, DPM-XL validation, xBRL-CSV and xBRL-XML export.">
 
     <!-- Scripts -->
     <script src="{{ asset('js/jquerylib.js') }}" ></script>
