@@ -67,6 +67,11 @@
         $rules = collect($report['rules'] ?? []);
         $order = ['failed' => 0, 'indeterminate' => 1, 'not_evaluated' => 2, 'passed' => 3, 'not_applicable' => 4];
         $rules = $rules->sortBy(fn ($r) => [$order[$r['status']] ?? 9, $r['severity'] === 'error' ? 0 : 1, $r['code']])->values();
+        // A module can have tens of thousands of rule variants: list every failure, cap the rest
+        // per status (the CSV has everything).
+        $cap = 300;
+        $hidden = $rules->where('status', '!=', 'failed')->groupBy('status')->map(fn ($g) => max(0, $g->count() - $cap))->filter();
+        $rules = $rules->groupBy('status')->flatMap(fn ($g, $st) => $st === 'failed' ? $g : $g->take($cap))->values();
         $s = $report['summary'] ?? [];
         $errorsFailed = (int) ($s['failed_errors'] ?? 0);
         $warnFailed = (int) ($s['failed_warnings'] ?? 0);
@@ -149,8 +154,8 @@
             <div class="vr-bar">
                 <label>Status
                     <select id="vrStatus">
-                        <option value="actionable">To review (failed + missing data)</option>
-                        <option value="failed">Failed</option>
+                        <option value="failed" @selected(($s['failed'] ?? 0) > 0)>Failed</option>
+                        <option value="actionable" @selected(($s['failed'] ?? 0) === 0)>To review (failed + missing data)</option>
                         <option value="errors">Errors only</option>
                         <option value="indeterminate">Missing data</option>
                         <option value="not_evaluated">Not evaluated</option>
@@ -204,6 +209,13 @@
                     <div class="vr-empty">No validation rules apply to the tables of this instance.</div>
                 @endforelse
             </div>
+            @if($hidden->isNotEmpty())
+                <div class="vr-empty" style="padding:1rem">
+                    Showing the first {{ $cap }} per status.
+                    Not listed: @foreach($hidden as $st => $n){{ $n }} {{ strtolower($statusLabels[$st] ?? $st) }}@if(! $loop->last), @endif @endforeach
+                    — <a href="{{ request()->fullUrlWithQuery(['format' => 'csv']) }}">download the full report (CSV)</a>.
+                </div>
+            @endif
         @endif
     </div>
 @endsection
