@@ -6,7 +6,10 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+/**
+ * A user must confirm their email address before they can sign in (see LoginController).
+ */
+class User extends Authenticatable implements MustVerifyEmail
 {
     use Notifiable;
 

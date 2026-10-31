@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 
 class LoginController extends Controller
 {
@@ -36,5 +39,31 @@ class LoginController extends Controller
     public function __construct()
     {
         $this->middleware('guest')->except('logout');
+    }
+
+    /**
+     * A correct password is not enough: until the email address is verified the user
+     * is signed straight out again and (at most every 5 minutes) sent a verification link.
+     */
+    protected function authenticated(Request $request, $user)
+    {
+        if (! $user instanceof MustVerifyEmail || $user->hasVerifiedEmail()) {
+            return null;
+        }
+
+        $key = 'verification-mail:'.$user->getKey();
+        if (! RateLimiter::tooManyAttempts($key, 1)) {
+            RateLimiter::hit($key, 300);
+            $user->sendEmailVerificationNotification();
+        }
+
+        $this->guard()->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login')
+            ->withInput($request->only($this->username()))
+            ->with('warning', 'Please verify your email address first. We have sent a verification link to '
+                .$user->getEmailForVerification().'; open it, then sign in.');
     }
 }

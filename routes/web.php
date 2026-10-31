@@ -19,7 +19,7 @@ Route::get('/', function () {
 Route::post('/contact', 'Contact\ContactController@store')->middleware('throttle:3,10')->name('contact.store');
 
 
-Auth::routes();
+Auth::routes(['verify' => true]);
 Route::get('/home', 'Areport\HomeController@index')->name('home');
 Route::post('/areport/json', 'Areport\HomeController@json')->name('json');
 
