@@ -51,6 +51,7 @@ Route::group(['prefix' => 'taxonomy', 'middleware' => 'auth'], function () {
     Route::get('/managing', 'Taxonomy\TaxonomyController@managing');
     Route::post('/managing', 'Taxonomy\TaxonomyController@active');
     Route::post('/delete', 'Taxonomy\TaxonomyController@delete');
+    Route::post('/{taxonomy}/package', 'Taxonomy\TaxonomyController@addPackage')->whereNumber('taxonomy')->name('taxonomy.package');
 });
 
 //Modules
