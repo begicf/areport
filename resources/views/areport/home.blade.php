@@ -26,6 +26,22 @@
         .home-open-btn:hover, .home-open-btn:focus { color: #fff; background: var(--blue); border-color: var(--blue);
             box-shadow: 0 1px 4px rgba(47,85,125,.3); }
         .home-open-btn i { font-size: .8rem; }
+        .home-actions { display: inline-flex; gap: .4rem; align-items: center; justify-content: flex-end; }
+        .home-val-btn { width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center;
+            background: #e8f4ee; border: 1px solid #cce6d8; color: #2f8a5a; border-radius: 8px; transition: all .15s ease; }
+        .home-val-btn:hover:not(:disabled) { background: #2f8a5a; border-color: #2f8a5a; color: #fff; box-shadow: 0 1px 4px rgba(47,138,90,.3); }
+        .home-val-btn:disabled { opacity: .4; cursor: not-allowed; background: #f1f3f6; border-color: var(--line); color: var(--faint); }
+        .home-val-btn i { font-size: .8rem; }
+        .mod-val-pills { display: flex; gap: .4rem; flex-wrap: wrap; }
+        .mod-val-pill { font-size: .72rem; font-weight: 700; padding: .12rem .5rem; border-radius: 3px; }
+        .mod-val-pill.ok { background: #dcfce7; color: #166534; } .mod-val-pill.err { background: #fee2e2; color: #b91c1c; }
+        .mod-val-pill.ind { background: #fef3c7; color: #b45309; } .mod-val-pill.mut { background: #f1f5f9; color: #64748b; }
+        .mod-val-list { max-height: 48vh; overflow: auto; border: 1px solid var(--line); border-radius: 8px; }
+        .mod-val-fail { padding: .45rem .6rem; border-bottom: 1px solid #f1f3f6; font-size: .8rem; }
+        .mod-val-fail code { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; padding: 0 .3rem; border-radius: 3px; font-size: .72rem; }
+        .mod-val-facts { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .25rem; }
+        .mod-val-facts span { font-size: .72rem; background: #f8fafc; border: 1px solid var(--line); padding: .05rem .4rem; border-radius: 3px; }
+        .mod-val-err { color: #b91c1c; font-size: .85rem; } .mod-val-okmsg { color: #16a34a; } .mod-val-note { color: #b45309; font-size: .82rem; }
 
         .home-dashboard .fixed-table-pagination { padding: .7rem 1.1rem; font-size: .78rem; }
         .home-dashboard .pagination .page-link { border-radius: 7px !important; border: 1px solid var(--line); margin: 0 .12rem; color: #52606d; }
@@ -99,6 +115,21 @@
             </table>
         </section>
     </div>
+
+    <div class="modal fade app-modal-shell" id="moduleValidation" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <span class="ax-eyebrow"><i class="fas fa-circle-check"></i> Module validation</span>
+                        <h4 class="modal-title mb-0" id="modValTitle">Validation</h4>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modValBody"></div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -161,13 +192,55 @@
             return "<div>" + badge + "<span class='home-path' title='" + escapeHtml(value || '-') + "'>" + escapeHtml(value || '-') + "</span></div>";
         }
 
+        const validationAvailable = @json(Route::has('areport-pro.dpm-model.index'));
+
         function actionOpen(value, row) {
-            return "<form method='POST' action='{{ url('/table') }}' class='home-open-form'>" +
+            const valBtn = validationAvailable
+                ? "<button type='button' class='btn home-val-btn' title='Validate module' aria-label='Validate module' onclick='validateModule(" + escapeHtml(row.id || '') + ")'><i class='fas fa-circle-check'></i></button>"
+                : "<button type='button' class='btn home-val-btn' title='Validation plugin not installed' aria-label='Validate (unavailable)' disabled><i class='fas fa-circle-check'></i></button>";
+            return "<div class='home-actions'>" + valBtn +
+                "<form method='POST' action='{{ url('/table') }}' class='home-open-form'>" +
                 "<input type='hidden' name='_token' value='{{ csrf_token() }}'>" +
                 "<input type='hidden' name='period' value='" + escapeHtml(row.period || '') + "'>" +
                 "<input type='hidden' name='id' value='" + escapeHtml(row.id || '') + "'>" +
                 "<button name='view_home' value='true' class='btn home-open-btn' type='submit' title='Open' aria-label='Open'>" +
-                "<i class='fas fa-up-right-from-square' aria-hidden='true'></i></button></form>";
+                "<i class='fas fa-up-right-from-square' aria-hidden='true'></i></button></form></div>";
+        }
+
+        function validateModule(id) {
+            const box = document.getElementById('modValBody');
+            document.getElementById('modValTitle').textContent = 'Validating module…';
+            box.innerHTML = '<div class="dpm-loading">Running validation…</div>';
+            window.appModal ? window.appModal.show('moduleValidation') : $('#moduleValidation').modal('show');
+            $.ajax({
+                method: 'POST', url: '/table/validate-module', dataType: 'json',
+                data: { _token: '{{ csrf_token() }}', id: id }
+            }).done(function (d) {
+                if (!d.ok) { document.getElementById('modValTitle').textContent = 'Validation'; box.innerHTML = '<div class="mod-val-err">' + escapeHtml(d.error || 'Validation failed.') + '</div>'; return; }
+                const s = d.summary || {};
+                document.getElementById('modValTitle').textContent = escapeHtml(d.module || 'Module') + ' — ' + d.tables + ' table(s)';
+                let html = '<div class="mod-val-pills">'
+                    + '<span class="mod-val-pill ok">' + (s.passed || 0) + ' passed</span>'
+                    + '<span class="mod-val-pill err">' + (s.failed || 0) + ' failed</span>'
+                    + '<span class="mod-val-pill ind">' + (s.indeterminate || 0) + ' indeterminate</span>'
+                    + '<span class="mod-val-pill mut">' + (s.unsupported || 0) + ' unsupported</span>'
+                    + '</div><div class="text-muted small mt-1">' + (d.values || 0) + ' values · ' + (s.total || 0) + ' rules</div>';
+                if ((d.failed || []).length) {
+                    html += '<div class="mod-val-list mt-2">' + d.failed.map(function (f) {
+                        return '<div class="mod-val-fail"><b>' + escapeHtml(f.code) + '</b> <code>' + escapeHtml(f.rule || '') + '</code>'
+                            + '<div class="mod-val-facts">' + (f.facts || []).map(function (x) { return '<span>' + escapeHtml(x.cell) + ' = ' + escapeHtml(x.value === null ? '∅' : x.value) + '</span>'; }).join('') + '</div></div>';
+                    }).join('') + '</div>';
+                } else if (d.note) {
+                    html += '<div class="mod-val-note mt-2">' + escapeHtml(d.note) + '</div>';
+                } else {
+                    html += '<div class="mod-val-okmsg mt-2"><i class="fas fa-check"></i> No rule violations.</div>';
+                }
+                box.innerHTML = html;
+            }).fail(function (xhr) {
+                document.getElementById('modValTitle').textContent = 'Validation';
+                const e = (xhr.responseJSON && xhr.responseJSON.error) || 'Validation request failed.';
+                box.innerHTML = '<div class="mod-val-err">' + escapeHtml(e) + '</div>';
+            });
         }
 
         function ajaxRequest(params) {
