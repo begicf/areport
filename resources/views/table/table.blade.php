@@ -88,6 +88,23 @@
         .rib-settings i { color: #6b7280; }
         .rib-settings:hover { background: #f1f3f6; border-color: #e2e6eb; }
         .report-unit { margin-left: auto; font-size: .7rem; color: var(--faint); white-space: nowrap; }
+        /* One line above the table: title · table group · sheet / key · units (right edge). */
+        .app-report-toolbar.app-report-toolbar-tight { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem .9rem; margin: 0 0 .55rem; }
+        .app-report-toolbar-tight .report-title { flex: 0 1 auto; max-width: 48%; }
+        .app-report-toolbar-tight .app-report-groupbar { flex: 0 0 auto; gap: .3rem; }
+        .app-report-toolbar-tight .app-report-groupbar .btn { padding: .2rem .55rem; font-size: .74rem; }
+        .app-report-toolbar-tight .app-report-sheets { flex: 0 1 auto; min-width: 0; }
+        .app-report-toolbar-tight .app-report-sheets > * { width: auto; }
+        .app-report-toolbar-tight .app-report-sheets select { max-width: 340px; }
+        .app-report-toolbar-tight .app-typed-sheet { flex-wrap: nowrap; }
+        .app-report-toolbar-tight .app-report-groupbar:empty, .app-report-toolbar-tight .app-report-sheets:empty { display: none; }
+        /* The table as wide as its content (no stretching to the panel), cells sized by what they hold. */
+        .app-report-table-shell table, .app-report-table-shell .xbrl_table { min-width: 0 !important; width: auto !important; }
+        .app-report-table-shell #table_form { min-width: 0; }
+        #table_form td.xbrl-td { min-width: 7.5rem; }
+        #table_form td:has(> .xbrl-input-text), #table_form td:has(> textarea) { min-width: 16rem; }
+        #table_form td:has(> .xbrl-select) { min-width: 11rem; }
+        #table_form td:has(> .xbrl-input-open) { min-width: 10rem; }
         .report-unit b { color: #52606d; font-weight: 600; }
         .ribbon .dropdown-item small { display: block; font-size: .68rem; color: var(--faint); margin-left: 1.45rem; margin-top: -.1rem; }
         .ribbon .dropdown-header { font-size: .62rem; letter-spacing: .07em; text-transform: uppercase; }
@@ -1365,11 +1382,30 @@
             formData.append('rowspanmax', $(".xbrl-title").prop("rowSpan"));
             formData.append('typ_table', aspectNode);
             formData.append('table_code', tableCode);
+            // An xBRL-XML instance is matched to the open table and sheet by data point.
+            formData.append('tab', $('#export_table_path').val() || '');
+            formData.append('sheet', $('#sheets').find(':selected').val() || '');
+            const importInput = this.querySelector('#fileToUpload');
             $.ajax({
                 type: "post",
                 url: '/table/import',
                 data: formData, /* serializes the form's elements. */
                 success: function (data) {
+                    if (importInput) importInput.value = '';
+
+                    if (data && data.ext === 'xbrl') {
+                        let filled = 0;
+                        for (const cell in (data.file || {})) {
+                            const input = document.getElementById(cell);
+                            if (input) { $(input).val(data.file[cell]); filled++; }
+                        }
+                        const s = data.summary || {};
+                        let message = filled + ' of ' + (s.facts || 0) + ' facts in the instance were filled into this table.';
+                        if (s.typed) message += ' ' + s.typed + ' facts with typed (open) keys were not imported.';
+                        if (filled) markDirty();
+                        window.alert(message);
+                        return;
+                    }
 
                     if (aspectNode == true) {
                         console.log(data['file']['row']);
@@ -1385,8 +1421,10 @@
                     }
                     markDirty();
                 },
-                error: function () {
-                    window.alert('Unable to import the selected file. Please verify the file and try again.');
+                error: function (xhr) {
+                    if (importInput) importInput.value = '';
+                    const reason = xhr && xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.message;
+                    window.alert(reason || 'Unable to import the selected file. Please verify the file and try again.');
                 },
                 complete: function () {
                     hidePleaseWait();
