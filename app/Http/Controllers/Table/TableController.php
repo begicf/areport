@@ -422,6 +422,72 @@ class TableController extends Controller
      * cell values, run this table's DPM-XL rules (via the shared InstanceValidator),
      * and return the failing cells so the form can highlight exactly what to fix.
      */
+    /**
+     * Values already entered in this instance for an open-row or typed-sheet key, so a
+     * reporter reuses the same identifier across tables (the counterparty code from
+     * C 27.00 in C 28.00, C 29.00…). Same dimension first, then other keys of the same
+     * typed domain (e.g. a group code). Each value carries a label from its row — the
+     * first text value next to it (the counterparty's name) — and the table it is from.
+     */
+    public function keySuggestions(Request $request)
+    {
+        $instance = $this->bindInstance();
+        $dimension = (string) $request->get('dimension');
+        $typ = (string) $request->get('typ');
+        if (! $instance || $dimension === '') {
+            return response()->json(['items' => []]);
+        }
+
+        $headers = FactHeader::query()->where('module_id', $instance->id)->pluck('table_path', 'id');
+        $keyRows = FactTable::query()->whereIn('fact_header_id', $headers->keys())
+            ->where(function ($q) use ($dimension, $typ) {
+                $q->where('xbrl_context_key_raw', 'like', '%'.json_encode($dimension).':"*"%');
+                if ($typ !== '') {
+                    $q->orWhere('xbrl_context_key_raw', 'like', '%"typ":'.json_encode($typ).'%');
+                }
+            })
+            ->whereNull('metric')->whereNotNull('string_value')->where('string_value', '!=', '')
+            ->get(['fact_header_id', 'cr_code', 'cr_sheet_code', 'string_value', 'xbrl_context_key_raw']);
+
+        // Labels: the first text value on the same row of the same table and sheet.
+        $siblings = FactTable::query()->whereIn('fact_header_id', $keyRows->pluck('fact_header_id')->unique())
+            ->whereNotNull('metric')->whereNotNull('string_value')
+            ->get(['fact_header_id', 'cr_code', 'cr_sheet_code', 'string_value'])
+            ->filter(fn ($f) => ! is_numeric($f->string_value)
+                && ! preg_match('/^[A-Za-z_][\w.-]*:[\w.-]+$/', (string) $f->string_value)        // a member (QName)
+                && ! in_array(strtolower(trim((string) $f->string_value)), ['true', 'false'], true)  // a flag
+                && ! preg_match('/^\d{4}-\d{2}-\d{2}$/', trim((string) $f->string_value)))       // a date
+            ->sortBy('cr_code')
+            ->groupBy(fn ($f) => $f->fact_header_id.'|'.$f->cr_sheet_code.'|'.(preg_match('/r(\d+)$/', $f->cr_code, $m) ? $m[1] : ''));
+
+        $items = [];
+        foreach ($keyRows as $row) {
+            $raw = json_decode((string) $row->xbrl_context_key_raw, true) ?: [];
+            $same = ($raw[$dimension] ?? null) === '*';
+            $value = trim((string) $row->string_value);
+            $rowNo = preg_match('/r(\d+)$/', $row->cr_code, $m) ? $m[1] : '';
+            $label = optional($siblings->get($row->fact_header_id.'|'.$row->cr_sheet_code.'|'.$rowNo)?->first())->string_value;
+            $table = strtoupper(basename(dirname((string) ($headers[$row->fact_header_id] ?? ''))));
+            $prev = $items[$value] ?? null;
+            if (! $prev || ($same && ! $prev['same']) || (! $prev['label'] && $label)) {
+                $items[$value] = ['value' => $value, 'label' => $label ?: ($prev['label'] ?? null), 'table' => $table, 'same' => $same || ($prev['same'] ?? false)];
+            }
+        }
+
+        // Keys of typed z-axis sheets (sheet code k:<value>).
+        foreach (FactTable::query()->whereIn('fact_header_id', $headers->keys())->where('cr_sheet_code', 'like', 'k:%')
+            ->where('xbrl_context_key_raw', 'like', '%'.json_encode($dimension).':{%')
+            ->distinct()->pluck('cr_sheet_code', 'fact_header_id') as $hid => $code) {
+            $value = substr((string) $code, 2);
+            $items[$value] ??= ['value' => $value, 'label' => null, 'table' => strtoupper(basename(dirname((string) ($headers[$hid] ?? '')))), 'same' => true];
+        }
+
+        $items = array_values($items);
+        usort($items, fn ($a, $b) => [$b['same'], $a['value']] <=> [$a['same'], $b['value']]);
+
+        return response()->json(['items' => array_slice($items, 0, 500)]);
+    }
+
     public function validateInstance(Request $request)
     {
         $this->bindInstance();

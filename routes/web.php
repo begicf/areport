@@ -51,6 +51,7 @@ Route::group(['prefix' => 'table', 'middleware' => 'auth'], function () {
     Route::post('/save', 'Table\TableController@saveTable');
     Route::post('/get_data', 'Table\TableController@getData');
     Route::post('/validate', 'Table\TableController@validateInstance');
+    Route::get('/key-suggestions', 'Table\TableController@keySuggestions');
     Route::get('/validation-report', 'Table\TableController@validationReport')->name('validation.report');
     Route::get('/history', 'Table\TableController@history')->name('instance.history');
     Route::get('/open', 'Table\TableController@open')->name('instance.open');
