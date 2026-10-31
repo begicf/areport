@@ -103,6 +103,16 @@
         .pf-item.error { background: #fdecec; border-color: #f6cdcd; color: #991b1b; }
         .pf-item.warning { background: #fff7ed; border-color: #fed7aa; color: #9a3412; }
         .pf-ok { background: #e8f6ee; border: 1px solid #cce6d8; color: #166534; border-radius: 8px; padding: .55rem .7rem; font-size: .82rem; }
+        .arl-sum { border-radius: 8px; padding: .55rem .7rem; font-size: .82rem; border: 1px solid; }
+        .arl-sum span { color: #64748b; font-size: .74rem; }
+        .arl-sum.ok { background: #e8f6ee; border-color: #cce6d8; color: #166534; }
+        .arl-sum.warning { background: #fff7ed; border-color: #fed7aa; color: #9a3412; }
+        .arl-sum.error { background: #fdecec; border-color: #f6cdcd; color: #991b1b; }
+        .arl-list { list-style: none; padding: 0; margin: .5rem 0 0; max-height: 280px; overflow: auto; display: flex; flex-direction: column; gap: .3rem; }
+        .arl-list li { font-size: .74rem; padding: .35rem .5rem; border-radius: 6px; border: 1px solid var(--line); display: flex; flex-direction: column; gap: .1rem; word-break: break-word; }
+        .arl-list li.error { background: #fdecec; border-color: #f6cdcd; }
+        .arl-list li.warning { background: #fff7ed; border-color: #fed7aa; }
+        .arl-list code { font-size: .68rem; color: #52606d; }
         .pf-package { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .72rem; word-break: break-all; color: #52606d; margin-top: .6rem; }
         /* Table list beside the grid */
         .report-body { display: flex; gap: .6rem; align-items: flex-start; }
@@ -400,6 +410,9 @@
                 <div class="modal-body" id="exportCheckBody"></div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" id="exportCheckSettings">Open settings</button>
+                    @if(class_exists(\Begicf\AReportPro\Services\ArelleValidator::class) && \Begicf\AReportPro\Services\ArelleValidator::available())
+                        <button type="button" class="btn btn-outline-primary" id="exportCheckArelle" title="Validate the exported file with Arelle (XBRL 2.1, dimensions, data types)"><i class="fas fa-shield-halved"></i> Validate with Arelle</button>
+                    @endif
                     <button type="button" class="btn btn-primary" id="exportCheckGo">Download</button>
                 </div>
             </div>
@@ -1244,6 +1257,34 @@
             form.action = pendingExport === 'xml' ? '/instance/export' : '/instance/export-csv';
             form.submit();
             window.appModal.hide('exportCheck');
+        });
+
+        // Validate the file the export would produce with Arelle (offline, local taxonomy).
+        $('#exportCheckArelle').on('click', function () {
+            const btn = this, body = document.getElementById('exportCheckBody');
+            $('#arelleResult').remove();
+            const box = document.createElement('div');
+            box.id = 'arelleResult';
+            box.className = 'arl-box mt-3';
+            box.innerHTML = '<div class="dpm-loading">Arelle is validating the ' + (pendingExport === 'xml' ? 'xBRL-XML instance' : 'xBRL-CSV package') + '…</div>';
+            body.appendChild(box);
+            btn.disabled = true;
+            axios.post('/instance/arelle', { instance_id: instanceId, format: pendingExport }).then(function (response) {
+                const d = response.data || {};
+                const issues = (d.messages || []).filter(function (m) { return m.level !== 'info'; });
+                const cls = d.errors ? 'error' : (d.warnings ? 'warning' : 'ok');
+                let html = '<div class="arl-sum ' + cls + '"><i class="fas ' + (d.errors ? 'fa-circle-xmark' : d.warnings ? 'fa-triangle-exclamation' : 'fa-circle-check') + '"></i> '
+                    + '<b>Arelle: ' + (d.errors ? d.errors + ' error' + (d.errors === 1 ? '' : 's') : 'valid XBRL') + (d.warnings ? ', ' + d.warnings + ' warning' + (d.warnings === 1 ? '' : 's') : '') + '</b>'
+                    + ' <span>· ' + d.seconds + ' s</span></div>';
+                if (issues.length) {
+                    html += '<ul class="arl-list">' + issues.map(function (m) {
+                        return '<li class="' + escapeInspectorHtml(m.level) + '"><code>' + escapeInspectorHtml(m.code) + '</code><span>' + escapeInspectorHtml(m.text) + '</span></li>';
+                    }).join('') + '</ul>';
+                }
+                box.innerHTML = html;
+            }).catch(function (error) {
+                box.innerHTML = '<span class="dpm-val-err">' + escapeValHtml(getRequestErrorMessage(error, 'Arelle validation failed.')) + '</span>';
+            }).finally(function () { btn.disabled = false; });
         });
 
         $('#exportCheckSettings').on('click', function () {
