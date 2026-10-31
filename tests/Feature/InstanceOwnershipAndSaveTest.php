@@ -70,6 +70,27 @@ class InstanceOwnershipAndSaveTest extends TestCase
         $this->assertSame(0, FactTable::query()->count());
     }
 
+    public function testTheSharedDemoUsersInstancesAreVisibleToEveryone(): void
+    {
+        $tax = $this->taxonomy('eba44', true);
+        $demo = $this->user('demo@example.com');
+        $alice = $this->user('alice@example.com');
+        $bob = $this->user('bob@example.com');
+        $demoInstance = $this->instanceFor($demo, $tax);
+        $aliceInstance = $this->instanceFor($alice, $tax);
+        $bobInstance = $this->instanceFor($bob, $tax);
+
+        config(['areport.demo.shared_user_id' => $demo->id]);
+
+        $rows = $this->actingAs($alice)->postJson('/areport/json')->assertOk()->json('rows');
+        $ids = array_column($rows, 'id');
+        sort($ids);
+        $this->assertSame([$demoInstance->id, $aliceInstance->id], $ids);
+
+        // Other users' own instances stay private.
+        $this->actingAs($alice)->get('/table/history?id='.$bobInstance->id)->assertNotFound();
+    }
+
     public function testInstancesOfANonActiveTaxonomyStayListed(): void
     {
         $this->taxonomy('eba40', true);

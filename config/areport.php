@@ -56,4 +56,19 @@ return [
         'min_seconds' => (int) env('AREPORT_CONTACT_MIN_SECONDS', 4),
         'max_links' => (int) env('AREPORT_CONTACT_MAX_LINKS', 2),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Public demo
+    |--------------------------------------------------------------------------
+    |
+    | On a shared demo server, the instances (and areport-pro entities) of this
+    | user are visible to every signed-in user, next to their own. Leave empty
+    | in production: each user then sees only what they created.
+    |
+    */
+
+    'demo' => [
+        'shared_user_id' => ((int) env('AREPORT_DEMO_SHARED_USER_ID', 0)) ?: null,
+    ],
 ];

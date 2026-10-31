@@ -35,13 +35,14 @@ class FactModule extends Model
 
     /**
      * An instance belongs to the user who created it: every query made for a signed-in
-     * user only sees that user's instances, and new instances are stamped with the owner.
+     * user only sees that user's instances (plus the shared demo user's, when
+     * areport.demo.shared_user_id is set), and new instances are stamped with the owner.
      */
     protected static function booted(): void
     {
         static::addGlobalScope('owner', function (Builder $query) {
             if (Auth::check()) {
-                $query->where($query->getModel()->getTable() . '.user_id', Auth::id());
+                $query->whereIn($query->getModel()->getTable() . '.user_id', static::visibleOwnerIds());
             }
         });
 
@@ -50,6 +51,12 @@ class FactModule extends Model
                 $module->user_id = Auth::id();
             }
         });
+    }
+
+    /** Owners whose instances the signed-in user sees: themselves and the shared demo user. */
+    public static function visibleOwnerIds(): array
+    {
+        return array_values(array_unique(array_filter([Auth::id(), config('areport.demo.shared_user_id')])));
     }
 
     /** The signed-in user's instance named by the request's instance_id, with its taxonomy. */
