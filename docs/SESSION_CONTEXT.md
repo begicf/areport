@@ -103,8 +103,17 @@ Stavke 1–10 i UI: Završeno; Postavke: U radu; stavka 11 (DPM 2.0 model): Otvo
 - Biblioteka: `Normalise::resolveHref` (apsolutni href → lokalni root), naziv tabele s `_EXT` sufiksom.
 - Fix: close/open ćelije čitao Response umjesto JSON-a; `destroyTable` briše i zatvorene ćelije; authored mreža prikazuje zatvorene ćelije + meni close/open.
 
+### Sprint 6 — refaktorisanje rječnika (2026-10-31, na zahtjev korisnika)
+- Model: hijerarhija pripada domeni (ili metrikama), identifikuje je role URI (verzije koegzistiraju); čvor = član/metrika + roditelj, redoslijed, predznak (±1 iz hier-cal), abstract. Enum metrika ima `domain_id` + `hierarchy_id`. Migracija `2026_10_31_000007`.
+- Import: svi `hier-def.xml` uklj. verzionisane → 1.885 hijerarhija (prije 556); članovi preko mem.xsd na koji lokator pokazuje; 272/273 enum metrike vezane.
+- `/pro/dictionary` (`DpmDictionaryController`, `dictionary/index.blade.php`): Domains (Members / Hierarchies / Used by), Dimensions (picker domene), Metrics (tip; enumeration → domena + hijerarhija), editor stabla hijerarhije (dodaj članove, pomjeri, uvuci, predznak, abstract; EBA → „Copy as own“). Forme u panelima, EBA read-only. Stari pregled/modal rječnika u Architectu uklonjen; toolbar vodi na novu stranicu.
+- Korisnik: baza nema bitnih podataka — slobodno refaktorisati/brisati/re-importovati.
+
+### Nedovršeno (necommitovano u areport-pro)
+- Generisanje modula: `DpmModuleGenerator` (mod xsd/pre/lab/json, tab.xsd, fws.xsd, taxonomy package), data pointi po ćeliji (`dpm_data_points.signature`, migracija `000006` već pokrenuta), JSON tabele u `DpmTaxonomyGenerator`, EBA dp u `Dpm2TableAdopter`. Netestirano — nastaviti nakon UI popravki.
+
 ### Posljednji commitovi
-- `areport-pro` 121db41 (DPM 2.0 u Architectu), 2932a21 (generator taksonomije) — pushano
+- `areport-pro` 121db41 (DPM 2.0 u Architectu), 2932a21 (generator taksonomije), 01fd60b (rječnik) — pushano
 - `areport` b7017d2 — test faktorizacije hiperkocki — pushano
 - `areport-dpm-xbrl` 59f460a — resolveHref — pushano
 - `dpm-xl-service` 08a5e33 — `where` / `group by`
