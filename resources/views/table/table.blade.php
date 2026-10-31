@@ -93,7 +93,7 @@
         .app-report-toolbar-tight .report-title { flex: 0 1 auto; max-width: 48%; }
         .app-report-toolbar-tight .app-report-groupbar { flex: 0 0 auto; gap: .3rem; }
         #button_group > div { display: flex; gap: .25rem; }
-        #button_group .btn { padding: .12rem .5rem !important; font-size: .72rem !important; min-height: 0 !important; line-height: 1.35; border-radius: 5px; box-shadow: none !important; }
+        #button_group .btn { padding: .12rem .5rem !important; font-size: .72rem !important; min-height: 0 !important; line-height: 1.35; border-radius: 0 !important; box-shadow: none !important; }
         .app-report-toolbar-tight .app-report-sheets { flex: 0 1 auto; min-width: 0; }
         .app-report-toolbar-tight .app-report-sheets > * { width: auto; }
         .app-report-toolbar-tight .app-report-sheets select { max-width: 340px; }
