@@ -72,4 +72,16 @@ class AuthoredGridLayoutTest extends TestCase
         $this->assertSame(['010', '020'], $this->rcRow($html));
         $this->assertStringNotContainsString('gh-own', $html);
     }
+
+    public function testCellsCanCarryTheirVariable(): void
+    {
+        if (! class_exists(\Begicf\AReportPro\Services\GridRenderer::class)) {
+            $this->markTestSkipped('areport-pro is not installed.');
+        }
+        $html = \Begicf\AReportPro\Services\GridRenderer::render('T', [$this->col(1, null, 0, 'Amount', '0010')], [$this->col(2, null, 0, 'Assets', '0010')], [],
+            fn ($row, $col) => ['class' => 'd2-cell', 'attrs' => ' data-vid="42"', 'html' => 'dp7'], false);
+
+        $this->assertStringContainsString('<td class="dpm-wy-cell d2-cell" data-vid="42">dp7</td>', $html);
+        $this->assertStringNotContainsString('right-click to add', $html);   // read-only grid
+    }
 }
