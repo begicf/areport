@@ -435,40 +435,14 @@ class TableController extends Controller
         ]);
     }
 
-    /**
-     * Validate a whole saved module instance (all its tables) with the DPM-XL
-     * rules — used from the Home registry. Requires the areport-pro validation
-     * plugin and a running DPM-XL service.
-     */
-    public function validateModule(Request $request)
+    /** Build t<table>,r,c → value for a whole saved module + resolve its framework/codes. */
+    private function moduleCellValues(FactModule $module): array
     {
-        $validatorClass = \Begicf\AReportPro\Services\InstanceValidator::class;
         $tableModel = \Begicf\AReportPro\Models\Dpm\DpmTable::class;
-        if (! class_exists($validatorClass) || ! class_exists($tableModel)) {
-            return response()->json(['ok' => false, 'error' => 'The validation plugin is not installed.'], 422);
-        }
-
-        $module = FactModule::query()
-            ->where('taxonomy_id', $this->_taxonomy->id)
-            ->when($request->get('id'), fn ($q) => $q->where('id', $request->get('id')))
-            ->when(! $request->get('id') && $request->get('module_path'), fn ($q) => $q->where('module_path', $request->get('module_path')))
-            ->with('factHeader')
-            ->first();
-
-        if (! $module) {
-            return response()->json(['ok' => false, 'error' => 'Instance not found.'], 404);
-        }
-
-        /** @var \Begicf\AReportPro\Services\InstanceValidator $validator */
-        $validator = app($validatorClass);
-        if (! $validator->available()) {
-            return response()->json(['ok' => false, 'error' => 'DPM-XL service is offline — start it to run validation.'], 422);
-        }
-
-        // Build t<table>,r,c → value across every table in the module from saved data.
         $cellValues = [];
         $codes = [];
         $framework = null;
+
         foreach ($module->factHeader as $header) {
             $tcode = strtolower(pathinfo((string) $header->table_path, PATHINFO_FILENAME));
             if ($tcode === '') {
@@ -476,16 +450,15 @@ class TableController extends Controller
             }
             $codes[$tcode] = true;
             if (! $framework) {
-                // Resolve the table's framework — prefer the active taxonomy, else any
-                // taxonomy that defines this table (that's where its rules live).
+                // Prefer the active taxonomy, else any taxonomy defining this table
+                // (that's where its rules live).
                 $t = $tableModel::query()->whereRaw('LOWER(code) = ?', [$tcode])
                     ->orderByRaw('CASE WHEN taxonomy_id = ? THEN 0 ELSE 1 END', [$this->_taxonomy->id])
                     ->first();
                 $framework = $t?->framework;
             }
             $cells = FactHeader::getCRData($header->table_path, $module->period, $module->module_path, null, true, $this->_taxonomy->id) ?? [];
-            // getCRData with $all=true is sheet-keyed: [sheet][crcode][...]; flatten.
-            foreach ($cells as $maybeSheet => $rows) {
+            foreach ($cells as $maybeSheet => $rows) {   // $all=true → [sheet][crcode][...]; flatten
                 $rowset = (is_array($rows) && ! isset($rows['integer']) && ! isset($rows['string'])) ? $rows : [$maybeSheet => $rows];
                 foreach ($rowset as $crCode => $vals) {
                     if (! is_string($crCode) || ! preg_match('/^c([^r]+)r(.+)$/i', $crCode, $m)) {
@@ -495,37 +468,69 @@ class TableController extends Controller
                     if ($v === '' || $v === null) {
                         continue;
                     }
-                    $key = 't'.$tcode.',r'.strtolower($m[2]).',c'.strtolower($m[1]);
-                    $cellValues[$key] = is_numeric($v) ? ($v + 0) : $v;
+                    $cellValues['t'.$tcode.',r'.strtolower($m[2]).',c'.strtolower($m[1])] = is_numeric($v) ? ($v + 0) : $v;
                 }
             }
         }
 
-        if (! $framework) {
-            return response()->json(['ok' => false, 'error' => 'No DPM framework found for this module.'], 422);
-        }
-        if (empty($cellValues)) {
-            return response()->json(['ok' => false, 'error' => 'This instance has no saved values to validate.'], 422);
+        return ['cells' => $cellValues, 'codes' => array_keys($codes), 'framework' => $framework];
+    }
+
+    /**
+     * Full validation report for a whole saved module instance — a dedicated page
+     * listing every rule (passed / failed / indeterminate / unsupported) and the
+     * cross-table checks, for the filer. Requires the areport-pro plugin + DPM-XL.
+     */
+    public function validationReport(Request $request)
+    {
+        $validatorClass = \Begicf\AReportPro\Services\InstanceValidator::class;
+        if (! class_exists($validatorClass)) {
+            abort(404, 'The validation plugin is not installed.');
         }
 
-        $result = $validator->validate($framework, $cellValues, array_keys($codes));
-        if (isset($result['error'])) {
-            return response()->json(['ok' => false, 'error' => $result['error']], 422);
-        }
+        $module = FactModule::query()
+            ->where('taxonomy_id', $this->_taxonomy->id)
+            ->when($request->get('id'), fn ($q) => $q->where('id', $request->get('id')))
+            ->when(! $request->get('id') && $request->get('module_path'), fn ($q) => $q->where('module_path', $request->get('module_path')))
+            ->with('factHeader')
+            ->first();
 
-        $note = ((int) ($result['summary']['total'] ?? 0) === 0)
-            ? 'No validation rules are defined for these tables in the active taxonomy ('.$this->_taxonomy->folder.').'
-            : null;
+        abort_unless($module, 404, 'Instance not found.');
 
-        return response()->json([
-            'ok' => true,
+        /** @var \Begicf\AReportPro\Services\InstanceValidator $validator */
+        $validator = app($validatorClass);
+
+        $built = $this->moduleCellValues($module);
+        $entityCls = \Begicf\AReportPro\Models\DpmEntity::class;
+        $entity = ($module->entity_id && class_exists($entityCls)) ? $entityCls::find($module->entity_id) : null;
+
+        $meta = [
             'module' => $module->module_name,
-            'tables' => count($codes),
-            'values' => count($cellValues),
-            'summary' => $result['summary'],
-            'failed' => $result['failed'],
-            'note' => $note,
-        ]);
+            'period' => $module->period,
+            'taxonomy' => $this->_taxonomy->name,
+            'entity' => $entity?->name,
+            'lei' => $entity?->lei,
+            'tables' => count($built['codes']),
+            'values' => count($built['cells']),
+            'generated' => now()->format('d M Y, H:i'),
+        ];
+
+        $report = ['summary' => [], 'rules' => []];
+        $error = null;
+        if (! $validator->available()) {
+            $error = 'DPM-XL service is offline — start it to run validation.';
+        } elseif (! $built['framework']) {
+            $error = 'No DPM framework found for this module.';
+        } elseif (empty($built['cells'])) {
+            $error = 'This instance has no saved values to validate.';
+        } else {
+            $report = $validator->report($built['framework'], $built['cells'], $built['codes']);
+            if (isset($report['error'])) {
+                $error = $report['error'];
+            }
+        }
+
+        return view('table.validation-report', compact('meta', 'report', 'error'));
     }
 
     private function saveModule()
