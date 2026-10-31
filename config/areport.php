@@ -70,5 +70,10 @@ return [
 
     'demo' => [
         'shared_user_id' => ((int) env('AREPORT_DEMO_SHARED_USER_ID', 0)) ?: null,
+        // Visitors can look, validate and export, but not change the shared workspace
+        // (taxonomies, settings, the DPM Architect model) or the shared reports.
+        'read_only' => (bool) env('AREPORT_DEMO_READONLY', true),
+        // E-mail addresses that may still change everything on the demo server.
+        'admins' => array_filter(array_map(fn ($e) => strtolower(trim($e)), explode(',', (string) env('AREPORT_DEMO_ADMINS', '')))),
     ],
 ];

@@ -87,6 +87,10 @@
         .save-status.is-error { color: #dc2626; cursor: pointer; text-decoration: underline dotted; }
         .rib-settings i { color: #6b7280; }
         .rib-settings:hover { background: #f1f3f6; border-color: #e2e6eb; }
+        .demo-ro-bar { display: flex; align-items: center; gap: .8rem; background: #eef3f9; border: 1px solid #c7d6e8; border-left: 4px solid #2f557d; padding: .55rem .8rem; margin-bottom: .6rem; font-size: .82rem; color: #1f2933; }
+        .demo-ro-bar > i { color: #2f557d; font-size: 1.05rem; }
+        .demo-ro-bar .btn { margin-left: auto; white-space: nowrap; }
+        #table_form.demo-ro input:not([type=hidden]), #table_form.demo-ro select, #table_form.demo-ro textarea { background: #f8fafc !important; cursor: default; }
         .report-unit { margin-left: auto; font-size: .7rem; color: var(--faint); white-space: nowrap; }
         /* One line above the table: title · table group · sheet / key · units (right edge). */
         .app-report-toolbar.app-report-toolbar-tight { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem .9rem; margin: 0 0 .55rem; }
@@ -278,6 +282,13 @@
         </div>
 
         @include('flash.flash-message')
+        @php $demoReadOnly = \App\Support\Demo::readOnlyInstance($instance ?? null); @endphp
+        @if($demoReadOnly)
+            <div class="demo-ro-bar"><i class="fas fa-eye"></i>
+                <div><b>Sample report — shared by everyone in this demo.</b> Browse the tables, run <b>Validate</b> and try the <b>Export</b> with its Arelle check. To enter your own data, create a report of your own.</div>
+                <a class="btn btn-sm btn-primary" href="{{ url('/modules') }}"><i class="fas fa-plus"></i> New report</a>
+            </div>
+        @endif
 
         <div class="report-body">
         <aside class="tnav" id="tableNav" aria-label="Tables">
@@ -465,6 +476,22 @@
         var aspectNode = null;
         var tableCode = null;
         const instanceId = @json($instance_id);
+        // A shared demo sample: viewable, validatable, exportable — never saved.
+        const demoReadOnly = @json($demoReadOnly ?? false);
+        if (demoReadOnly) {
+            const lock = function () {
+                const f = document.getElementById('table_form');
+                if (!f) return;
+                f.classList.add('demo-ro');
+                f.querySelectorAll('input:not([type=hidden]), textarea').forEach(function (i) { i.readOnly = true; });
+                f.querySelectorAll('select').forEach(function (s) { s.disabled = true; });
+            };
+            document.addEventListener('DOMContentLoaded', function () {
+                const f = document.getElementById('table_form');
+                if (f) new MutationObserver(lock).observe(f, { childList: true, subtree: true });
+                lock();
+            });
+        }
         // Set when opened from a validation report link: select that table, mark that cell.
         let focusTarget = @json($focus ?? null);
 
@@ -876,13 +903,14 @@
 
         function markDirty() {
             // Rendering a table fires change events of its own; those are not edits.
-            if (loadingTable) return;
+            if (loadingTable || demoReadOnly) return;
             editVersion++;
             if (!saveInFlight) setSaveStatus('dirty', 'Unsaved changes');
         }
 
         // Persist the open sheet. Resolves when stored; rejects (and says so on screen) when not.
         function save(sheet = null) {
+            if (demoReadOnly) { setSaveStatus('saved', 'Read-only sample'); return Promise.resolve({ ok: true, changes: 0 }); }
             const version = editVersion;
             const payload = {
                 'instance_id': instanceId,

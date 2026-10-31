@@ -125,6 +125,17 @@
         .home-dashboard .bootstrap-table .fixed-table-container { border: 0; }
         .home-dashboard .bootstrap-table .fixed-table-toolbar { display: none; }
         .home-table tbody td .home-module-caption { margin-top: 0; }
+        .gs { position: relative; background: #fff; border: 1px solid #dbe4ef; border-left: 4px solid #e4902f; padding: .8rem 1rem .85rem; }
+        .gs h2 { font-size: .95rem; font-weight: 700; margin: 0 0 .15rem; color: #16202c; }
+        .gs .sub { font-size: .78rem; color: #64748b; margin: 0 0 .6rem; }
+        .gs ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: .5rem; }
+        .gs li { display: flex; gap: .55rem; align-items: flex-start; font-size: .8rem; color: #334155; background: #f8fafc; border: 1px solid #eef2f7; padding: .5rem .6rem; }
+        .gs li .n { flex: 0 0 22px; height: 22px; background: #2f557d; color: #fff; font-weight: 700; font-size: .72rem; display: flex; align-items: center; justify-content: center; }
+        .gs li b { display: block; color: #16202c; font-size: .8rem; }
+        .gs li a { font-weight: 600; }
+        .gs .x { position: absolute; top: .45rem; right: .55rem; border: 0; background: none; color: #94a3b8; font-size: 1rem; }
+        .gs .x:hover { color: #334155; }
+        .gs .demo { font-size: .74rem; color: #2f557d; margin-top: .55rem; }
     </style>
 @endpush
 
@@ -146,6 +157,25 @@
         </div>
 
         @include('flash.flash-message')
+
+        {{-- First steps (dismissed per browser) --}}
+        <section class="gs" id="gettingStarted" hidden>
+            <button type="button" class="x" id="gsClose" title="Hide"><i class="fas fa-xmark"></i></button>
+            <h2><i class="fas fa-route"></i> Getting started</h2>
+            <p class="sub">From an EBA taxonomy to a valid filing in a few clicks.</p>
+            <ol>
+                <li><span class="n">1</span><span><b>Open a report</b>Click Open on a report below, or <a href="{{ url('/modules') }}">create one</a> from a module.</span></li>
+                <li><span class="n">2</span><span><b>Fill the tables</b>Rules run as you type: red cells fail a rule, amber cells warn.</span></li>
+                <li><span class="n">3</span><span><b>Validate</b>The report lists every rule with the facts behind it.</span></li>
+                <li><span class="n">4</span><span><b>Export</b>xBRL-CSV or xBRL-XML, checked with Arelle before you file.</span></li>
+                @if(\Illuminate\Support\Facades\Route::has('areport-pro.dpm-model.index'))
+                    <li><span class="n">5</span><span><b>Model your own</b><a href="{{ route('areport-pro.dpm-model.index') }}">DPM Architect</a>: tables, dictionary, rules, taxonomy packages.</span></li>
+                @endif
+            </ol>
+            @if(\App\Support\Demo::restricted())
+                <div class="demo"><i class="fas fa-circle-info"></i> This is a shared demo: the sample reports and the DPM Architect model are read-only for everyone, your own reports are yours to edit.</div>
+            @endif
+        </section>
 
         <section class="home-tiles" aria-label="Instances by status">
             <button type="button" class="home-tile t-all active" data-status="all"><div class="k">All instances</div><div class="v" id="tileAll">0</div><div class="d">everything you report</div></button>
@@ -196,6 +226,18 @@
 @endsection
 
 @push('scripts')
+    <script>
+        (function () {
+            const box = document.getElementById('gettingStarted');
+            let hidden = false;
+            try { hidden = localStorage.getItem('areport.gettingStarted') === 'hidden'; } catch (e) {}
+            if (!hidden) box.hidden = false;
+            document.getElementById('gsClose').addEventListener('click', function () {
+                box.hidden = true;
+                try { localStorage.setItem('areport.gettingStarted', 'hidden'); } catch (e) {}
+            });
+        })();
+    </script>
     <script>
         const $table = $('#table');
         const statusElement = document.getElementById('homeTableStatus');

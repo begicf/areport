@@ -97,6 +97,7 @@ The main application variables in `.env`:
 | `LEI_CODE` | fallback LEI when no reporting entity is set |
 | `AREPORT_CONTACT_TO` | recipient of contact form messages (default `info@areport.net`) |
 | `AREPORT_DEMO_SHARED_USER_ID` | demo mode: whose instances every signed-in user sees (`0` = off) |
+| `AREPORT_DEMO_READONLY`, `AREPORT_DEMO_ADMINS` | in demo mode, visitors cannot change taxonomies, settings, the Architect model or the shared reports (default on); admins (e-mails) can |
 | `AREPORT_EDITION`, `AREPORT_EXTENSION_PROVIDERS` | edition label and extra service providers |
 
 With the AReport Pro plugin:
