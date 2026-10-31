@@ -160,7 +160,11 @@ class InstanceController extends Controller
         $data = FactHeader::prepareDataForXbrlCsv($fact_module->id, $period);
         $instance = new CreateXBRLCsvPackage($period, $fact_module->entityIdentifier($this->reportingLei()), $fact_module->module_path, $data, $fact_module->taxonomy->folder);
 
-        return $instance->setOptions($fact_module->exportOptions())->writePackage();
+        try {
+            return $instance->setOptions($fact_module->exportOptions())->writePackage();
+        } catch (\RuntimeException $e) {
+            abort(422, $e->getMessage());   // e.g. "No table facts available" — not a server error
+        }
     }
 
     /**
