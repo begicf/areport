@@ -77,6 +77,33 @@
         .save-status.is-dirty { color: #c2731f; }
         .save-status.is-saving { color: #64748b; }
         .save-status.is-error { color: #dc2626; cursor: pointer; text-decoration: underline dotted; }
+        .rib-settings i { color: #6b7280; }
+        .rib-settings:hover { background: #f1f3f6; border-color: #e2e6eb; }
+        .report-unit { margin-left: auto; font-size: .7rem; color: var(--faint); white-space: nowrap; }
+        .report-unit b { color: #52606d; font-weight: 600; }
+        .ribbon .dropdown-item small { display: block; font-size: .68rem; color: var(--faint); margin-left: 1.45rem; margin-top: -.1rem; }
+        .ribbon .dropdown-header { font-size: .62rem; letter-spacing: .07em; text-transform: uppercase; }
+        /* Instance settings + export check dialogs */
+        .is-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .7rem 1rem; }
+        .is-grid .full { grid-column: 1 / -1; }
+        .is-grid label { font-size: .74rem; font-weight: 600; color: #52606d; margin-bottom: .2rem; }
+        .is-help { font-size: .7rem; color: var(--faint); margin-top: .2rem; }
+        .is-module { font-size: .74rem; background: #f8fafc; border: 1px solid var(--line); border-radius: 8px; padding: .45rem .65rem; color: #52606d; }
+        .fi-table { width: 100%; font-size: .78rem; border-collapse: collapse; }
+        .fi-table th { font-size: .62rem; text-transform: uppercase; letter-spacing: .06em; color: var(--faint); padding: .35rem .5rem; border-bottom: 1px solid var(--line); text-align: left; position: sticky; top: 0; background: #fff; }
+        .fi-table td { padding: .3rem .5rem; border-bottom: 1px solid #f1f5f9; }
+        .fi-table select { font-size: .74rem; padding: .1rem .4rem; height: auto; }
+        .fi-wrap { max-height: 48vh; overflow: auto; border: 1px solid var(--line); border-radius: 8px; }
+        .fi-data { font-size: .66rem; font-weight: 700; padding: .05rem .4rem; border-radius: 4px; }
+        .fi-data.yes { background: #e8f6ee; color: #166534; } .fi-data.no { background: #f1f5f9; color: #94a3b8; }
+        .fi-row-warn td { background: #fff7ed; }
+        .fi-row-err td { background: #fdecec; }
+        .pf-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: .4rem; }
+        .pf-item { display: flex; gap: .55rem; align-items: flex-start; font-size: .8rem; padding: .45rem .6rem; border-radius: 8px; border: 1px solid var(--line); }
+        .pf-item.error { background: #fdecec; border-color: #f6cdcd; color: #991b1b; }
+        .pf-item.warning { background: #fff7ed; border-color: #fed7aa; color: #9a3412; }
+        .pf-ok { background: #e8f6ee; border: 1px solid #cce6d8; color: #166534; border-radius: 8px; padding: .55rem .7rem; font-size: .82rem; }
+        .pf-package { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .72rem; word-break: break-all; color: #52606d; margin-top: .6rem; }
         /* Cell inspector hidden — reclaim vertical space */
         #cellInspector { display: none !important; }
     </style>
@@ -88,7 +115,7 @@
                 <span class="rib-name" title="{{ $module_name }}">{{ $module_name }}</span>
                 <span class="rib-meta" title="Reporting entity · reference date · taxonomy">
                     <b>{{ $entity->name ?? 'No entity' }}</b>@if(!empty($entity?->lei)) · {{ $entity->lei }}@endif
-                    · {{ $period ? \Carbon\Carbon::parse($period)->format('d.m.Y') : '' }} · {{ $taxonomy_name }}
+                    · {{ $period ? \Carbon\Carbon::parse($period)->format('d.m.Y') : '' }} · {{ $instance->consolidation ?? 'CON' }} · {{ $taxonomy_name }}
                 </span>
                 <span id="saveStatus" class="save-status" role="status" aria-live="polite">
                     <i class="fas fa-check"></i><span>{{ $last_saved ? 'Saved '.$last_saved->format('d.m. H:i') : 'Not saved yet' }}</span>
@@ -107,6 +134,9 @@
                     <a class="rib-btn rib-hist" href="{{ url('/table/history') }}?id={{ $instance_id }}" target="_blank" rel="noopener" title="Cell-level change history">
                         <i class="fas fa-clock-rotate-left"></i><span>History</span>
                     </a>
+                    <button type="button" class="rib-btn rib-settings" id="instanceSettingsBtn" title="Entity, reference date, units and filing indicators">
+                        <i class="fas fa-sliders"></i><span>Settings</span>
+                    </button>
                 </div>
                 <span class="rib-cap">Instance</span>
             </div>
@@ -140,12 +170,14 @@
                             <input name="instance_id" type="hidden" value="{{ $instance_id }}">
                             <input id="export_table_path" name="table" type="hidden">
                             <div class="dropdown-menu dropdown-menu-end">
-                                <button class="dropdown-item" name="export_type" value="xlsx" type="submit"><i class="text-success fas fa-file-excel"></i> Export as .xlsx</button>
-                                <button class="dropdown-item" name="export_type" value="pdf" type="submit"><i class="text-danger fas fa-file-pdf"></i> Export as .pdf</button>
-                                <button class="dropdown-item" name="export_type" value="html" type="submit"><i class="text-primary fas fa-file-code"></i> Export as .html</button>
+                                <h6 class="dropdown-header">Report for submission</h6>
+                                <button class="dropdown-item fw-semibold" type="button" data-xbrl-export="csv"><i class="fas fa-file-archive"></i> xBRL-CSV package<small>EBA 4.x remittance format</small></button>
+                                <button class="dropdown-item" type="button" data-xbrl-export="xml"><i class="fas fa-file-alt"></i> xBRL-XML instance<small>Legacy, where the authority still accepts it</small></button>
                                 <div class="dropdown-divider"></div>
-                                <button class="dropdown-item" formaction="/instance/export" type="submit"><i class="fas fa-file-alt"></i> Export as XBRL-XML instance</button>
-                                <button class="dropdown-item" formaction="/instance/export-csv" type="submit"><i class="fas fa-file-archive"></i> Export as xBRL-CSV package</button>
+                                <h6 class="dropdown-header">This table only</h6>
+                                <button class="dropdown-item" name="export_type" value="xlsx" type="submit"><i class="text-success fas fa-file-excel"></i> Excel (.xlsx)</button>
+                                <button class="dropdown-item" name="export_type" value="pdf" type="submit"><i class="text-danger fas fa-file-pdf"></i> PDF</button>
+                                <button class="dropdown-item" name="export_type" value="html" type="submit"><i class="text-primary fas fa-file-code"></i> HTML</button>
                             </div>
                         </form>
                     </div>
@@ -182,6 +214,7 @@
             <div class="app-report-toolbar app-report-toolbar-tight">
                 <div id="button_group" class="app-report-groupbar"></div>
                 <div id="sheets" class="app-report-sheets"></div>
+                <div class="report-unit" id="reportUnit">Amounts in <b>{{ $instance ? $instance->amountUnitLabel() : 'thousands EUR' }}</b> · percentages in %</div>
             </div>
 
             <div id="validationResult" class="app-report-validation" style="display:none"></div>
@@ -232,6 +265,113 @@
         </section>
 
     </div>
+    {{-- Instance export (xBRL) goes through its own form after the pre-export check --}}
+    <form id="instanceExportForm" method="post" class="d-none">
+        @csrf
+        <input type="hidden" name="instance_id" value="{{ $instance_id }}">
+    </form>
+
+    <div class="modal fade app-modal-shell" id="instanceSettings" tabindex="-1" aria-labelledby="instanceSettingsLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <div class="app-page-kicker mb-1"><i class="fas fa-sliders"></i> Instance settings</div>
+                        <h5 class="modal-title" id="instanceSettingsLabel">{{ $module_name }}</h5>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs mb-3" role="tablist">
+                        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#isFiling" type="button">Filing</button></li>
+                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#isIndicators" type="button">Filing indicators</button></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="isFiling">
+                            <div id="isModule" class="is-module mb-3" style="display:none"></div>
+                            <div class="is-grid">
+                                <div class="full">
+                                    <label for="isEntity">Reporting entity</label>
+                                    <select id="isEntity" class="form-select form-select-sm"></select>
+                                </div>
+                                <div>
+                                    <label for="isPeriod">Reference date</label>
+                                    <input id="isPeriod" type="date" class="form-control form-control-sm">
+                                    <div class="is-help">A period end, e.g. 31.12.2026.</div>
+                                </div>
+                                <div>
+                                    <label for="isConsolidation">Consolidation scope</label>
+                                    <select id="isConsolidation" class="form-select form-select-sm">
+                                        <option value="CON">Consolidated (CON)</option>
+                                        <option value="IND">Individual / solo (IND)</option>
+                                    </select>
+                                    <div class="is-help">Part of the entity identifier: LEI.CON or LEI.IND.</div>
+                                </div>
+                                <div>
+                                    <label for="isCountry">Competent authority country</label>
+                                    <input id="isCountry" class="form-control form-control-sm" maxlength="2" placeholder="e.g. FR">
+                                    <div class="is-help" id="isCountryHelp">ISO country code, used in the EBA package name.</div>
+                                </div>
+                                <div>
+                                    <label for="isCurrency">Base currency</label>
+                                    <input id="isCurrency" class="form-control form-control-sm" maxlength="3" placeholder="EUR">
+                                </div>
+                                <div>
+                                    <label for="isScale">Amounts entered in</label>
+                                    <select id="isScale" class="form-select form-select-sm"></select>
+                                    <div class="is-help">The report carries absolute amounts; entered values are multiplied accordingly.</div>
+                                </div>
+                                <div>
+                                    <label>Decimals (monetary · percentage · integer · decimal)</label>
+                                    <div class="d-flex gap-1">
+                                        <input id="isDecMon" type="number" class="form-control form-control-sm" title="Monetary">
+                                        <input id="isDecPct" type="number" class="form-control form-control-sm" title="Percentage">
+                                        <input id="isDecInt" type="number" class="form-control form-control-sm" title="Integer">
+                                        <input id="isDecDec" type="number" class="form-control form-control-sm" title="Decimal">
+                                    </div>
+                                    <div class="is-help">EBA defaults: -3 · 4 · 0 · 2.</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="isIndicators">
+                            <p class="is-help mb-2">Auto reports a template when it holds data. Set "Not reported" to file a negative indicator; such a template must hold no data.</p>
+                            <div class="fi-wrap">
+                                <table class="fi-table">
+                                    <thead><tr><th>Template</th><th>Data</th><th>Filing indicator</th></tr></thead>
+                                    <tbody id="isIndicatorRows"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="isError" class="text-danger small mt-2" style="display:none"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="isSave">Save settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade app-modal-shell" id="exportCheck" tabindex="-1" aria-labelledby="exportCheckLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <div class="app-page-kicker mb-1"><i class="fas fa-clipboard-check"></i> Pre-export check</div>
+                        <h5 class="modal-title" id="exportCheckLabel">Export</h5>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="exportCheckBody"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" id="exportCheckSettings">Open settings</button>
+                    <button type="button" class="btn btn-primary" id="exportCheckGo">Download</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!--Call module modal-->
     @include('components.module')
     <!--Call module modal-->
@@ -871,6 +1011,129 @@
             }).catch(function () {});
         });
 
+
+        // ---- Instance settings & filing indicators ----
+        function openInstanceSettings(tab) {
+            $('#isError').hide();
+            axios.get('/instance/settings', { params: { instance_id: instanceId } }).then(function (response) {
+                const d = response.data, st = d.settings;
+                const entity = document.getElementById('isEntity');
+                entity.innerHTML = '<option value="">— no entity —</option>' + (d.entities || []).map(function (e) {
+                    return '<option value="' + e.id + '"' + (d.entity && d.entity.id === e.id ? ' selected' : '') + '>'
+                        + escapeInspectorHtml(e.name + ' (' + e.lei + ')') + '</option>';
+                }).join('');
+                $('#isPeriod').val(d.reference_date || '');
+                $('#isConsolidation').val(st.consolidation || 'CON');
+                $('#isCountry').val(st.country || '').attr('placeholder', st.country_default ? st.country_default + ' (from entity)' : 'e.g. FR');
+                $('#isCurrency').val(st.base_currency || 'EUR');
+                $('#isScale').html(Object.keys(d.scales).map(function (k) {
+                    return '<option value="' + k + '"' + (String(st.monetary_scale) === k ? ' selected' : '') + '>' + d.scales[k] + '</option>';
+                }).join(''));
+                $('#isDecMon').val(st.decimals_monetary); $('#isDecPct').val(st.decimals_percentage);
+                $('#isDecInt').val(st.decimals_integer); $('#isDecDec').val(st.decimals_decimal);
+
+                const mod = d.module;
+                $('#isModule').toggle(!!mod).html(mod ? '<b>' + escapeInspectorHtml(mod.framework + ' · ' + mod.module) + '</b> module version '
+                    + escapeInspectorHtml(mod.version || '?') + ' — applies to reference dates from <b>' + escapeInspectorHtml(mod.from || '—')
+                    + '</b>' + (mod.to ? ' to <b>' + escapeInspectorHtml(mod.to) + '</b>' : '') : '');
+
+                const rows = Object.keys(d.templates || {}).map(function (code) {
+                    const t = d.templates[code];
+                    const choice = t.choice === true ? 'true' : (t.choice === false ? 'false' : 'auto');
+                    const cls = (t.choice === false && t.has_data) ? 'fi-row-err' : ((t.choice === true && !t.has_data) ? 'fi-row-warn' : '');
+                    return '<tr class="' + cls + '"><td><b>' + escapeInspectorHtml(code) + '</b></td>'
+                        + '<td><span class="fi-data ' + (t.has_data ? 'yes">has data' : 'no">empty') + '</span></td>'
+                        + '<td><select class="form-select form-select-sm" data-fi="' + escapeInspectorHtml(code) + '">'
+                        + '<option value="auto"' + (choice === 'auto' ? ' selected' : '') + '>Auto (' + (t.has_data ? 'reported' : 'not listed') + ')</option>'
+                        + '<option value="true"' + (choice === 'true' ? ' selected' : '') + '>Reported</option>'
+                        + '<option value="false"' + (choice === 'false' ? ' selected' : '') + '>Not reported</option>'
+                        + '</select></td></tr>';
+                });
+                $('#isIndicatorRows').html(rows.join('') || '<tr><td colspan="3" class="text-muted">No templates found for this module.</td></tr>');
+
+                window.appModal.show('instanceSettings');
+                if (tab === 'indicators') {
+                    bootstrap.Tab.getOrCreateInstance(document.querySelector('[data-bs-target="#isIndicators"]')).show();
+                }
+            }).catch(function (error) {
+                window.alert(getRequestErrorMessage(error, 'Unable to load the instance settings.'));
+            });
+        }
+
+        $('#instanceSettingsBtn').on('click', function () { openInstanceSettings(); });
+
+        $('#isSave').on('click', function () {
+            const fi = {};
+            document.querySelectorAll('#isIndicatorRows select[data-fi]').forEach(function (sel) { fi[sel.dataset.fi] = sel.value; });
+            axios.post('/instance/settings', {
+                instance_id: instanceId,
+                entity_id: $('#isEntity').val() || null,
+                period: $('#isPeriod').val(),
+                consolidation: $('#isConsolidation').val(),
+                country: $('#isCountry').val().trim() || null,
+                base_currency: $('#isCurrency').val().trim(),
+                monetary_scale: $('#isScale').val(),
+                decimals_monetary: $('#isDecMon').val(),
+                decimals_percentage: $('#isDecPct').val(),
+                decimals_integer: $('#isDecInt').val(),
+                decimals_decimal: $('#isDecDec').val(),
+                filing_indicators: fi,
+            }).then(function () {
+                // Entity, date and scope show in the ribbon; reload so everything reflects them.
+                window.appModal.hide('instanceSettings');
+                saveIfDirty().finally(function () { window.location.reload(); });
+            }).catch(function (error) {
+                const errs = error.response && error.response.data && error.response.data.errors;
+                $('#isError').show().text(errs ? Object.values(errs).flat().join(' ') : getRequestErrorMessage(error, 'Saving the settings failed.'));
+            });
+        });
+
+        // ---- xBRL export: save, run the pre-export check, then download ----
+        let pendingExport = null;
+
+        $(document).on('click', '[data-xbrl-export]', function () {
+            const format = this.dataset.xbrlExport;
+            pendingExport = format;
+            const body = document.getElementById('exportCheckBody');
+            $('#exportCheckLabel').text(format === 'xml' ? 'xBRL-XML instance' : 'xBRL-CSV package');
+            body.innerHTML = '<div class="dpm-loading">Checking the instance…</div>';
+            $('#exportCheckGo').prop('disabled', true);
+            window.appModal.show('exportCheck');
+
+            saveIfDirty().then(function () {
+                return axios.post('/instance/preflight', { instance_id: instanceId, format: format });
+            }).then(function (response) {
+                const d = response.data || {};
+                const checks = d.checks || [];
+                let html = d.ok
+                    ? '<div class="pf-ok"><i class="fas fa-circle-check"></i> Ready to export' + (checks.length ? ' — review the warnings below.' : '.') + '</div>'
+                    : '<p class="mb-2 small text-danger"><b>Fix these before exporting:</b></p>';
+                if (checks.length) {
+                    html += '<ul class="pf-list mt-2">' + checks.map(function (c) {
+                        return '<li class="pf-item ' + c.level + '"><i class="fas ' + (c.level === 'error' ? 'fa-circle-xmark' : 'fa-triangle-exclamation') + ' mt-1"></i><span>' + escapeInspectorHtml(c.message) + '</span></li>';
+                    }).join('') + '</ul>';
+                }
+                if (d.package) {
+                    html += '<div class="pf-package">' + escapeInspectorHtml(d.package) + '</div>';
+                }
+                body.innerHTML = html;
+                $('#exportCheckGo').prop('disabled', !d.ok);
+            }).catch(function (error) {
+                body.innerHTML = '<span class="dpm-val-err">' + escapeValHtml(getRequestErrorMessage(error, 'The check could not run (is the table saved?).')) + '</span>';
+            });
+        });
+
+        $('#exportCheckGo').on('click', function () {
+            const form = document.getElementById('instanceExportForm');
+            form.action = pendingExport === 'xml' ? '/instance/export' : '/instance/export-csv';
+            form.submit();
+            window.appModal.hide('exportCheck');
+        });
+
+        $('#exportCheckSettings').on('click', function () {
+            window.appModal.hide('exportCheck');
+            openInstanceSettings();
+        });
 
         /* Import*/
         $('#validateInstanceBtn').on('click', validateInstance);

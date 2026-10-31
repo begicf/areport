@@ -6,9 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Model\FactHeader;
 use App\Model\FactModule;
 use App\Model\Taxonomy;
+use App\Support\FilingPreflight;
 use AReportDpmXBRL\Creat\CreateXBRLCsvPackage;
 use AReportDpmXBRL\Creat\CreateXBRLFromDB;
 use AReportDpmXBRL\Library\Format;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 
 class InstanceController extends Controller
@@ -128,6 +131,7 @@ class InstanceController extends Controller
         $period = $fact_module->periodYmd();
 
         $this->_entityId = $fact_module->entity_id ?? null;
+        $preflight = $this->guard($fact_module, 'xml');
 
         $find = [];
 
@@ -139,12 +143,12 @@ class InstanceController extends Controller
 
 
         $instance =
-            new CreateXBRLFromDB($period, $this->reportingLei(), $module, $data, $find, $fact_module->taxonomy->folder);
-        $file = $instance->writeXbrl();
+            new CreateXBRLFromDB($period, $fact_module->entityIdentifier($this->reportingLei()), $module, $data, $find, $fact_module->taxonomy->folder);
+        $file = $instance->setOptions($fact_module->exportOptions())->writeXbrl();
 
         return response()->streamDownload(function () use ($file) {
             echo $file;
-        }, 'areport_'.$this->fileSlug().'_'.date("dmYHis").'.xbrl', ['Content-Type' => 'text/xml']);
+        }, $preflight['package'] ?: 'areport_'.$this->fileSlug().'_'.date("dmYHis").'.xbrl', ['Content-Type' => 'text/xml']);
 
 
     }
@@ -156,23 +160,131 @@ class InstanceController extends Controller
         $period = $fact_module->periodYmd();
 
         $this->_entityId = $fact_module->entity_id ?? null;
+        $this->guard($fact_module, 'csv');
 
         $data = FactHeader::prepareDataForXbrlCsv($fact_module->id, $period);
 
         $instance = new CreateXBRLCsvPackage(
             $period,
-            $this->reportingLei(),
+            $fact_module->entityIdentifier($this->reportingLei()),
             $module,
             $data,
             $fact_module->taxonomy->folder
         );
 
-        $file = $instance->writePackage();
+        $file = $instance->setOptions($fact_module->exportOptions())->writePackage();
 
+        // The archive is named like the package folder inside it (EBA convention).
         return response()->download(
             $file['path'],
-            'areport_'.$this->fileSlug().'_'.date('dmYHis').'.zip',
+            $file['filename'],
             ['Content-Type' => 'application/zip']
         )->deleteFileAfterSend(true);
+    }
+
+    /**
+     * Run the pre-export checks; errors stop the download (the form runs them first
+     * and shows them, so this is the safety net). Returns the check result.
+     */
+    private function guard(FactModule $instance, string $format): array
+    {
+        $result = (new FilingPreflight($instance))->run($format);
+
+        if (! $result['ok'] && ! request()->boolean('force')) {
+            $errors = collect($result['checks'])->where('level', 'error')->pluck('message')->implode("\n");
+            abort(422, "The instance did not pass the pre-export checks:\n".$errors);
+        }
+
+        return $result;
+    }
+
+    /** The signed-in user's reporting entities (areport-pro), or none without the plugin. */
+    private function ownedEntities()
+    {
+        $entityCls = \Begicf\AReportPro\Models\DpmEntity::class;
+
+        return class_exists($entityCls) ? $entityCls::query()->orderByDesc('is_default')->orderBy('name')->get() : collect();
+    }
+
+    /** Pre-export checks as JSON, for the form's export dialog. */
+    public function preflight(Request $request)
+    {
+        $instance = $this->instance(['taxonomy']);
+
+        return response()->json((new FilingPreflight($instance))->run($request->get('format') === 'xml' ? 'xml' : 'csv'));
+    }
+
+    /** Filing settings and filing indicators of an instance. */
+    public function settings()
+    {
+        $instance = $this->instance(['taxonomy']);
+        $preflight = new FilingPreflight($instance);
+        $info = $preflight->moduleInfo();
+        $entity = $instance->entityRecord();
+
+        return response()->json([
+            'settings' => [
+                'consolidation' => $instance->consolidation,
+                'country' => $instance->country,
+                'country_default' => $entity->country ?? null,
+                'base_currency' => $instance->base_currency,
+                'monetary_scale' => $instance->monetary_scale,
+                'decimals_monetary' => $instance->decimals_monetary,
+                'decimals_percentage' => $instance->decimals_percentage,
+                'decimals_integer' => $instance->decimals_integer,
+                'decimals_decimal' => $instance->decimals_decimal,
+            ],
+            'entity' => $entity ? ['id' => $entity->id, 'name' => $entity->name, 'lei' => $entity->lei] : null,
+            'entities' => $this->ownedEntities()->map(fn ($e) => ['id' => $e->id, 'name' => $e->name, 'lei' => $e->lei, 'country' => $e->country])->values(),
+            'reference_date' => $instance->periodYmd(),
+            'module' => $info ? array_intersect_key($info, array_flip(['version', 'from', 'to', 'framework', 'module'])) : null,
+            'scales' => FactModule::MONETARY_SCALES,
+            'templates' => $preflight->templates(),
+        ]);
+    }
+
+    public function updateSettings(Request $request)
+    {
+        $instance = $this->instance([]);
+
+        $data = $request->validate([
+            'entity_id' => ['nullable', 'integer', Rule::in($this->ownedEntities()->pluck('id')->all())],
+            'period' => ['required', 'date'],
+            'consolidation' => ['required', Rule::in(['CON', 'IND'])],
+            'country' => ['nullable', 'regex:/^[A-Za-z]{2}$/'],
+            'base_currency' => ['required', 'regex:/^[A-Za-z]{3}$/'],
+            'monetary_scale' => ['required', Rule::in(array_keys(FactModule::MONETARY_SCALES))],
+            'decimals_monetary' => ['required', 'integer', 'between:-9,9'],
+            'decimals_percentage' => ['required', 'integer', 'between:0,12'],
+            'decimals_integer' => ['required', 'integer', 'between:0,9'],
+            'decimals_decimal' => ['required', 'integer', 'between:0,12'],
+            'filing_indicators' => ['nullable', 'array'],
+            'filing_indicators.*' => ['nullable', Rule::in(['auto', 'true', 'false', true, false])],
+        ]);
+
+        // Only explicit choices are stored; "auto" means "reported when it has data".
+        $choices = [];
+        foreach ((array) ($data['filing_indicators'] ?? []) as $code => $choice) {
+            if ($choice === 'auto' || $choice === null) {
+                continue;
+            }
+            $choices[(string) $code] = filter_var($choice, FILTER_VALIDATE_BOOLEAN);
+        }
+
+        $instance->update([
+            'entity_id' => $data['entity_id'] ?? null,
+            'period' => \Carbon\Carbon::parse($data['period'])->format('Y-m-d'),
+            'consolidation' => $data['consolidation'],
+            'country' => $data['country'] ? strtoupper($data['country']) : null,
+            'base_currency' => strtoupper($data['base_currency']),
+            'monetary_scale' => (int) $data['monetary_scale'],
+            'decimals_monetary' => (int) $data['decimals_monetary'],
+            'decimals_percentage' => (int) $data['decimals_percentage'],
+            'decimals_integer' => (int) $data['decimals_integer'],
+            'decimals_decimal' => (int) $data['decimals_decimal'],
+            'filing_indicators' => $choices ?: null,
+        ]);
+
+        return response()->json(['ok' => true, 'amount_unit' => $instance->amountUnitLabel()]);
     }
 }

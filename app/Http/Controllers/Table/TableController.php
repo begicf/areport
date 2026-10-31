@@ -102,15 +102,23 @@ class TableController extends Controller
                 return redirect('/modules')->with('warning', 'Please choose at least one valid table group.');
             }
 
+            // EBA reference dates are period ends; refuse anything else up front.
+            $refDate = Carbon::parse($this->_period);
+            if (! $refDate->isSameDay($refDate->copy()->endOfMonth())) {
+                return redirect('/modules')->with('warning', 'The reference date '.$refDate->format('d.m.Y').' is not a month end. Choose a period end such as '.$refDate->copy()->endOfMonth()->format('d.m.Y').'.');
+            }
+
             // The instance exists from the moment it is opened, so every later call
-            // (save, render, validate, export) addresses it by id. Same module, date
-            // and entity in the same taxonomy reopens it with the new table selection.
+            // (save, render, validate, export) addresses it by id. Same module, date,
+            // entity and consolidation scope in the same taxonomy reopens it with the
+            // new table selection; solo (IND) and consolidated (CON) are separate reports.
             $fact_module = FactModule::updateOrCreate(
                 [
                     'taxonomy_id' => $this->_taxonomy->id,
                     'period' => $this->_period,
                     'module_path' => $this->getNormalizeModule($request->get('module_path')),
                     'entity_id' => $this->ownedEntityId($request->get('entity_id')),
+                    'consolidation' => $request->get('consolidation') === 'IND' ? 'IND' : 'CON',
                 ],
                 [
                     'module_name' => $request->get('module_name'),
@@ -138,6 +146,7 @@ class TableController extends Controller
             'entity_id' => $fact_module->entity_id,
             'entity' => $entity,
             'taxonomy_name' => $fact_module->taxonomy->name ?? '',
+            'instance' => $fact_module,
             'last_saved' => $fact_module->updated_at,
             'group' => $request->get('mod')
         ]);
