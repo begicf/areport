@@ -46,7 +46,7 @@
     ],
     "require": {
         "php": "^8.3",
-        "begicf/areport-dpm-xbrl": "dev-publish as 1.0.0",
+        "begicf/areport-dpm-xbrl": "dev-master as 1.0.0",
         "begicf/areport-pro": "dev-main",
         "begicf/simple-menu": "dev-master",
         "guzzlehttp/guzzle": "^7.0.1",
