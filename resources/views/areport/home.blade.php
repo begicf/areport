@@ -50,6 +50,29 @@
         .mod-val-facts span { font-size: .72rem; background: #f8fafc; border: 1px solid var(--line); padding: .05rem .4rem; border-radius: 3px; }
         .mod-val-err { color: #b91c1c; font-size: .85rem; } .mod-val-okmsg { color: #16a34a; } .mod-val-note { color: #b45309; font-size: .82rem; }
 
+        .home-tiles { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .6rem; }
+        .home-tile { text-align: left; border: 1px solid var(--line); border-radius: 10px; background: #fff; padding: .6rem .8rem;
+            box-shadow: 0 1px 2px rgba(16,24,40,.04); border-top: 3px solid var(--line); cursor: pointer; transition: box-shadow .15s ease; }
+        .home-tile:hover { box-shadow: 0 2px 8px rgba(16,24,40,.08); }
+        .home-tile.active { outline: 2px solid var(--blue); outline-offset: -1px; }
+        .home-tile .k { font-size: .62rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--faint); }
+        .home-tile .v { font-size: 1.45rem; font-weight: 700; line-height: 1.15; font-variant-numeric: tabular-nums; color: var(--ink); }
+        .home-tile .d { font-size: .68rem; color: var(--faint); }
+        .home-tile.t-draft { border-top-color: #94a3b8; }
+        .home-tile.t-errors { border-top-color: #dc2626; } .home-tile.t-errors .v { color: #b91c1c; }
+        .home-tile.t-ready { border-top-color: #4a9d6e; } .home-tile.t-ready .v { color: #166534; }
+        .home-tile.t-exported { border-top-color: #6d5ab5; } .home-tile.t-exported .v { color: #5b4a9e; }
+        .home-st { display: inline-flex; align-items: center; gap: .3rem; font-size: .7rem; font-weight: 600; padding: .14rem .5rem; border-radius: 999px; white-space: nowrap; }
+        .home-st.draft { background: #f1f5f9; color: #52606d; }
+        .home-st.errors { background: #fdecec; color: #b91c1c; }
+        .home-st.warnings { background: #fff7ed; color: #b45309; }
+        .home-st.validated { background: #e8f6ee; color: #166534; }
+        .home-st.exported { background: #efecf8; color: #5b4a9e; }
+        .home-changed { font-size: .76rem; color: #52606d; white-space: nowrap; font-variant-numeric: tabular-nums; }
+        .home-changed small { display: block; color: var(--faint); font-size: .68rem; }
+        .home-scope { font-size: .62rem; font-weight: 700; color: #52606d; background: #f1f5f9; border-radius: 4px; padding: .02rem .35rem; margin-left: .3rem; }
+        @media (max-width: 991.98px) { .home-tiles { grid-template-columns: repeat(2, 1fr); } }
+
         .home-dashboard .fixed-table-pagination { padding: .7rem 1.1rem; font-size: .78rem; }
         .home-dashboard .pagination .page-link { border-radius: 7px !important; border: 1px solid var(--line); margin: 0 .12rem; color: #52606d; }
         .home-dashboard .page-item.active .page-link { background: var(--blue); border-color: var(--blue); color: #fff; }
@@ -66,29 +89,33 @@
 
         <div class="ax-head">
             <div>
-                <span class="ax-eyebrow"><i class="fas fa-landmark"></i> Financial reporting</span>
-                <h1 class="ax-title">Financial module overview</h1>
-                <p class="ax-sub" id="homeLoadMeta">Search, sort, and open your reporting instances.</p>
+                <span class="ax-eyebrow"><i class="fas fa-landmark"></i> Regulatory reporting</span>
+                <h1 class="ax-title">Reporting instances</h1>
+                <p class="ax-sub" id="homeLoadMeta">Where each report stands: not validated, with errors, ready, or exported.</p>
             </div>
-            <button type="button" id="refreshHomeTable" class="btn btn-sm btn-outline-primary">
-                <i class="fas fa-rotate-right"></i> Refresh
-            </button>
+            <div class="d-flex gap-2">
+                <a href="{{ url('/modules') }}" class="btn btn-sm btn-primary"><i class="fas fa-plus"></i> New instance</a>
+                <button type="button" id="refreshHomeTable" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-rotate-right"></i> Refresh
+                </button>
+            </div>
         </div>
 
         @include('flash.flash-message')
 
-        <section class="ax-summary" aria-label="Summary">
-            <div class="ax-stat"><div class="ax-stat-k">Total modules</div><div class="ax-stat-v" id="homeModulesCount">0</div></div>
-            <div class="ax-stat"><div class="ax-stat-k">Filtered rows</div><div class="ax-stat-v" id="homeFilteredCount">0</div></div>
-            <div class="ax-stat"><div class="ax-stat-k">Visible periods</div><div class="ax-stat-v" id="homePeriodsCount">0</div></div>
-            <div class="ax-stat"><div class="ax-stat-k">Last update</div><div class="ax-stat-v sm" id="homeLastUpdated">—</div></div>
+        <section class="home-tiles" aria-label="Instances by status">
+            <button type="button" class="home-tile active" data-status="all"><div class="k">All instances</div><div class="v" id="tileAll">0</div><div class="d">everything you report</div></button>
+            <button type="button" class="home-tile t-draft" data-status="draft"><div class="k">To validate</div><div class="v" id="tileDraft">0</div><div class="d">not validated or changed since</div></button>
+            <button type="button" class="home-tile t-errors" data-status="errors"><div class="k">With errors</div><div class="v" id="tileErrors">0</div><div class="d">blocking rules failed</div></button>
+            <button type="button" class="home-tile t-ready" data-status="ready"><div class="k">Ready to file</div><div class="v" id="tileReady">0</div><div class="d">validated, no errors</div></button>
+            <button type="button" class="home-tile t-exported" data-status="exported"><div class="k">Exported</div><div class="v" id="tileExported">0</div><div class="d">package produced, unchanged since</div></button>
         </section>
 
         <section class="ax-card" id="moduleRegistry">
             <div class="ax-panel-head">
                 <div>
-                    <span class="ax-eyebrow"><i class="fas fa-list-ul"></i> Registry</span>
-                    <h2 class="ax-panel-title">Modules, paths &amp; entry points</h2>
+                    <span class="ax-eyebrow"><i class="fas fa-list-ul"></i> Instances</span>
+                    <h2 class="ax-panel-title" id="homeListTitle">All instances</h2>
                 </div>
                 <div id="homeTableToolbar"></div>
             </div>
@@ -98,7 +125,7 @@
                     <i class="fas fa-circle-notch"></i>
                     <span id="homeTableStatus">The table is ready.</span>
                 </div>
-                <div class="home-status-label" style="color:var(--faint)">Open a module to start or continue an instance.</div>
+                <div class="home-status-label" style="color:var(--faint)">Validate an instance to update its status; export runs the pre-export checks.</div>
             </div>
 
             <table id="table"
@@ -110,13 +137,17 @@
                    data-page-size="12"
                    data-page-list="[12, 24, 48, 96, all]"
                    data-pagination="true"
+                   data-sort-name="changed_at"
+                   data-sort-order="desc"
                    data-classes="table ax-table align-middle mb-0">
                 <thead>
                 <tr>
-                    <th data-field="period" data-width="150" data-sortable="true" data-formatter="periodFormatter">Period</th>
-                    <th data-field="module_name" data-width="300" data-sortable="true" data-formatter="moduleNameFormatter">Module</th>
-                    <th data-field="module_path" data-sortable="true" data-formatter="modulePathFormatter">Framework &amp; path</th>
-                    <th data-field="open" data-width="130" data-align="right" data-formatter="actionOpen">Action</th>
+                    <th data-field="period" data-width="120" data-sortable="true" data-formatter="periodFormatter">Reference date</th>
+                    <th data-field="module_name" data-sortable="true" data-formatter="moduleNameFormatter">Instance &amp; entity</th>
+                    <th data-field="status" data-width="190" data-sortable="true" data-formatter="statusFormatter">Status</th>
+                    <th data-field="module_path" data-width="230" data-formatter="modulePathFormatter">Framework</th>
+                    <th data-field="changed_at" data-width="160" data-sortable="true" data-formatter="changedFormatter">Last change</th>
+                    <th data-field="open" data-width="130" data-align="right" data-formatter="actionOpen">Actions</th>
                 </tr>
                 </thead>
             </table>
@@ -130,12 +161,9 @@
         const statusElement = document.getElementById('homeTableStatus');
         const statusIcon = document.querySelector('.home-status-label i');
         const loadMetaElement = document.getElementById('homeLoadMeta');
+        let statusFilter = 'all';
 
         function escapeHtml(value) { return $('<div>').text(value ?? '').html(); }
-
-        function formatNow() {
-            return new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date());
-        }
 
         // Pull a clean "FRAMEWORK · version" label out of an EBA module path.
         function frameworkLabel(path) {
@@ -155,20 +183,17 @@
         }
 
         function updateDashboard(data) {
-            const rows = Array.isArray(data.rows) ? data.rows : [];
-            const uniquePeriods = new Set(rows.map(r => r.period).filter(Boolean));
-            document.getElementById('homeModulesCount').textContent = String(data.all_total ?? rows.length);
-            document.getElementById('homeFilteredCount').textContent = String(data.total ?? rows.length);
-            document.getElementById('homePeriodsCount').textContent = String(uniquePeriods.size);
-            document.getElementById('homeLastUpdated').textContent = formatNow();
-            loadMetaElement.textContent = rows.length > 0
-                ? 'The current view contains ' + rows.length + ' row(s) ready for review.'
-                : 'No modules match the current filter — adjust the search to broaden the result set.';
+            const st = data.stats || {};
+            document.getElementById('tileAll').textContent = st.all || 0;
+            document.getElementById('tileDraft').textContent = st.draft || 0;
+            document.getElementById('tileErrors').textContent = st.errors || 0;
+            document.getElementById('tileReady').textContent = (st.validated || 0) + (st.warnings || 0);
+            document.getElementById('tileExported').textContent = st.exported || 0;
         }
 
-        function periodFormatter(value) {
-            if (!value) return "<span class='home-period home-period-muted'>No period</span>";
-            return "<span class='home-period'>" + escapeHtml(value) + "</span>";
+        function periodFormatter(value, row) {
+            if (!value) return "<span class='home-period home-period-muted'>No date</span>";
+            return "<span class='home-period'>" + escapeHtml(row.period_label || value) + "</span>";
         }
 
         function moduleNameFormatter(value, row) {
@@ -176,9 +201,13 @@
             const entity = row && row.entity_name
                 ? escapeHtml(row.entity_name) + (row.entity_lei ? " · <span class='home-lei'>" + escapeHtml(row.entity_lei) + "</span>" : '')
                 : "<span class='home-muted'>No entity</span>";
-            const saved = row && row.updated_label ? " · last saved " + escapeHtml(row.updated_label) : '';
-            return "<div><div class='home-module-title'>" + escapeHtml(moduleName) + "</div>" +
-                "<div class='home-module-caption'>" + entity + saved + "</div></div>";
+            return "<div><div class='home-module-title'>" + escapeHtml(moduleName) + "<span class='home-scope'>" + escapeHtml(row.consolidation || 'CON') + "</span></div>" +
+                "<div class='home-module-caption'>" + entity + "</div></div>";
+        }
+
+        function statusFormatter(value, row) {
+            const icons = { draft: 'fa-circle-half-stroke', errors: 'fa-circle-xmark', warnings: 'fa-triangle-exclamation', validated: 'fa-circle-check', exported: 'fa-paper-plane' };
+            return "<span class='home-st " + escapeHtml(value) + "'><i class='fas " + (icons[value] || 'fa-circle') + "'></i>" + escapeHtml(row.status_label || value) + "</span>";
         }
 
         function modulePathFormatter(value, row) {
@@ -188,37 +217,42 @@
             const tax = row && row.taxonomy_name
                 ? "<span class='home-tax" + (row.taxonomy_active ? '' : ' home-tax-other') + "' title='" + (row.taxonomy_active ? 'Active taxonomy' : 'Opens in its own taxonomy') + "'>" + escapeHtml(row.taxonomy_name) + "</span>"
                 : '';
-            return "<div>" + tax + badge + "<span class='home-path' title='" + escapeHtml(value || '-') + "'>" + escapeHtml(value || '-') + "</span></div>";
+            return "<div title='" + escapeHtml(value || '') + "'>" + tax + badge + "</div>";
+        }
+
+        function changedFormatter(value, row) {
+            if (!value) return "<span class='home-muted'>—</span>";
+            return "<div class='home-changed'>" + escapeHtml(row.changed_label) + (row.changed_by ? "<small>by " + escapeHtml(row.changed_by) + "</small>" : '') + "</div>";
         }
 
         const validationAvailable = @json(Route::has('areport-pro.dpm-model.index'));
 
         function actionOpen(value, row) {
             const valBtn = validationAvailable
-                ? "<a class='btn home-val-btn' href='{{ url('/table/validation-report') }}?id=" + encodeURIComponent(row.id || '') + "' target='_blank' rel='noopener' title='Validate module' aria-label='Validate module'><i class='fas fa-circle-check'></i></a>"
+                ? "<a class='btn home-val-btn' href='{{ url('/table/validation-report') }}?id=" + encodeURIComponent(row.id || '') + "' target='_blank' rel='noopener' title='Validate' aria-label='Validate'><i class='fas fa-circle-check'></i></a>"
                 : "<button type='button' class='btn home-val-btn' title='Validation plugin not installed' aria-label='Validate (unavailable)' disabled><i class='fas fa-circle-check'></i></button>";
             const histBtn = "<a class='btn home-val-btn home-hist-btn' href='{{ url('/table/history') }}?id=" + encodeURIComponent(row.id || '') + "' title='Change history' aria-label='Change history'><i class='fas fa-clock-rotate-left'></i></a>";
             return "<div class='home-actions'>" + histBtn + valBtn +
                 "<form method='POST' action='{{ url('/table') }}' class='home-open-form'>" +
                 "<input type='hidden' name='_token' value='{{ csrf_token() }}'>" +
-                "<input type='hidden' name='period' value='" + escapeHtml(row.period || '') + "'>" +
                 "<input type='hidden' name='id' value='" + escapeHtml(row.id || '') + "'>" +
                 "<button name='view_home' value='true' class='btn home-open-btn' type='submit' title='Open' aria-label='Open'>" +
                 "<i class='fas fa-up-right-from-square' aria-hidden='true'></i></button></form></div>";
         }
 
         function ajaxRequest(params) {
-            updateStatus('Loading modules…', 'loading');
+            updateStatus('Loading instances…', 'loading');
             $.ajax({
                 method: 'POST', url: '/areport/json', dataType: 'json',
                 data: {
                     _token: '{{ csrf_token() }}',
                     sort: params.data.sort, order: params.data.order,
                     offset: params.data.offset, limit: params.data.limit, search: params.data.search,
+                    status: statusFilter,
                 },
                 success: function (data) {
                     updateDashboard(data);
-                    updateStatus((data.total ?? 0) > 0 ? 'Data refreshed successfully.' : 'No results for the current filter.', (data.total ?? 0) > 0 ? 'success' : 'empty');
+                    updateStatus((data.total ?? 0) > 0 ? 'Data refreshed successfully.' : 'No instances for the current filter.', (data.total ?? 0) > 0 ? 'success' : 'empty');
                     params.success(data);
                 },
                 error: function (error) {
@@ -228,6 +262,15 @@
                 }
             });
         }
+
+        document.querySelectorAll('.home-tile').forEach(function (tile) {
+            tile.addEventListener('click', function () {
+                statusFilter = tile.dataset.status;
+                document.querySelectorAll('.home-tile').forEach(t => t.classList.toggle('active', t === tile));
+                document.getElementById('homeListTitle').textContent = tile.querySelector('.k').textContent;
+                $table.bootstrapTable('refresh', { pageNumber: 1 });
+            });
+        });
 
         $('#refreshHomeTable').on('click', function () { $table.bootstrapTable('refresh', { silent: true }); });
         $table.on('search.bs.table sort.bs.table page-change.bs.table', function () { updateStatus('Updating the view…', 'loading'); });

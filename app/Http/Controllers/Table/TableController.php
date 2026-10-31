@@ -406,7 +406,7 @@ class TableController extends Controller
             });
 
             if ($changes > 0) {
-                $instance->touch();
+                $instance->forceFill(['data_changed_at' => now()])->save();
             }
         endif;
 
@@ -480,7 +480,8 @@ class TableController extends Controller
             return response()->json(['ok' => false, 'error' => 'Enter some values before validating.'], 422);
         }
 
-        $result = $validator->validate($table->framework, $cellValues, [$table->code]);
+        $context = $this->validationContext($this->_instance, [$table->code]);
+        $result = $validator->validate($table->framework, $cellValues, [$table->code], $context);
         if (isset($result['error'])) {
             return response()->json(['ok' => false, 'error' => $result['error']], 422);
         }
@@ -501,13 +502,45 @@ class TableController extends Controller
         ]);
     }
 
+    /**
+     * The instance's module (for per-module rule applicability and severity) and
+     * its filing indicators (for rule preconditions): a template counts as reported
+     * when chosen so, or by default when it holds data. $openTables are tables on
+     * the form right now, reported even before they are saved.
+     */
+    private function validationContext(?FactModule $instance, array $openTables = []): ?array
+    {
+        $validatorClass = \Begicf\AReportPro\Services\InstanceValidator::class;
+        $context = $instance ? $validatorClass::moduleContext($instance->module_path) : null;
+        if (! $context) {
+            return null;
+        }
+
+        $indicators = [];
+        foreach ((new \App\Support\FilingPreflight($instance))->templates() as $code => $t) {
+            $indicators[$code] = $t['choice'] ?? $t['has_data'];
+        }
+        foreach ($openTables as $table) {
+            $code = strtoupper(preg_replace('/\.[a-z]$/i', '', (string) $table));
+            $indicators[$code] = $indicators[$code] ?? true;
+        }
+        $context['indicators'] = $indicators;
+
+        return $context;
+    }
+
     /** Build t<table>,r,c → value for a whole saved module + resolve its framework/codes. */
     private function moduleCellValues(FactModule $module): array
     {
         $tableModel = \Begicf\AReportPro\Models\Dpm\DpmTable::class;
         $cellValues = [];
         $codes = [];
-        $framework = null;
+        // The framework named by the module path (…/fws/corep/…) in the instance's own
+        // taxonomy — the one its rules were imported under.
+        $frameworkCode = \AReportDpmXBRL\Library\ModuleInfo::frameworkCode((string) $module->module_path);
+        $framework = $frameworkCode
+            ? \Begicf\AReportPro\Models\Dpm\Framework::query()->where('taxonomy_id', $module->taxonomy_id)->where('code', $frameworkCode)->first()
+            : null;
 
         foreach ($module->factHeader as $header) {
             $tcode = strtolower(pathinfo((string) $header->table_path, PATHINFO_FILENAME));
@@ -575,6 +608,7 @@ class TableController extends Controller
         $meta = [
             'module' => $module->module_name,
             'period' => $module->periodYmd(),
+            'period_label' => $module->period ? $module->period->format('d.m.Y') : '',
             'taxonomy' => $this->_taxonomy->name,
             'entity' => $entity?->name,
             'lei' => $entity?->lei,
@@ -592,13 +626,95 @@ class TableController extends Controller
         } elseif (empty($built['cells'])) {
             $error = 'This instance has no saved values to validate.';
         } else {
-            $report = $validator->report($built['framework'], $built['cells'], $built['codes']);
+            $report = $validator->report($built['framework'], $built['cells'], $built['codes'], $this->validationContext($module));
             if (isset($report['error'])) {
                 $error = $report['error'];
+            } else {
+                $module->stamp(['validated_at' => now(), 'validation_summary' => $report['summary']]);
             }
         }
 
+        if ($request->get('format') === 'csv' && ! $error) {
+            return $this->validationReportCsv($meta, $report);
+        }
+
+        $meta['id'] = $module->id;
+
         return view('table.validation-report', compact('meta', 'report', 'error'));
+    }
+
+    /** The validation report as CSV, for the audit file. */
+    private function validationReportCsv(array $meta, array $report)
+    {
+        $name = 'validation_'.preg_replace('/[^A-Za-z0-9]+/', '_', (string) $meta['module']).'_'.$meta['period'].'.csv';
+
+        return response()->streamDownload(function () use ($meta, $report) {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, ['Module', $meta['module'], 'Entity', $meta['entity'], 'LEI', $meta['lei'], 'Reference date', $meta['period'], 'Generated', $meta['generated']]);
+            fputcsv($out, []);
+            fputcsv($out, ['Rule', 'Severity', 'Status', 'Tables', 'Rule text', 'Cells and values', 'Precondition', 'Note']);
+            foreach ($report['rules'] ?? [] as $r) {
+                $facts = collect($r['facts'])->map(fn ($f) => $f['cell'].' = '.($f['value'] ?? '(empty)'))->implode('; ');
+                fputcsv($out, [$r['code'], $r['severity'], $r['status'], implode(' ', $r['tables']), $r['rule'], $facts, $r['precondition'] ?? '', $r['error'] ?? '']);
+            }
+            fclose($out);
+        }, $name, ['Content-Type' => 'text/csv']);
+    }
+
+    /**
+     * Open an instance on a given table and cell (links from the validation
+     * report): GET /table/open?id=…&table=C_01.00&cell=c0010r0010.
+     */
+    public function open(Request $request)
+    {
+        $request->merge(['view_home' => true]);
+        $response = $this->table($request);
+
+        if ($response instanceof \Illuminate\View\View) {
+            $response->with('focus', [
+                'table' => strtolower((string) $request->get('table')),
+                'cell' => strtolower((string) $request->get('cell')),
+            ]);
+        }
+
+        return $response;
+    }
+
+    /**
+     * The instance's table groups for the form's table list: which hold data and
+     * how many blocking errors the last full validation found in each.
+     */
+    public function navigator(Request $request)
+    {
+        $instance = $this->bindInstance();
+        abort_unless($instance, 404);
+
+        $withData = $instance->factHeader()->withCount('factTable')->get()
+            ->filter(fn ($h) => $h->fact_table_count > 0)
+            ->map(fn ($h) => strtolower(pathinfo((string) $h->table_path, PATHINFO_FILENAME)))
+            ->flip();
+        $errors = collect((array) ($instance->validation_summary['tables'] ?? []))
+            ->mapWithKeys(fn ($n, $code) => [strtolower(str_replace(' ', '_', $code)) => $n]);
+        $validatedCurrent = $instance->status()['key'] !== 'draft';
+
+        $items = [];
+        foreach ((array) json_decode((string) $instance->groups, true) as $name => $tablesJson) {
+            // A group is {"C_01.00": {"eba_tC_01.00": "/…/c_01.00.xsd", …}}: collect the paths.
+            $paths = [];
+            $decoded = (array) json_decode((string) $tablesJson, true);
+            array_walk_recursive($decoded, function ($path) use (&$paths) {
+                $paths[] = $path;
+            });
+            $tables = array_map(fn ($path) => strtolower(pathinfo((string) $path, PATHINFO_FILENAME)), $paths);
+            $items[] = [
+                'name' => $name,
+                'tables' => $tables,
+                'has_data' => collect($tables)->contains(fn ($t) => $withData->has($t)),
+                'errors' => $validatedCurrent ? collect($tables)->sum(fn ($t) => $errors[$t] ?? 0) : null,
+            ];
+        }
+
+        return response()->json(['items' => $items, 'validated' => $validatedCurrent]);
     }
 
     /** Cell-level change history of one instance, newest first. */

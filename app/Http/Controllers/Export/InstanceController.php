@@ -145,10 +145,12 @@ class InstanceController extends Controller
         $instance =
             new CreateXBRLFromDB($period, $fact_module->entityIdentifier($this->reportingLei()), $module, $data, $find, $fact_module->taxonomy->folder);
         $file = $instance->setOptions($fact_module->exportOptions())->writeXbrl();
+        $filename = $preflight['package'] ?: 'areport_'.$this->fileSlug().'_'.date("dmYHis").'.xbrl';
+        $fact_module->stamp(['exported_at' => now(), 'export_format' => 'xml', 'export_package' => $filename]);
 
         return response()->streamDownload(function () use ($file) {
             echo $file;
-        }, $preflight['package'] ?: 'areport_'.$this->fileSlug().'_'.date("dmYHis").'.xbrl', ['Content-Type' => 'text/xml']);
+        }, $filename, ['Content-Type' => 'text/xml']);
 
 
     }
@@ -173,6 +175,7 @@ class InstanceController extends Controller
         );
 
         $file = $instance->setOptions($fact_module->exportOptions())->writePackage();
+        $fact_module->stamp(['exported_at' => now(), 'export_format' => 'csv', 'export_package' => $file['filename']]);
 
         // The archive is named like the package folder inside it (EBA convention).
         return response()->download(
@@ -272,6 +275,7 @@ class InstanceController extends Controller
         }
 
         $instance->update([
+            'data_changed_at' => now(),
             'entity_id' => $data['entity_id'] ?? null,
             'period' => \Carbon\Carbon::parse($data['period'])->format('Y-m-d'),
             'consolidation' => $data['consolidation'],
