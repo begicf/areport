@@ -82,6 +82,9 @@ class HomeController extends Controller
                 'changed_at' => $changed ? $changed->format('Y-m-d H:i:s') : null,
                 'changed_label' => $changed ? $changed->format('d.m.Y H:i') : null,
                 'changed_by' => $lastEditors[$m->id] ?? null,
+                'due' => ($due = $m->dueDate()) ? $due->format('Y-m-d') : null,
+                'due_label' => $due ? $due->format('d.m.Y') : null,
+                'due_days' => $due ? (int) now()->startOfDay()->diffInDays($due, false) : null,
             ];
         });
 
@@ -95,7 +98,7 @@ class HomeController extends Controller
             $rows = $rows->where('status', $status);
         }
 
-        $allowedSorts = ['period', 'module_name', 'changed_at', 'status'];
+        $allowedSorts = ['period', 'module_name', 'changed_at', 'status', 'due'];
         $sort = in_array($request->get('sort'), $allowedSorts, true) ? $request->get('sort') : 'changed_at';
         $rows = $rows->sortBy($sort, SORT_NATURAL | SORT_FLAG_CASE, $request->get('order') !== 'asc')->values();
 

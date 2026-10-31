@@ -392,6 +392,11 @@
                                     <div class="is-help">A period end, e.g. 31.12.2026.</div>
                                 </div>
                                 <div>
+                                    <label for="isDue">Filing deadline</label>
+                                    <input id="isDue" type="date" class="form-control form-control-sm">
+                                    <div class="is-help" id="isDueHelp">Leave empty for the EBA remittance date.</div>
+                                </div>
+                                <div>
                                     <label for="isConsolidation">Consolidation scope</label>
                                     <select id="isConsolidation" class="form-select form-select-sm">
                                         <option value="CON">Consolidated (CON)</option>
@@ -1358,6 +1363,8 @@
                         + escapeInspectorHtml(e.name + ' (' + e.lei + ')') + '</option>';
                 }).join('');
                 $('#isPeriod').val(d.reference_date || '');
+                $('#isDue').val(d.due_date || '').attr('placeholder', d.due_default || '');
+                $('#isDueHelp').text(d.due_default ? 'Empty = EBA remittance date (' + d.due_default.split('-').reverse().join('.') + ').' : 'Leave empty for the EBA remittance date.');
                 $('#isConsolidation').val(st.consolidation || 'CON');
                 $('#isCountry').val(st.country || '').attr('placeholder', st.country_default ? st.country_default + ' (from entity)' : 'e.g. FR');
                 $('#isCurrency').val(st.base_currency || 'EUR');
@@ -1404,6 +1411,7 @@
                 instance_id: instanceId,
                 entity_id: $('#isEntity').val() || null,
                 period: $('#isPeriod').val(),
+                due_date: $('#isDue').val() || null,
                 consolidation: $('#isConsolidation').val(),
                 country: $('#isCountry').val().trim() || null,
                 base_currency: $('#isCurrency').val().trim(),

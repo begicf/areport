@@ -13,11 +13,12 @@ class FactModule extends Model
         'user_id', 'taxonomy_id', 'entity_id', 'period', 'module_name', 'module_path', 'groups',
         'consolidation', 'country', 'base_currency', 'monetary_scale', 'decimals_monetary',
         'decimals_percentage', 'decimals_integer', 'decimals_decimal', 'filing_indicators',
-        'data_changed_at', 'validated_at', 'validation_summary', 'exported_at', 'export_format', 'export_package',
+        'data_changed_at', 'validated_at', 'validation_summary', 'exported_at', 'export_format', 'export_package', 'due_date',
     ];
 
     protected $casts = [
         'period' => 'date:d-m-Y',
+        'due_date' => 'date:Y-m-d',
         'filing_indicators' => 'array',
         'monetary_scale' => 'integer',
         'decimals_monetary' => 'integer',
@@ -65,6 +66,31 @@ class FactModule extends Model
         $id = request('instance_id');
 
         return $id ? static::query()->with('taxonomy')->find($id) : null;
+    }
+
+    /**
+     * Filing deadline: the one set on the instance, otherwise the EBA remittance date
+     * for the reference date (ITS on supervisory reporting): quarter ends → 12 May,
+     * 11 August, 11 November, 11 February; other month ends → the 15th day after.
+     * A deadline on a weekend moves to the next Monday.
+     */
+    public function dueDate(): ?\Carbon\CarbonImmutable
+    {
+        if ($this->due_date) {
+            return \Carbon\CarbonImmutable::parse($this->due_date->format('Y-m-d'));
+        }
+        if (! $this->period) {
+            return null;
+        }
+        $ref = \Carbon\CarbonImmutable::parse($this->period->format('Y-m-d'));
+        $quarterly = ['03-31' => [5, 12, 0], '06-30' => [8, 11, 0], '09-30' => [11, 11, 0], '12-31' => [2, 11, 1]];
+        $q = $quarterly[$ref->format('m-d')] ?? null;
+        $due = $q ? \Carbon\CarbonImmutable::create($ref->year + $q[2], $q[0], $q[1]) : $ref->addDays(15);
+        while ($due->isWeekend()) {
+            $due = $due->addDay();
+        }
+
+        return $due;
     }
 
     /** Reference date as Y-m-d (the period column holds a date). */

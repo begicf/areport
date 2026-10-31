@@ -125,6 +125,10 @@
         .home-dashboard .bootstrap-table .fixed-table-container { border: 0; }
         .home-dashboard .bootstrap-table .fixed-table-toolbar { display: none; }
         .home-table tbody td .home-module-caption { margin-top: 0; }
+        .home-due { line-height: 1.2; font-variant-numeric: tabular-nums; }
+        .home-due small { display: block; font-size: .68rem; font-weight: 600; }
+        .home-due .due-late { color: #b91c1c; } .home-due .due-soon { color: #b45309; }
+        .home-due .due-later { color: #64748b; font-weight: 500; } .home-due .due-ok { color: #2e7d4f; }
         .gs { position: relative; background: #fff; border: 1px solid #dbe4ef; border-left: 4px solid #e4902f; padding: .8rem 1rem .85rem; }
         .gs h2 { font-size: .95rem; font-weight: 700; margin: 0 0 .15rem; color: #16202c; }
         .gs .sub { font-size: .78rem; color: #64748b; margin: 0 0 .6rem; }
@@ -216,6 +220,7 @@
                     <th data-field="module_name" data-sortable="true" data-formatter="moduleNameFormatter">Instance &amp; entity</th>
                     <th data-field="status" data-width="190" data-sortable="true" data-formatter="statusFormatter">Status</th>
                     <th data-field="module_path" data-width="230" data-formatter="modulePathFormatter">Framework</th>
+                    <th data-field="due" data-width="130" data-sortable="true" data-formatter="dueFormatter">Due</th>
                     <th data-field="changed_at" data-width="160" data-sortable="true" data-formatter="changedFormatter">Last change</th>
                     <th data-field="open" data-width="150" data-align="right" data-formatter="actionOpen"></th>
                 </tr>
@@ -301,6 +306,19 @@
                 ? "<span class='home-tax" + (row.taxonomy_active ? '' : ' home-tax-other') + "' title='" + (row.taxonomy_active ? 'Active taxonomy' : 'Opens in its own taxonomy') + "'>" + escapeHtml(row.taxonomy_name) + "</span>"
                 : '';
             return "<div title='" + escapeHtml(value || '') + "'>" + tax + badge + "</div>";
+        }
+
+        // Filing deadline: overdue / due soon / later, or done once exported.
+        function dueFormatter(value, row) {
+            if (!value) return "<span class='home-muted'>—</span>";
+            const d = row.due_days;
+            let tag;
+            if (row.status === 'exported') tag = "<small class='due-ok'>exported</small>";
+            else if (d < 0) tag = "<small class='due-late'>" + (-d) + (d === -1 ? ' day' : ' days') + " overdue</small>";
+            else if (d === 0) tag = "<small class='due-soon'>due today</small>";
+            else if (d <= 14) tag = "<small class='due-soon'>in " + d + (d === 1 ? ' day' : ' days') + "</small>";
+            else tag = "<small class='due-later'>in " + d + " days</small>";
+            return "<div class='home-due'>" + escapeHtml(row.due_label) + tag + "</div>";
         }
 
         function changedFormatter(value, row) {
