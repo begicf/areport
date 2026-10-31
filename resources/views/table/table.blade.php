@@ -25,6 +25,10 @@
         /* The cells the validator flagged — what the reporter must fix. */
         #table_form td.dpm-cell-fail { background: #fee2e2 !important; outline: 2px solid #dc2626; outline-offset: -2px; }
         #table_form td.dpm-cell-fail input, #table_form td.dpm-cell-fail select { border-color: #dc2626 !important; background: #fff1f1; }
+        #table_form td.dpm-cell-warn { background: #fff7ed !important; outline: 2px solid #f59e0b; outline-offset: -2px; }
+        #table_form td.dpm-cell-warn input, #table_form td.dpm-cell-warn select { border-color: #f59e0b !important; background: #fffbeb; }
+        .dpm-val-toggle { background: none; border: 0; color: #2f557d; font-size: .76rem; font-weight: 600; padding: .2rem 0; cursor: pointer; }
+        .dpm-val-live { font-size: .68rem; color: #94a3b8; margin-left: .4rem; }
 
         /* Dense reporting workspace — space is precious here */
         .app-report-toolbar-tight { padding: .4rem .6rem; gap: .5rem; align-items: center; }
@@ -176,10 +180,10 @@
                 <span class="rib-cap">Instance</span>
             </div>
 
-            <div class="rib-sep"></div>
-            <div class="rib-group">
+            {{-- The table list on the left picks the table; this select only holds its state. --}}
+            <div class="rib-group d-none" aria-hidden="true">
                 <div class="rib-btns">
-                    <select id="group" onchange="changeTable(this,'G')" class="rib-select" aria-label="Table group">
+                    <select id="group" onchange="changeTable(this,'G')" class="rib-select" aria-label="Table group" tabindex="-1">
                         @foreach($groups as $key=>$row)
                             <option value="{{$row}}">{{$key}}</option>
                         @endforeach
@@ -766,7 +770,7 @@
         function module() {
 
 
-            axios.post('modules/group', {
+            axios.post('/modules/group', {
 
                 module: '{{$mod}}',
                 instance_id: instanceId,
@@ -858,7 +862,7 @@
             };
             setSaveStatus('saving', 'Saving…');
 
-            saveInFlight = axios.post('table/save', payload).then(function (response) {
+            saveInFlight = axios.post('/table/save', payload).then(function (response) {
                 const d = response.data || {};
                 if (!d.ok) throw new Error(d.error || 'Save failed.');
                 if (d.changes) renderTableNav();
@@ -887,6 +891,7 @@
         }
 
         $('#table_form').on('input change', 'input:not([type="hidden"]), select, textarea', markDirty);
+        $('#table_form').on('change', 'input:not([type="hidden"]), select, textarea', function () { scheduleAutoValidate(900); });
         $('#saveBtn').on('click', function () { save().catch(function () {}); });
         $('#saveStatus').on('click', function () { if (this.classList.contains('is-error')) save().catch(function () {}); });
 
@@ -910,6 +915,7 @@
 
         // ---- Instance validation (reporting flow) ----
         function resetValidation() {
+            valSeq++; clearTimeout(autoValTimer);   // drop runs of the table being left
             $('#validateInstanceBtn').prop('disabled', true);
             const box = document.getElementById('validationResult');
             if (box) { box.style.display = 'none'; box.innerHTML = ''; }
@@ -917,26 +923,40 @@
         }
 
         function clearFailedCells() {
-            document.querySelectorAll('#table_form td.dpm-cell-fail').forEach(function (td) {
-                td.classList.remove('dpm-cell-fail');
+            document.querySelectorAll('#table_form td.dpm-cell-fail, #table_form td.dpm-cell-warn').forEach(function (td) {
+                td.classList.remove('dpm-cell-fail', 'dpm-cell-warn');
+                if (td.dataset.valTitle) { td.removeAttribute('title'); delete td.dataset.valTitle; }
             });
         }
 
         // Paint the cells the validator flagged red. Rules key cells as
         // "<tablecode>,r<row>,c<col>"; parser cells carry rc-code="c<col>r<row>".
-        function highlightFailedCells(failedCells) {
+        // Rules key cells as "<tablecode>,r<row>,c<col>"; parser cells carry rc-code="c<col>r<row>".
+        // A cell used by a failing error rule turns red, by warnings only amber; its title names the rules.
+        function highlightFailedCells(failedCells, failed) {
             clearFailedCells();
-            const set = new Set(failedCells || []);
-            if (!set.size || !tableCode) return 0;
+            const byCell = {};
+            (failed || []).forEach(function (f) {
+                (f.facts || []).forEach(function (x) {
+                    const k = String(x.cell || '').toLowerCase().replace(' · ', ',').replace('/', ',');
+                    (byCell[k] = byCell[k] || []).push(f);
+                });
+            });
+            (failedCells || []).forEach(function (k) { byCell[k] = byCell[k] || [{ code: '', severity: 'error' }]; });
+            if (!Object.keys(byCell).length || !tableCode) return 0;
             const code = String(tableCode).toLowerCase();
             let hits = 0;
             document.querySelectorAll('#table_form td[rc-code]').forEach(function (td) {
                 const m = /^c([^r]+)r(.+)$/.exec(td.getAttribute('rc-code') || '');
                 if (!m) return;
                 const col = 'c' + m[1].toLowerCase(), row = 'r' + m[2].toLowerCase();
-                if (set.has(code + ',' + row + ',' + col) || set.has(code + ',' + col + ',' + row)) {
-                    td.classList.add('dpm-cell-fail'); hits++;
-                }
+                const rules = byCell[code + ',' + row + ',' + col] || byCell[code + ',' + col + ',' + row];
+                if (!rules) return;
+                const isError = rules.some(function (f) { return (f.severity || 'error') === 'error'; });
+                td.classList.add(isError ? 'dpm-cell-fail' : 'dpm-cell-warn');
+                const names = rules.map(function (f) { return f.code; }).filter(Boolean);
+                if (names.length) { td.title = (isError ? 'Fails: ' : 'Warning: ') + Array.from(new Set(names)).join(', '); td.dataset.valTitle = '1'; }
+                hits++;
             });
             return hits;
         }
@@ -945,33 +965,52 @@
             return String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         }
 
-        function validateInstance() {
+        // Live validation: runs when a table opens and shortly after each change, so the
+        // reporter always sees which cells break a rule (red) or raise a warning (amber).
+        let valSeq = 0, autoValTimer = null, valDetailsOpen = false;
+        function scheduleAutoValidate(delay) {
+            clearTimeout(autoValTimer);
+            autoValTimer = setTimeout(function () { if (tableCode) validateInstance({ auto: true }); }, delay);
+        }
+
+        function validateInstance(opts) {
+            const auto = !!(opts && opts.auto);
+            const seq = ++valSeq;
             const box = document.getElementById('validationResult');
-            box.style.display = 'block';
-            box.innerHTML = '<div class="dpm-loading">Running validation…</div>';
-            // Persist the draft first so values are consistent, then validate the live form.
-            saveIfDirty().catch(function () {}).finally(function () {
-                axios.post('table/validate', {
+            if (!auto) {
+                valDetailsOpen = true;
+                box.style.display = 'block';
+                box.innerHTML = '<div class="dpm-loading">Running validation…</div>';
+            }
+            // Manual run: persist the draft first so values are consistent. Live runs read the form as it is.
+            (auto ? Promise.resolve() : saveIfDirty().catch(function () {})).finally(function () {
+                axios.post('/table/validate', {
                     'instance_id': instanceId,
                     'table_data': $("#table_form").serialize(),
                     'table_code': tableCode,
                     'tab': $('#export_table_path').val()
                 }).then(function (response) {
+                    if (seq !== valSeq) return;   // a newer run is under way
                     const d = response.data || {};
-                    if (!d.ok) { box.innerHTML = '<span class="dpm-val-err">' + escapeValHtml(d.error || 'Validation failed.') + '</span>'; return; }
+                    if (!d.ok) { box.style.display = 'block'; box.innerHTML = '<span class="dpm-val-err">' + escapeValHtml(d.error || 'Validation failed.') + '</span>'; return; }
                     const s = d.summary || {};
-                    const hits = highlightFailedCells(d.failed_cells);
+                    const hits = highlightFailedCells(d.failed_cells, d.failed);
+                    // A clean live run stays out of the way; problems always show.
+                    if (auto && !(d.failed || []).length) { box.style.display = 'none'; box.innerHTML = ''; return; }
+                    box.style.display = 'block';
                     let html = '<div class="dpm-val-head">'
                         + '<span class="dpm-val-pill ok">' + (s.passed || 0) + ' passed</span>'
                         + '<span class="dpm-val-pill err">' + (s.failed || 0) + ' failed</span>'
                         + '<span class="dpm-val-pill ind">' + (s.indeterminate || 0) + ' indeterminate</span>'
                         + '<span class="dpm-val-pill mut">' + (s.unsupported || 0) + ' unsupported</span>'
-                        + '<span class="dpm-val-meta">' + escapeValHtml(d.table) + ' · ' + (d.values || 0) + ' values · ' + (s.total || 0) + ' rules</span>'
+                        + '<span class="dpm-val-meta">' + escapeValHtml(d.table) + ' · ' + (d.values || 0) + ' values · ' + (s.total || 0) + ' rules'
+                        + (auto ? '<span class="dpm-val-live"><i class="fas fa-bolt"></i> live</span>' : '') + '</span>'
                         + '<button type="button" class="dpm-val-close" onclick="resetValidationPanel()">&times;</button>'
                         + '</div>';
                     if ((d.failed || []).length) {
-                        html += '<div class="dpm-val-note">' + hits + ' cell(s) highlighted in red below — fix them and re-validate.</div>'
-                            + '<div class="dpm-val-fails">' + d.failed.map(function (f) {
+                        html += '<div class="dpm-val-note">' + hits + ' cell(s) marked below — red: a rule fails, amber: a warning. Hover a cell to see its rules.'
+                            + ' <button type="button" class="dpm-val-toggle" onclick="toggleValDetails(this)">' + (valDetailsOpen ? 'Hide' : 'Show') + ' ' + d.failed.length + ' rule(s)</button></div>'
+                            + '<div class="dpm-val-fails"' + (valDetailsOpen ? '' : ' style="display:none"') + '>' + d.failed.map(function (f) {
                                 return '<div class="dpm-val-fail">'
                                     + '<div class="dpm-val-fh"><i class="fas fa-circle dpm-sev-' + escapeValHtml(f.severity) + '"></i> <b>' + escapeValHtml(f.code) + '</b> '
                                     + '<code class="dpm-val-rule">' + escapeValHtml(f.rule || '') + '</code></div>'
@@ -986,9 +1025,21 @@
                     }
                     box.innerHTML = html;
                 }).catch(function (error) {
-                    box.innerHTML = '<span class="dpm-val-err">' + escapeValHtml(getRequestErrorMessage(error, 'Validation request failed.')) + '</span>';
+                    if (seq !== valSeq) return;
+                    const msg = getRequestErrorMessage(error, 'Validation request failed.');
+                    // Live runs stay silent on an empty table or when no rules apply.
+                    if (auto) { clearFailedCells(); box.style.display = 'none'; box.innerHTML = ''; return; }
+                    box.innerHTML = '<span class="dpm-val-err">' + escapeValHtml(msg) + '</span>';
                 });
             });
+        }
+
+        function toggleValDetails(btn) {
+            const list = document.querySelector('#validationResult .dpm-val-fails');
+            if (!list) return;
+            valDetailsOpen = list.style.display === 'none';
+            list.style.display = valDetailsOpen ? '' : 'none';
+            btn.textContent = btn.textContent.replace(/^(Show|Hide)/, valDetailsOpen ? 'Hide' : 'Show');
         }
 
         function resetValidationPanel() {
@@ -1068,6 +1119,7 @@
                 markActiveNav();
                 applyFocusCell();
                 $('#validateInstanceBtn').prop('disabled', false);
+                scheduleAutoValidate(200);
 
 
                 if (response.data.aspectNode == true) {
@@ -1293,7 +1345,7 @@
         });
 
         /* Import*/
-        $('#validateInstanceBtn').on('click', validateInstance);
+        $('#validateInstanceBtn').on('click', function () { validateInstance(); });
 
         $("#import").submit(function (e) {
             window.appModal.show('pleaseWaitDialog');
