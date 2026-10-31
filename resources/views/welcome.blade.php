@@ -116,6 +116,25 @@
             .shot.tilt{transform:none}
             .topnav nav{display:none}
         }
+        /* contact */
+        .contact{display:grid;grid-template-columns:1fr 1.3fr;gap:3rem;align-items:start}
+        .contact .lead2{color:var(--muted);font-size:.98rem}
+        .contact .pts{list-style:none;padding:0;margin:1.2rem 0 0;display:grid;gap:.6rem;color:#3e4a57;font-size:.92rem}
+        .contact .pts i{color:var(--blue);width:18px}
+        .cform{background:#fff;border:1px solid var(--line);border-radius:14px;padding:1.4rem;box-shadow:0 10px 30px rgba(16,24,40,.06)}
+        .cform .row2{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+        .cform label{display:block;font-size:.78rem;font-weight:600;color:#3e4a57;margin:.75rem 0 .3rem}
+        .cform input,.cform select,.cform textarea{width:100%;border:1px solid #cfd6df;border-radius:8px;padding:.6rem .7rem;font:inherit;font-size:.9rem;background:#fff;color:var(--ink)}
+        .cform textarea{min-height:130px;resize:vertical}
+        .cform input:focus,.cform select:focus,.cform textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(47,85,125,.12)}
+        .cform .hp{position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden}
+        .cform .foot{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-top:1rem;flex-wrap:wrap}
+        .cform .note{font-size:.74rem;color:var(--faint)}
+        .cform .err{color:#b42318;font-size:.76rem;margin-top:.25rem}
+        .cmsg{border-radius:10px;padding:.7rem .9rem;font-size:.88rem;margin-bottom:.8rem}
+        .cmsg.ok{background:#ecfdf3;border:1px solid #abefc6;color:#067647}
+        .cmsg.bad{background:#fef3f2;border:1px solid #fecdca;color:#b42318}
+        @media (max-width:900px){.contact{grid-template-columns:1fr}.cform .row2{grid-template-columns:1fr}}
     </style>
 </head>
 <body>
@@ -131,6 +150,7 @@
             <a href="#features">Features</a>
             <a href="#plugins">Plugins</a>
             <a href="#workflow">Workflow</a>
+            <a href="#contact">Contact</a>
             <a target="_blank" href="https://github.com/begicf/areport">GitHub</a>
         </nav>
         <div class="right">
@@ -224,7 +244,7 @@
             <span class="eyebrow">Two private plugins</span>
             <h2>Model the data. Validate the data.</h2>
             <p>Two optional power tools extend the core workspace.</p>
-            <p class="private-note"><i class="fas fa-lock"></i> DPM Architect and the Validation plugin are <b>not publicly available</b> — they are not part of the open-source AReport and are provided separately, on request.</p>
+            <p class="private-note"><i class="fas fa-lock"></i> DPM Architect and the Validation plugin are <b>not publicly available</b> — they are not part of the open-source AReport and are provided separately, on request. <a href="#contact">Contact the author →</a></p>
         </div>
 
         {{-- DPM Architect --}}
@@ -299,6 +319,68 @@
         <div class="step"><div class="n">4</div><h4>Export</h4><p>Produce a valid xBRL-XML, OIM CSV or JSON instance to file.</p></div>
     </div>
 </section>
+
+{{-- ===== Contact (address never on the page; honeypot + timing + rate limit against spam) ===== --}}
+<section class="pad wrap" id="contact">
+    <div class="contact">
+        <div>
+            <span class="eyebrow">Contact</span>
+            <h2 style="margin:.4rem 0 .6rem">Talk to the author</h2>
+            <p class="lead2">Interested in DPM Architect or the Validation plugin, or in using AReport for your regulatory reporting? Send a message and the author will reply by email.</p>
+            <ul class="pts">
+                <li><i class="fas fa-lock"></i> Access to the private plugins</li>
+                <li><i class="fas fa-landmark"></i> Own taxonomies and modules for a supervisor</li>
+                <li><i class="fas fa-envelope-open-text"></i> Your address is only used to answer you</li>
+            </ul>
+        </div>
+        <form class="cform" id="contactForm" method="POST" action="{{ route('contact.store') }}" novalidate>
+            @csrf
+            <div id="contactStatus">
+                @if (session('contact_status'))<div class="cmsg ok"><i class="fas fa-circle-check"></i> {{ session('contact_status') }}</div>@endif
+                @if ($errors->any())<div class="cmsg bad">{{ $errors->first() }}</div>@endif
+            </div>
+            <input type="hidden" name="token" value="{{ \App\Http\Controllers\Contact\ContactController::formToken() }}">
+            <div class="hp" aria-hidden="true"><label for="cWebsite">Website</label><input id="cWebsite" type="text" name="website" tabindex="-1" autocomplete="off"></div>
+            <div class="row2">
+                <div><label for="cName">Name</label><input id="cName" name="name" required maxlength="120" value="{{ old('name') }}" autocomplete="name"></div>
+                <div><label for="cEmail">Email</label><input id="cEmail" type="email" name="email" required maxlength="190" value="{{ old('email') }}" autocomplete="email"></div>
+            </div>
+            <div class="row2">
+                <div><label for="cOrg">Organisation <span style="font-weight:400;color:var(--faint)">(optional)</span></label><input id="cOrg" name="organisation" maxlength="190" value="{{ old('organisation') }}" autocomplete="organization"></div>
+                <div><label for="cTopic">Topic</label>
+                    <select id="cTopic" name="topic">
+                        @foreach (\App\Model\ContactMessage::TOPICS as $k => $v)<option value="{{ $k }}" @selected(old('topic', 'plugins') === $k)>{{ $v }}</option>@endforeach
+                    </select>
+                </div>
+            </div>
+            <label for="cMessage">Message</label>
+            <textarea id="cMessage" name="message" required minlength="10" maxlength="4000">{{ old('message') }}</textarea>
+            <div class="foot">
+                <span class="note">No newsletter, no tracking — the message goes to the author only.</span>
+                <button class="btn btn-primary" type="submit" id="contactSend">Send message <i class="fas fa-paper-plane"></i></button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<script>
+    // Send in place (the form still works without JavaScript).
+    document.getElementById('contactForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const f = e.target, btn = document.getElementById('contactSend'), box = document.getElementById('contactStatus');
+        btn.disabled = true;
+        fetch(f.action, { method: 'POST', body: new FormData(f), headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(function (r) { return r.json().then(function (d) { return { r: r, d: d }; }); })
+            .then(function (x) {
+                if (x.r.ok) { box.innerHTML = '<div class="cmsg ok"><i class="fas fa-circle-check"></i> ' + x.d.message + '</div>'; f.querySelectorAll('input:not([type=hidden]):not([name=website]),textarea').forEach(function (i) { i.value = ''; }); return; }
+                const msg = x.r.status === 429 ? 'Too many messages from your connection — please try again in a few minutes.'
+                    : (x.d.errors ? Object.values(x.d.errors)[0][0] : (x.d.message || 'The message could not be sent.'));
+                box.innerHTML = '<div class="cmsg bad">' + msg.replace(/</g, '&lt;') + '</div>';
+            })
+            .catch(function () { box.innerHTML = '<div class="cmsg bad">The message could not be sent — please try again.</div>'; })
+            .finally(function () { btn.disabled = false; });
+    });
+</script>
 
 {{-- ===== Final CTA ===== --}}
 <section class="wrap" style="padding-bottom:3.5rem">

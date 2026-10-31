@@ -15,6 +15,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// Public contact form: at most 3 messages per IP in 10 minutes (plus honeypot / timing checks).
+Route::post('/contact', 'Contact\ContactController@store')->middleware('throttle:3,10')->name('contact.store');
+
 
 Auth::routes();
 Route::get('/home', 'Areport\HomeController@index')->name('home');

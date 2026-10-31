@@ -40,4 +40,20 @@ return [
     'views' => [
         'authenticated_navigation' => array_filter(array_map('trim', explode(',', env('AREPORT_AUTH_NAVIGATION_VIEWS', '')))),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Contact form
+    |--------------------------------------------------------------------------
+    |
+    | Where the public contact form's messages are mailed (never shown on the
+    | page; messages are also stored in contact_messages), and its spam limits.
+    |
+    */
+
+    'contact' => [
+        'to' => env('AREPORT_CONTACT_TO', env('MAIL_FROM_ADDRESS')),
+        'min_seconds' => (int) env('AREPORT_CONTACT_MIN_SECONDS', 4),
+        'max_links' => (int) env('AREPORT_CONTACT_MAX_LINKS', 2),
+    ],
 ];
