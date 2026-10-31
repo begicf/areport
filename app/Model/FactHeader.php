@@ -118,6 +118,14 @@ class FactHeader extends Model
                     }
                 }
 
+                // Typed members (a typed z-axis sheet's key): xBRL-CSV wants the value flat.
+                if (isset($context['typedMember']) && is_array($context['typedMember'])) {
+                    foreach ($context['typedMember'] as $typedDimension => $typed) {
+                        $context[$typedDimension] ??= is_array($typed) ? ($typed['value'] ?? null) : $typed;
+                    }
+                    unset($context['typedMember']);
+                }
+
                 $facts[] = [
                     'fact_header_id' => $row->fact_header_id,
                     'table_path' => $result->table_path,
