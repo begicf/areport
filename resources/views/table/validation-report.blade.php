@@ -115,6 +115,7 @@
                     <span>Tables: <b>{{ $meta['tables'] }}</b></span>
                     <span>Values: <b>{{ $meta['values'] }}</b></span>
                     <span>Generated: <b>{{ $meta['generated'] }}</b></span>
+                    @if(!empty($meta['rules_source']))<span>Rules: <b>{{ $meta['rules_source'] }}</b></span>@endif
                 </div>
             </div>
             <div class="d-flex flex-column align-items-end gap-2">
@@ -198,6 +199,9 @@
                                     </span>
                                 @endforeach
                             </div>
+                        @endif
+                        @if(!empty($r['failing']))
+                            <div class="vr-prec" style="color:#b91c1c"><i class="fas fa-crosshairs"></i> Fails for: {{ implode(', ', array_slice($r['failing'], 0, 12)) }}@if(count($r['failing']) > 12) … (+{{ count($r['failing']) - 12 }})@endif</div>
                         @endif
                         @if($r['status'] === 'not_applicable' && $r['precondition'])
                             <div class="vr-prec"><i class="fas fa-filter"></i> Applies when: <code>{{ $r['precondition'] }}</code></div>
