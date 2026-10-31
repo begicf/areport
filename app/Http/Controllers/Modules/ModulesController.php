@@ -342,8 +342,14 @@ class ModulesController extends Controller
             foreach ($group as $row) {
 
                 $k = Format::getAfterSpecChar($row['href'], '#');
-                $tmp[$k] =
-                    $dir . DIRECTORY_SEPARATOR . (explode("-rend", $row['href']))[0] . '.xsd';
+                $schema = (explode("-rend", $row['href']))[0] . '.xsd';
+                // A module may reference another owner's table by its official URL
+                // (http://www.eba.europa.eu/…): that file lives under the taxonomy root.
+                if (preg_match('#^https?://#i', $schema) && preg_match('#^(.*?' . preg_quote(DIRECTORY_SEPARATOR . 'tax' . DIRECTORY_SEPARATOR, '#') . '+[^' . preg_quote(DIRECTORY_SEPARATOR, '#') . ']+)#', $dir, $root)) {
+                    $tmp[$k] = $root[1] . DIRECTORY_SEPARATOR . preg_replace('#^https?://#i', '', $schema);
+                } else {
+                    $tmp[$k] = $dir . DIRECTORY_SEPARATOR . $schema;
+                }
             }
 
             $_g[$key] = json_encode($tmp);
