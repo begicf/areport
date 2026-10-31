@@ -92,15 +92,14 @@
         .app-report-toolbar.app-report-toolbar-tight { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem .9rem; margin: 0 0 .55rem; }
         .app-report-toolbar-tight .report-title { flex: 0 1 auto; max-width: 48%; }
         .app-report-toolbar-tight .app-report-groupbar { flex: 0 0 auto; gap: .3rem; }
-        .app-report-toolbar-tight .app-report-groupbar .btn { padding: .2rem .55rem; font-size: .74rem; }
+        #button_group > div { display: flex; gap: .25rem; }
+        #button_group .btn { padding: .12rem .5rem !important; font-size: .72rem !important; min-height: 0 !important; line-height: 1.35; border-radius: 5px; box-shadow: none !important; }
         .app-report-toolbar-tight .app-report-sheets { flex: 0 1 auto; min-width: 0; }
         .app-report-toolbar-tight .app-report-sheets > * { width: auto; }
         .app-report-toolbar-tight .app-report-sheets select { max-width: 340px; }
         .app-report-toolbar-tight .app-typed-sheet { flex-wrap: nowrap; }
         .app-report-toolbar-tight .app-report-groupbar:empty, .app-report-toolbar-tight .app-report-sheets:empty { display: none; }
-        /* The table as wide as its content (no stretching to the panel), cells sized by what they hold. */
-        .app-report-table-shell table, .app-report-table-shell .xbrl_table { min-width: 0 !important; width: auto !important; }
-        .app-report-table-shell #table_form { min-width: 0; }
+        /* Cells keep a sensible minimum width; the table itself fills the panel. */
         #table_form td.xbrl-td { min-width: 7.5rem; }
         #table_form td:has(> .xbrl-input-text), #table_form td:has(> textarea) { min-width: 16rem; }
         #table_form td:has(> .xbrl-select) { min-width: 11rem; }
