@@ -109,17 +109,22 @@ Stavke 1–10 i UI: Završeno; Postavke: U radu; stavka 11 (DPM 2.0 model): Otvo
 - `/pro/dictionary` (`DpmDictionaryController`, `dictionary/index.blade.php`): Domains (Members / Hierarchies / Used by), Dimensions (picker domene), Metrics (tip; enumeration → domena + hijerarhija), editor stabla hijerarhije (dodaj članove, pomjeri, uvuci, predznak, abstract; EBA → „Copy as own“). Forme u panelima, EBA read-only. Stari pregled/modal rječnika u Architectu uklonjen; toolbar vodi na novu stranicu.
 - Korisnik: baza nema bitnih podataka — slobodno refaktorisati/brisati/re-importovati.
 
-### Nedovršeno (necommitovano u areport-pro)
-- Generisanje modula: `DpmModuleGenerator` (mod xsd/pre/lab/json, tab.xsd, fws.xsd, taxonomy package), data pointi po ćeliji (`dpm_data_points.signature`, migracija `000006` već pokrenuta), JSON tabele u `DpmTaxonomyGenerator`, EBA dp u `Dpm2TableAdopter`. Netestirano — nastaviti nakon UI popravki.
+### Sprint 7 — generisanje modula od kraja do kraja (2026-10-31)
+- `DpmOwnerDictionaryWriter`: vlastiti rječnik iz baze u EBA rasporedu pod `<owner host>/eu/fr/xbrl/crr/dict` (met.xsd s enum/enum-set → domena + hijerarhija, dim.xsd + dimension-default, exp/typ, dom/<d>/mem.xsd, hier.xsd + hier-def.xml).
+- Data pointi po potpisu (`dpm_data_points.signature`): EBA kod iz DPM 2.0, inače `dpfba<n>`; stabilni kroz regenerisanje.
+- `DpmTaxonomyGenerator` piše i `<code>.json` (xBRL-CSV template); `DpmModuleGenerator`: rječnik → tabele → mod xsd/pre/lab/json, tab.xsd, fws.xsd; taxonomy package (META-INF).
+- Architect: meni modula „Generate XBRL taxonomy (module)“ i „Download taxonomy package“; nov modul dobija predložen kod (`COREP_FBA1`…); rječnik: tip „enumeration set“, predloženi kodovi (x1, x2 → x3).
+- Biblioteka: hijerarhije kao stablo (ranije gubila članove, npr. AP1 2/6), uvučene opcije, abstract neizborni; def uparivanje za domene s `_`, kocke bez dimenzija, strože uparivanje (EBA F_32.01 sada 138 otvorenih = DPM 2.0); integer kao broj.
+- Demo u bazi: framework SPN, modul `SPN_FBA1`, tabela S_01.00 (rječnik FBA_RS, FBA_DIM1, fba_m1–m3), instanca 18 s podacima; generisano u `tax/eba44/www.fba.ba`. Reporting: Modules → SPN → SPN / 1.0 → Operational risk incidents.
 
 ### Posljednji commitovi
-- `areport-pro` 121db41 (DPM 2.0 u Architectu), 2932a21 (generator taksonomije), 01fd60b (rječnik) — pushano
+- `areport-pro` … 01fd60b (rječnik), 901bea3 (UI rječnika), cc66605 (generisanje modula) — pushano
 - `areport` b7017d2 — test faktorizacije hiperkocki — pushano
-- `areport-dpm-xbrl` 59f460a — resolveHref — pushano
+- `areport-dpm-xbrl` 59f460a, 9f33673 (stablo hijerarhija), 966f066 (def uparivanje) — pushano
 - `dpm-xl-service` 08a5e33 — `where` / `group by`
 
 ## Otvoreno / sljedeći koraci
-1. **SLJEDEĆE:** generisanje na nivou modula/frameworka: `mod/<modul>.xsd` (entry point s tableGroup/filing indicators), FBA rječnik (authored dimenzije/članovi/metrike → `dict/`), taxonomy package (`META-INF/catalog.xml`, `taxonomyPackage.xml`), validacijska pravila (`val/`), te prikaz generisane tabele na reporting strani (`/table`).
+1. **SLJEDEĆE:** validacijska pravila u generisanom paketu (`val/`), EBA tabele unutar FBA modula (import preko apsolutnog URL-a), vlastita hijerarhija nad EBA domenom (labele EBA članova), labele EBA domena u rječniku, provjera paketa eksternim validatorom (Arelle).
 2. Tipizirana key dimenzija: `resolveTypedDomainRef` u biblioteci traži `typ.xsd` relativno na host tabele; za FBA tabele treba fallback na EBA host.
 3. Validacija uzorka u Architectu ne prenosi dimenzije iz CSV-a → `where` pravila na uzorku daju „nedostaju podaci“.
 4. Ubrzati ANTLR parsiranje DPM 2.0 pravila (prvi prolaz ~20 s); moguć brzi put za v0.9.
