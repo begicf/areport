@@ -117,10 +117,10 @@ class FilingSettingsAndPreflightTest extends TestCase
         $this->assertSame(['not_validated'], $codes);   // a warning, not a blocker
         $this->assertMatchesRegularExpression('/^5493001KJTIIGC8Y1R12\.CON_FR_COREP040100_COREPOF_2026-12-31_\d{17}\.zip$/', $result['package']);
 
-        // XML is allowed but flagged: EBA 4.x is remitted as xBRL-CSV.
+        // xBRL-XML is refused for reference dates from 31.03.2026 (Filing Rules v5.9).
         [$result, $codes] = $this->preflightCodes('xml');
-        $this->assertTrue($result['ok']);
-        $this->assertSame(['not_validated', 'xml_legacy'], $codes);
+        $this->assertFalse($result['ok']);
+        $this->assertSame(['not_validated', 'xml_not_accepted'], $codes);
     }
 
     public function testPreflightCatchesDatesIndicatorsAndLei(): void
@@ -171,6 +171,10 @@ class FilingSettingsAndPreflightTest extends TestCase
 
         $this->assertStringContainsString("entityID,rs:5493001KJTIIGC8Y1R12.IND\n", $contents['parameters.csv']);
         $this->assertStringContainsString("dp109056,1500000000\n", $contents['c_01.00.csv']);   // 1 500 million
+        // Every template of the module has an indicator; the unreported ones are negative and have no file.
+        $this->assertStringContainsString("C_01.00,true\n", $contents['FilingIndicators.csv']);
+        $this->assertStringContainsString("C_02.00,false\n", $contents['FilingIndicators.csv']);
+        $this->assertArrayNotHasKey('c_02.00.a.csv', $contents);
     }
 
     public function testExportIsRefusedWhenChecksFail(): void
