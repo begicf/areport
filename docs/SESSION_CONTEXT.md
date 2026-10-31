@@ -148,3 +148,8 @@ Stavke 1–10 i UI: Završeno; Postavke: U radu; stavka 11 (DPM 2.0 model): Otvo
 6. Testni entitet „Apple Inc.“ još u bazi.
 7. Razdjelnici hiljada u poljima i rokovi predaje nisu urađeni.
 8. Moguće: Excel s pravilima, kvartalni „small packages“ s deaktivacijama.
+
+## 2026-10-31 (kasno) — Structure view + metrike
+- Architect Structure tab redizajniran (`areport-pro/resources/views/dpm-model/index.blade.php`, `renderStructure` + `renderStructureList`): filter, brojači, toggle "Metric & dimensions", kartica po osi (Y plava / X zelena / Z narandžasta), grid Code | Label | Metric | Dimensions, indent vodilice, ikone tipa podatka, key (open) chipovi; dvoklik = edit.
+- `structure()` payload: `metric_info` {name,type}, `key`. `addOrdinate/updateOrdinate` primaju `key` {dimension_id, hierarchy_id} → `ordinateKey()`; UI za key u coordinate modalu još NIJE urađen (sljedeći korak).
+- `DpmDictionaryImporter::importMetrics` čita i `met/<release>/met.xsd` (+185 metrika, npr. qCWF); kasnija verzija pobjeđuje. Enum metrike ponovo povezane (0 nepovezanih).
