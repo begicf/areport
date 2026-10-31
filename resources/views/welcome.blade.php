@@ -260,6 +260,25 @@
                 <img src="{{ asset('images/landing/validation.png') }}" alt="Validation report of an instance">
             </div>
         </div>
+
+        {{-- Live validation on the form --}}
+        <div class="feat">
+            <div class="ftext">
+                <span class="pill"><i class="fas fa-bolt"></i> Live on the form</span>
+                <h3>See what breaks a rule while you enter the data</h3>
+                <p>As soon as a table opens — and again after every change — the rules run in the background and the form marks the cells to look at. No separate step, no guessing which figure is wrong.</p>
+                <ul>
+                    <li><i class="fas fa-check"></i> Red cells break a blocking rule, amber cells raise a warning</li>
+                    <li><i class="fas fa-check"></i> Hover a cell to see which rules it takes part in</li>
+                    <li><i class="fas fa-check"></i> The table list shows which tables still have errors</li>
+                    <li><i class="fas fa-check"></i> Fix a value and the mark clears on its own</li>
+                </ul>
+            </div>
+            <div class="shot">
+                <div class="shot-bar"><span class="shot-dot" style="background:#ef6a5f"></span><span class="shot-dot" style="background:#f5bf4f"></span><span class="shot-dot" style="background:#61c454"></span></div>
+                <img src="{{ asset('images/landing/form.png') }}" alt="Reporting form with cells marked by live validation">
+            </div>
+        </div>
     </div>
 </div>
 
