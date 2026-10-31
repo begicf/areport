@@ -868,7 +868,10 @@ class TableController extends Controller
             ->orderByDesc('created_at')->orderByDesc('id')
             ->paginate(100)->withQueryString();
 
-        return view('table.history', compact('module', 'audits'));
+        // Row / column / member names instead of codes (from the plugin's DPM model, when installed).
+        $labels = \App\Support\CellLabels::available() ? new \App\Support\CellLabels((int) $module->taxonomy_id) : null;
+
+        return view('table.history', compact('module', 'audits', 'labels'));
     }
 
 }

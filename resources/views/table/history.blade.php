@@ -23,6 +23,8 @@
         .vhist-kind.removed { background: #fdecec; color: #b91c1c; }
         .vhist-empty { padding: 2rem; text-align: center; color: var(--faint); }
         .vhist-pager { margin-top: .8rem; }
+        .vhist-name { display: block; font-family: var(--bs-body-font-family, -apple-system, "Segoe UI", Roboto, sans-serif); font-size: .74rem; color: #334155; white-space: normal; max-width: 360px; }
+        .vhist-code { display: block; font-size: .66rem; color: var(--faint); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
     </style>
 @endpush
 
@@ -57,15 +59,19 @@
                         @php
                             $kind = is_null($a->old_value) ? 'added' : (is_null($a->new_value) ? 'removed' : 'changed');
                             $tableCode = strtoupper(pathinfo((string) $a->table_path, PATHINFO_FILENAME));
+                            $cellName = $labels?->cell((string) $a->table_path, (string) $a->cr_code);
+                            $sheetName = $labels?->sheet((string) $a->table_path, $a->cr_sheet_code);
+                            $oldName = $labels?->value($a->old_value);
+                            $newName = $labels?->value($a->new_value);
                         @endphp
                         <tr>
                             <td class="vhist-when">{{ $a->created_at?->format('d.m.Y H:i:s') }}</td>
                             <td>{{ $a->user->name ?? $a->user->email ?? '—' }}</td>
-                            <td>{{ $tableCode }}@if($a->cr_sheet_code && $a->cr_sheet_code !== '000') <span class="vhist-none">· sheet {{ $a->cr_sheet_code }}</span>@endif</td>
-                            <td class="vhist-cell">{{ $a->cr_code }}</td>
+                            <td>{{ $tableCode }}@if($a->cr_sheet_code && $a->cr_sheet_code !== '000') <span class="vhist-none" title="{{ $a->cr_sheet_code }}">· {{ $sheetName ?: 'sheet '.$a->cr_sheet_code }}</span>@endif</td>
+                            <td class="vhist-cell">@if($cellName)<span class="vhist-name">{{ $cellName }}</span><span class="vhist-code">{{ $a->cr_code }}</span>@else{{ $a->cr_code }}@endif</td>
                             <td><span class="vhist-kind {{ $kind }}">{{ $kind }}</span></td>
-                            <td class="vhist-val">@if(is_null($a->old_value))<span class="vhist-none">—</span>@else<span class="vhist-old">{{ $a->old_value }}</span>@endif</td>
-                            <td class="vhist-val">@if(is_null($a->new_value))<span class="vhist-none">—</span>@else<span class="vhist-new">{{ $a->new_value }}</span>@endif</td>
+                            <td class="vhist-val">@if(is_null($a->old_value))<span class="vhist-none">—</span>@else<span class="vhist-old" title="{{ $oldName ? $a->old_value : '' }}">{{ $oldName ?: $a->old_value }}</span>@endif</td>
+                            <td class="vhist-val">@if(is_null($a->new_value))<span class="vhist-none">—</span>@else<span class="vhist-new" title="{{ $newName ? $a->new_value : '' }}">{{ $newName ?: $a->new_value }}</span>@endif</td>
                         </tr>
                     @endforeach
                     </tbody>
