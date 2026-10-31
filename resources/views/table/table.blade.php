@@ -104,6 +104,31 @@
         .pf-item.warning { background: #fff7ed; border-color: #fed7aa; color: #9a3412; }
         .pf-ok { background: #e8f6ee; border: 1px solid #cce6d8; color: #166534; border-radius: 8px; padding: .55rem .7rem; font-size: .82rem; }
         .pf-package { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .72rem; word-break: break-all; color: #52606d; margin-top: .6rem; }
+        /* Table list beside the grid */
+        .report-body { display: flex; gap: .6rem; align-items: flex-start; }
+        .report-body > .app-report-panel { flex: 1 1 auto; min-width: 0; }
+        .tnav { flex: 0 0 200px; background: #fff; border: 1px solid var(--line); border-radius: 9px; position: sticky; top: .5rem;
+            max-height: calc(100vh - 140px); display: flex; flex-direction: column; }
+        .tnav.collapsed { flex-basis: 34px; }
+        .tnav.collapsed .tnav-list, .tnav.collapsed .tnav-title span, .tnav.collapsed .tnav-legend { display: none; }
+        .tnav-title { display: flex; align-items: center; justify-content: space-between; padding: .45rem .6rem; border-bottom: 1px solid var(--line);
+            font-size: .6rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--faint); }
+        .tnav-title button { border: 0; background: transparent; color: var(--faint); padding: 0 .1rem; }
+        .tnav-list { overflow: auto; padding: .25rem; }
+        .tnav-item { display: flex; align-items: center; gap: .45rem; width: 100%; border: 0; background: transparent; text-align: left;
+            padding: .28rem .45rem; border-radius: 6px; font-size: .76rem; color: #3a4654; }
+        .tnav-item:hover { background: var(--blue-soft); }
+        .tnav-item.active { background: var(--blue); color: #fff; }
+        .tnav-dot { width: 8px; height: 8px; border-radius: 50%; background: #d5dbe3; flex: 0 0 8px; }
+        .tnav-item.data .tnav-dot { background: #4a9d6e; }
+        .tnav-item.err .tnav-dot { background: #dc2626; }
+        .tnav-err { margin-left: auto; font-size: .62rem; font-weight: 700; background: #fdecec; color: #b91c1c; border-radius: 999px; padding: 0 .35rem; }
+        .tnav-item.active .tnav-err { background: #fff; }
+        .tnav-legend { padding: .4rem .6rem; border-top: 1px solid var(--line); font-size: .62rem; color: var(--faint); display: flex; gap: .6rem; flex-wrap: wrap; }
+        .tnav-legend i { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: .2rem; }
+        .report-title { font-size: .86rem; font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+        .report-title small { font-weight: 500; color: var(--faint); margin-left: .35rem; }
+        #table_form td.dpm-cell-focus { outline: 3px solid #e4902f; outline-offset: -3px; background: #fff7ed !important; }
         /* Cell inspector hidden — reclaim vertical space */
         #cellInspector { display: none !important; }
     </style>
@@ -210,8 +235,16 @@
 
         @include('flash.flash-message')
 
+        <div class="report-body">
+        <aside class="tnav" id="tableNav" aria-label="Tables">
+            <div class="tnav-title"><span>Tables</span><button type="button" id="tnavToggle" title="Collapse"><i class="fas fa-angles-left"></i></button></div>
+            <div class="tnav-list" id="tnavList"></div>
+            <div class="tnav-legend"><span><i style="background:#4a9d6e"></i>data</span><span><i style="background:#d5dbe3"></i>empty</span><span><i style="background:#dc2626"></i>errors</span></div>
+        </aside>
+
         <section class="app-panel app-report-panel">
             <div class="app-report-toolbar app-report-toolbar-tight">
+                <div class="report-title" id="tableTitle"></div>
                 <div id="button_group" class="app-report-groupbar"></div>
                 <div id="sheets" class="app-report-sheets"></div>
                 <div class="report-unit" id="reportUnit">Amounts in <b>{{ $instance ? $instance->amountUnitLabel() : 'thousands EUR' }}</b> · percentages in %</div>
@@ -263,6 +296,7 @@
                 <button type="button" class="btn btn-sm btn-outline-secondary" id="delRow"><i class="fas fa-minus"></i> Remove row</button>
             </div>
         </section>
+        </div>
 
     </div>
     {{-- Instance export (xBRL) goes through its own form after the pre-export check --}}
@@ -384,6 +418,76 @@
         var aspectNode = null;
         var tableCode = null;
         const instanceId = @json($instance_id);
+        // Set when opened from a validation report link: select that table, mark that cell.
+        let focusTarget = @json($focus ?? null);
+
+        // ---- Table list (status per table group) ----
+        function renderTableNav() {
+            axios.get('/table/navigator', { params: { instance_id: instanceId } }).then(function (response) {
+                const items = response.data.items || [];
+                const current = document.querySelector('#group') ? document.querySelector('#group').selectedIndex : -1;
+                document.getElementById('tnavList').innerHTML = items.map(function (it, i) {
+                    const cls = (it.errors ? 'err' : (it.has_data ? 'data' : '')) + (i === current ? ' active' : '');
+                    return '<button type="button" class="tnav-item ' + cls + '" data-index="' + i + '" title="' + escapeInspectorHtml(it.tables.join(', ')) + '">'
+                        + '<span class="tnav-dot"></span><span>' + escapeInspectorHtml(it.name) + '</span>'
+                        + (it.errors ? '<span class="tnav-err">' + it.errors + '</span>' : '') + '</button>';
+                }).join('');
+            }).catch(function () {});
+        }
+
+        $(document).on('click', '.tnav-item', function () {
+            const select = document.querySelector('#group');
+            const index = parseInt(this.dataset.index, 10);
+            if (!select || select.selectedIndex === index) return;
+            select.selectedIndex = index;
+            changeTable(select);
+        });
+
+        $('#tnavToggle').on('click', function () {
+            const nav = document.getElementById('tableNav');
+            nav.classList.toggle('collapsed');
+            this.innerHTML = nav.classList.contains('collapsed') ? '<i class="fas fa-angles-right"></i>' : '<i class="fas fa-angles-left"></i>';
+        });
+
+        function markActiveNav() {
+            const select = document.querySelector('#group');
+            document.querySelectorAll('.tnav-item').forEach(function (b) {
+                b.classList.toggle('active', select && parseInt(b.dataset.index, 10) === select.selectedIndex);
+            });
+        }
+
+        // Pick the group (and table within it) holding focusTarget.table.
+        function applyFocusSelection() {
+            const select = document.querySelector('#group');
+            if (!focusTarget || !focusTarget.table || !select) return null;
+            const needle = '/' + focusTarget.table + '/';
+            for (let i = 0; i < select.options.length; i++) {
+                // An option is {"C_01.00": {"eba_tC_01.00": "/…/c_01.00.xsd", …}}.
+                let group = {};
+                try { group = JSON.parse(select.options[i].value); } catch (e) {}
+                const tables = Object.values(group)[0] || {};
+                const paths = typeof tables === 'object' ? Object.values(tables) : [tables];
+                const path = paths.find(p => String(p).toLowerCase().indexOf(needle) !== -1);
+                if (path) {
+                    select.selectedIndex = i;
+                    return paths.length > 1 ? path : null;
+                }
+            }
+            return null;
+        }
+
+        function applyFocusCell() {
+            if (!focusTarget) return;
+            const target = focusTarget;
+            focusTarget = null;
+            if (!target.cell) return;
+            const td = document.querySelector('#table_form td[rc-code="' + target.cell + '"]');
+            if (!td) return;
+            td.classList.add('dpm-cell-focus');
+            td.scrollIntoView({ block: 'center', inline: 'center' });
+            const input = td.querySelector('input:not([type=hidden]), select');
+            if (input) input.focus({ preventScroll: true });
+        }
         var activeInspectorCell = null;
         var translationWorkspaceUrl = @json(Route::has('areport-pro.dpm-model.index') ? route('areport-pro.dpm-model.index') : null);
 
@@ -625,8 +729,14 @@
             setupCellInspector();
             const group = document.querySelector('#group');
             if (group) {
-                changeTable(group);
+                const focusPath = applyFocusSelection();
+                if (focusPath) {
+                    changeTable({ value: focusPath }, 'T');
+                } else {
+                    changeTable(group);
+                }
             }
+            renderTableNav();
         }
 
 
@@ -738,6 +848,7 @@
             saveInFlight = axios.post('table/save', payload).then(function (response) {
                 const d = response.data || {};
                 if (!d.ok) throw new Error(d.error || 'Save failed.');
+                if (d.changes) renderTableNav();
                 if (editVersion === version) {
                     savedVersion = version;
                     lastSavedText = 'Saved ' + (d.saved_at || '');
@@ -938,6 +1049,11 @@
                 initializeSheetSelector();
                 setupCellInspector();
                 updateTranslationWorkspaceButton();
+                const title = ($('#table_form .xbrl-title').first().text() || '').trim();
+                $('#tableTitle').html(escapeInspectorHtml(String(tableCode || '').replace(/_/g, ' ').toUpperCase())
+                    + (title && title.toLowerCase() !== String(tableCode || '').toLowerCase() ? '<small>' + escapeInspectorHtml(title) + '</small>' : ''));
+                markActiveNav();
+                applyFocusCell();
                 $('#validateInstanceBtn').prop('disabled', false);
 
 

@@ -108,19 +108,19 @@ class FilingSettingsAndPreflightTest extends TestCase
     {
         [$result, $codes] = $this->preflightCodes();
         $this->assertFalse($result['ok']);
-        $this->assertSame(['country'], $codes);   // the entity has no country yet
+        $this->assertSame(['country', 'not_validated'], $codes);   // the entity has no country yet; never validated (warning)
 
         $this->postJson('/instance/settings', $this->settings())->assertOk();
 
         [$result, $codes] = $this->preflightCodes();
         $this->assertTrue($result['ok']);
-        $this->assertSame([], $codes);
+        $this->assertSame(['not_validated'], $codes);   // a warning, not a blocker
         $this->assertMatchesRegularExpression('/^5493001KJTIIGC8Y1R12\.CON_FR_COREP040100_COREPOF_2026-12-31_\d{17}\.zip$/', $result['package']);
 
         // XML is allowed but flagged: EBA 4.x is remitted as xBRL-CSV.
         [$result, $codes] = $this->preflightCodes('xml');
         $this->assertTrue($result['ok']);
-        $this->assertSame(['xml_legacy'], $codes);
+        $this->assertSame(['not_validated', 'xml_legacy'], $codes);
     }
 
     public function testPreflightCatchesDatesIndicatorsAndLei(): void

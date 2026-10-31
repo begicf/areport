@@ -50,6 +50,8 @@ Route::group(['prefix' => 'table', 'middleware' => 'auth'], function () {
     Route::post('/validate', 'Table\TableController@validateInstance');
     Route::get('/validation-report', 'Table\TableController@validationReport')->name('validation.report');
     Route::get('/history', 'Table\TableController@history')->name('instance.history');
+    Route::get('/open', 'Table\TableController@open')->name('instance.open');
+    Route::get('/navigator', 'Table\TableController@navigator');
 
 });
 

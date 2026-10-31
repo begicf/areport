@@ -13,6 +13,7 @@ class FactModule extends Model
         'user_id', 'taxonomy_id', 'entity_id', 'period', 'module_name', 'module_path', 'groups',
         'consolidation', 'country', 'base_currency', 'monetary_scale', 'decimals_monetary',
         'decimals_percentage', 'decimals_integer', 'decimals_decimal', 'filing_indicators',
+        'data_changed_at', 'validated_at', 'validation_summary', 'exported_at', 'export_format', 'export_package',
     ];
 
     protected $casts = [
@@ -23,6 +24,10 @@ class FactModule extends Model
         'decimals_percentage' => 'integer',
         'decimals_integer' => 'integer',
         'decimals_decimal' => 'integer',
+        'data_changed_at' => 'datetime',
+        'validated_at' => 'datetime',
+        'validation_summary' => 'array',
+        'exported_at' => 'datetime',
     ];
 
     /** Units an amount can be entered in on the form. */
@@ -87,6 +92,52 @@ class FactModule extends Model
     public function amountUnitLabel(): string
     {
         return (self::MONETARY_SCALES[$this->monetary_scale ?? 1000] ?? 'thousands') . ' ' . ($this->base_currency ?: 'EUR');
+    }
+
+    /**
+     * Where the instance stands, derived from when its data last changed, when it
+     * was last fully validated and when it was last exported:
+     * draft · errors · warnings · validated · exported.
+     *
+     * @return array{key: string, label: string, errors: int, warnings: int}
+     */
+    public function status(): array
+    {
+        $changed = $this->data_changed_at ?? $this->updated_at;
+        $summary = (array) $this->validation_summary;
+        $errors = (int) ($summary['failed_errors'] ?? 0);
+        $warnings = (int) ($summary['failed_warnings'] ?? 0);
+        $validatedCurrent = $this->validated_at && (! $changed || $this->validated_at->gte($changed));
+
+        if ($this->exported_at && (! $changed || $this->exported_at->gte($changed))) {
+            $key = 'exported';
+        } elseif (! $validatedCurrent) {
+            $key = 'draft';
+        } elseif ($errors > 0) {
+            $key = 'errors';
+        } elseif ($warnings > 0) {
+            $key = 'warnings';
+        } else {
+            $key = 'validated';
+        }
+
+        $labels = [
+            'draft' => $this->validated_at ? 'Changed since validation' : 'Not validated',
+            'errors' => $errors.' error'.($errors === 1 ? '' : 's'),
+            'warnings' => 'Validated · '.$warnings.' warning'.($warnings === 1 ? '' : 's'),
+            'validated' => 'Validated',
+            'exported' => 'Exported'.($this->export_format ? ' ('.strtoupper($this->export_format).')' : ''),
+        ];
+
+        return ['key' => $key, 'label' => $labels[$key], 'errors' => $errors, 'warnings' => $warnings];
+    }
+
+    /** Record a moment without touching updated_at (which tracks edits). */
+    public function stamp(array $attributes): void
+    {
+        $this->timestamps = false;
+        $this->forceFill($attributes)->save();
+        $this->timestamps = true;
     }
 
     /** Options for the xBRL-XML and xBRL-CSV writers. */

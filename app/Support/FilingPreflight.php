@@ -135,6 +135,16 @@ class FilingPreflight
             $add('error', 'no_data', 'No template holds data, so there is nothing to report.');
         }
 
+        // Validation (the instance's last full run against the module's rules)
+        $status = $m->status();
+        if ($status['key'] === 'draft') {
+            $add('warning', 'not_validated', $m->validated_at
+                ? 'The data changed since the last validation. Validate again before filing.'
+                : 'The instance has not been validated. Run the validation report before filing.');
+        } elseif ($status['errors'] > 0) {
+            $add('warning', 'validation_errors', "The last validation found {$status['errors']} blocking error(s). The authority will reject the report until they are fixed.");
+        }
+
         // Format
         if ($format === 'csv' && ! $info) {
             $add('error', 'csv_metadata_missing', 'This module has no xBRL-CSV metadata (a pre-DPM 2.0 module). Export it as xBRL-XML.');
