@@ -87,6 +87,9 @@
         .save-status.is-error { color: #dc2626; cursor: pointer; text-decoration: underline dotted; }
         .rib-settings i { color: #6b7280; }
         .rib-settings:hover { background: #f1f3f6; border-color: #e2e6eb; }
+        #table_form input[data-num] { text-align: right; font-variant-numeric: tabular-nums; }
+        #table_form input.num-bad { background: #fff1f1 !important; outline: 2px solid #dc2626; outline-offset: -2px; color: #991b1b; }
+        #table_form td.kb-focus { box-shadow: inset 0 0 0 2px #2f557d; }
         .demo-ro-bar { display: flex; align-items: center; gap: .8rem; background: #eef3f9; border: 1px solid #c7d6e8; border-left: 4px solid #2f557d; padding: .55rem .8rem; margin-bottom: .6rem; font-size: .82rem; color: #1f2933; }
         .demo-ro-bar > i { color: #2f557d; font-size: 1.05rem; }
         .demo-ro-bar .btn { margin-left: auto; white-space: nowrap; }
@@ -908,13 +911,104 @@
             if (!saveInFlight) setSaveStatus('dirty', 'Unsaved changes');
         }
 
+        // ---- Numbers: shown with thousands separators, stored raw ----
+        // Monetary / integer / decimal cells become text inputs: 1,250,000.50 while not focused,
+        // the plain number while editing. What is saved or validated is always the plain number.
+        function parseNum(v) {
+            let s = String(v || '').trim().replace(/[\s'\u00a0]/g, '');
+            if (s === '') return '';
+            const hasComma = s.indexOf(',') !== -1, dots = (s.match(/\./g) || []).length;
+            if (hasComma && dots) {   // the last separator is the decimal one: 1.250.000,50 or 1,250,000.50
+                s = s.lastIndexOf(',') > s.lastIndexOf('.') ? s.replace(/\./g, '').replace(',', '.') : s.replace(/,/g, '');
+            } else if (hasComma) {
+                const p = s.split(',');
+                s = (p.length === 2 && p[1].length !== 3) ? p[0] + '.' + p[1] : s.replace(/,/g, '');
+            } else if (dots > 1) {
+                s = s.replace(/\./g, '');   // 1.250.000
+            }
+            return s;
+        }
+        function numProblem(raw, isInt) {
+            if (raw === '') return null;
+            if (!/^-?\d+(\.\d+)?$/.test(raw)) return 'Enter a number (e.g. 1250000 or 1,250,000.50).';
+            if (isInt && raw.indexOf('.') !== -1) return 'Enter a whole number, without decimals.';
+            return null;
+        }
+        function formatNum(raw) {
+            const m = /^(-?)(\d+)(\.\d+)?$/.exec(raw);
+            return m ? m[1] + m[2].replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (m[3] || '') : raw;
+        }
+        function showNum(input) {
+            const raw = parseNum(input.value), problem = numProblem(raw, input.dataset.num === 'int');
+            input.classList.toggle('num-bad', !!problem);
+            input.title = problem || input.dataset.title || '';
+            if (!problem) input.value = formatNum(raw);
+        }
+        function enhanceNumberInputs() {
+            document.querySelectorAll('#table_form input.xbrl-input[type="number"], #table_form input.xbrl-input-decimal').forEach(function (i) {
+                if (i.dataset.num) return;
+                i.dataset.num = (i.getAttribute('step') === '1') ? 'int' : 'dec';
+                i.dataset.title = i.title || '';
+                i.type = 'text';
+                i.inputMode = 'decimal';
+                i.removeAttribute('step');
+                showNum(i);
+            });
+        }
+        $('#table_form').on('focus', 'input[data-num]', function () {
+            const raw = parseNum(this.value);
+            if (!numProblem(raw, this.dataset.num === 'int')) this.value = raw;
+        });
+        $('#table_form').on('blur', 'input[data-num]', function () { showNum(this); });
+        // The form as the server expects it: plain numbers.
+        function formData() {
+            const nums = document.querySelectorAll('#table_form input[data-num]'), shown = [];
+            nums.forEach(function (i) {
+                shown.push(i.value);
+                const raw = parseNum(i.value);
+                if (!numProblem(raw, i.dataset.num === 'int')) i.value = raw;
+            });
+            const data = $('#table_form').serialize();
+            nums.forEach(function (i, k) { i.value = shown[k]; });
+            return data;
+        }
+
+        // ---- Keyboard: Enter / Shift+Enter and ↑ / ↓ move down / up the column ----
+        function cellKey(el) {
+            const m = /^(c[0-9a-z._-]+?)r([0-9a-z._-]+)\[value\]/i.exec(el.name || '');
+            return m ? m[1].toLowerCase() : null;
+        }
+        function moveVertical(el, dir) {
+            const col = cellKey(el);
+            if (!col) return false;
+            const same = Array.prototype.filter.call(document.querySelectorAll('#table_form input:not([type=hidden]):not([disabled]), #table_form select:not([disabled])'),
+                function (x) { return cellKey(x) === col && x.offsetParent !== null; });
+            const next = same[same.indexOf(el) + dir];
+            if (!next) return false;
+            next.focus();
+            if (next.select && next.tagName === 'INPUT') next.select();
+            return true;
+        }
+        $('#table_form').on('keydown', 'input:not([type=hidden]), select', function (e) {
+            if (e.altKey || e.ctrlKey || e.metaKey) return;
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                moveVertical(this, e.shiftKey ? -1 : 1);
+            } else if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && this.tagName === 'INPUT' && !this.classList.contains('datepicker') && !this.getAttribute('list')
+                && !document.querySelector('.ui-autocomplete:not([style*="display: none"])')) {
+                if (moveVertical(this, e.key === 'ArrowDown' ? 1 : -1)) e.preventDefault();
+            }
+        });
+        $('#table_form').on('focusin', 'input:not([type=hidden]), select', function () { $(this).closest('td').addClass('kb-focus'); });
+        $('#table_form').on('focusout', 'input:not([type=hidden]), select', function () { $(this).closest('td').removeClass('kb-focus'); });
+
         // Persist the open sheet. Resolves when stored; rejects (and says so on screen) when not.
         function save(sheet = null) {
             if (demoReadOnly) { setSaveStatus('saved', 'Read-only sample'); return Promise.resolve({ ok: true, changes: 0 }); }
             const version = editVersion;
             const payload = {
                 'instance_id': instanceId,
-                'table_data': $("#table_form").serialize(),
+                'table_data': formData(),
                 'sheet': (sheet ? sheet : $('#sheets').find(':selected').val()),
                 'tab': $('#export_table_path').val(),
             };
@@ -1044,7 +1138,7 @@
             (auto ? Promise.resolve() : saveIfDirty().catch(function () {})).finally(function () {
                 axios.post('/table/validate', {
                     'instance_id': instanceId,
-                    'table_data': $("#table_form").serialize(),
+                    'table_data': formData(),
                     'table_code': tableCode,
                     'tab': $('#export_table_path').val()
                 }).then(function (response) {
@@ -1178,6 +1272,7 @@
                 applyFocusCell();
                 $('#validateInstanceBtn').prop('disabled', false);
                 setupKeySuggestions();
+                enhanceNumberInputs();
                 scheduleAutoValidate(200);
 
 
@@ -1434,7 +1529,7 @@
                         let filled = 0;
                         for (const cell in (data.file || {})) {
                             const input = document.getElementById(cell);
-                            if (input) { $(input).val(data.file[cell]); filled++; }
+                            if (input) { $(input).val(data.file[cell]); if (input.dataset.num) showNum(input); filled++; }
                         }
                         const s = data.summary || {};
                         let message = filled + ' of ' + (s.facts || 0) + ' facts in the instance were filled into this table.';
