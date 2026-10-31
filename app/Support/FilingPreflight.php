@@ -149,8 +149,11 @@ class FilingPreflight
         if ($format === 'csv' && ! $info) {
             $add('error', 'csv_metadata_missing', 'This module has no xBRL-CSV metadata (a pre-DPM 2.0 module). Export it as xBRL-XML.');
         }
-        if ($format === 'xml' && $info) {
-            $add('warning', 'xml_legacy', 'EBA 4.x frameworks are remitted as xBRL-CSV. Use xBRL-XML only where your authority still accepts it.');
+        // Filing Rules v5.9: xBRL-CSV only for reference dates from 31 March 2026 (resubmissions included).
+        if ($format === 'xml' && $refDate && $refDate->gte(Carbon::create(2026, 3, 31))) {
+            $add('error', 'xml_not_accepted', 'xBRL-XML is not accepted for reference dates from 31.03.2026. Export the xBRL-CSV package.');
+        } elseif ($format === 'xml' && $info) {
+            $add('warning', 'xml_legacy', 'EBA 4.x frameworks are remitted as xBRL-CSV. Use xBRL-XML only for earlier reference dates your authority still accepts.');
         }
 
         $package = null;

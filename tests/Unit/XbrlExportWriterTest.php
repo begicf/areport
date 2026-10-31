@@ -171,8 +171,10 @@ class XbrlExportWriterTest extends TestCase
             $xpath->evaluate('string(/xbrli:xbrl/xbrli:context[@id="cfi"]/xbrli:entity/xbrli:identifier)')
         );
         $this->assertSame('cfi', $xpath->evaluate('string(/xbrli:xbrl/find:fIndicators/find:filingIndicator/@contextRef)'));
-        $this->assertSame('C_07.00', $xpath->evaluate('string(/xbrli:xbrl/find:fIndicators/find:filingIndicator)'));
-        $this->assertSame(1, (int) $xpath->evaluate('count(/xbrli:xbrl/find:fIndicators/find:filingIndicator)'));
+        $this->assertSame('C_07.00', $xpath->evaluate('string(/xbrli:xbrl/find:fIndicators/find:filingIndicator[not(@filed="false")])'));
+        // One positive indicator; the module's other templates are filed="false".
+        $this->assertSame(1, (int) $xpath->evaluate('count(/xbrli:xbrl/find:fIndicators/find:filingIndicator[not(@filed="false")])'));
+        $this->assertGreaterThan(1, (int) $xpath->evaluate('count(/xbrli:xbrl/find:fIndicators/find:filingIndicator[@filed="false"])'));
         $this->assertSame(1, (int) $xpath->evaluate('count(/xbrli:xbrl/xbrli:unit[@id="uPURE"])'));
         $this->assertSame(0, (int) $xpath->evaluate('count(/xbrli:xbrl/xbrli:context[@id="c3"]/xbrli:scenario)'));
         $this->assertSame(1, (int) $xpath->evaluate('count(/xbrli:xbrl/xbrli:context[@id="c2"]/xbrli:scenario)'));
