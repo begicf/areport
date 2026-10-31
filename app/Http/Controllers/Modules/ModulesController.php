@@ -298,11 +298,14 @@ class ModulesController extends Controller
                 'Available groups' => json_encode($group),
             ]);
         else:
-            $tax = FactModule::query()
-                ->where('module_path', '=', $modulePath)
-                ->where('taxonomy_id', '=', $this->_taxonomy->id)
-                ->with('taxonomy')
-                ->firstOrFail();
+            // An open instance names itself (it may live in a non-active taxonomy).
+            $tax = $request->filled('instance_id')
+                ? FactModule::query()->with('taxonomy')->findOrFail($request->get('instance_id'))
+                : FactModule::query()
+                    ->where('module_path', '=', $modulePath)
+                    ->where('taxonomy_id', '=', $this->_taxonomy->id)
+                    ->with('taxonomy')
+                    ->firstOrFail();
             $path = rtrim(Config::publicDir(), DIRECTORY_SEPARATOR)
                 . DIRECTORY_SEPARATOR
                 . $tax->taxonomy->folder

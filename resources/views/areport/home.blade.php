@@ -32,6 +32,13 @@
         .home-val-btn:hover:not(:disabled) { background: #2f8a5a; border-color: #2f8a5a; color: #fff; box-shadow: 0 1px 4px rgba(47,138,90,.3); }
         .home-val-btn:disabled { opacity: .4; cursor: not-allowed; background: #f1f3f6; border-color: var(--line); color: var(--faint); }
         .home-val-btn i { font-size: .8rem; }
+        .home-hist-btn { color: var(--blue); background: #f3f6fa; border-color: #dbe4ef; }
+        .home-hist-btn:hover { background: var(--blue) !important; border-color: var(--blue) !important; color: #fff !important; box-shadow: none !important; }
+        .home-tax { display: inline-block; font-size: .64rem; font-weight: 600; padding: .05rem .4rem; margin-right: .3rem; border-radius: 4px;
+            background: #eef3f9; color: var(--blue); border: 1px solid #dbe4ef; vertical-align: 1px; }
+        .home-tax-other { background: #fff7ed; color: #b45309; border-color: #fed7aa; }
+        .home-lei { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .68rem; }
+        .home-muted { color: var(--faint); font-style: italic; }
         .mod-val-pills { display: flex; gap: .4rem; flex-wrap: wrap; }
         .mod-val-pill { font-size: .72rem; font-weight: 700; padding: .12rem .5rem; border-radius: 3px; }
         .mod-val-pill.ok { background: #dcfce7; color: #166534; } .mod-val-pill.err { background: #fee2e2; color: #b91c1c; }
@@ -61,7 +68,7 @@
             <div>
                 <span class="ax-eyebrow"><i class="fas fa-landmark"></i> Financial reporting</span>
                 <h1 class="ax-title">Financial module overview</h1>
-                <p class="ax-sub" id="homeLoadMeta">Search, sort, and open reporting modules for the active taxonomy.</p>
+                <p class="ax-sub" id="homeLoadMeta">Search, sort, and open your reporting instances.</p>
             </div>
             <button type="button" id="refreshHomeTable" class="btn btn-sm btn-outline-primary">
                 <i class="fas fa-rotate-right"></i> Refresh
@@ -166,15 +173,22 @@
 
         function moduleNameFormatter(value, row) {
             const moduleName = value || 'Unnamed module';
-            const moduleId = row && row.id ? row.id : '-';
+            const entity = row && row.entity_name
+                ? escapeHtml(row.entity_name) + (row.entity_lei ? " · <span class='home-lei'>" + escapeHtml(row.entity_lei) + "</span>" : '')
+                : "<span class='home-muted'>No entity</span>";
+            const saved = row && row.updated_label ? " · last saved " + escapeHtml(row.updated_label) : '';
             return "<div><div class='home-module-title'>" + escapeHtml(moduleName) + "</div>" +
-                "<div class='home-module-caption'>Record ID #" + escapeHtml(moduleId) + "</div></div>";
+                "<div class='home-module-caption'>" + entity + saved + "</div></div>";
         }
 
-        function modulePathFormatter(value) {
+        function modulePathFormatter(value, row) {
             const fw = frameworkLabel(value);
             const badge = fw ? "<span class='ax-badge'>" + escapeHtml(fw) + "</span>" : "";
-            return "<div>" + badge + "<span class='home-path' title='" + escapeHtml(value || '-') + "'>" + escapeHtml(value || '-') + "</span></div>";
+            // Instances of a non-active taxonomy still open (in their own taxonomy); flag them.
+            const tax = row && row.taxonomy_name
+                ? "<span class='home-tax" + (row.taxonomy_active ? '' : ' home-tax-other') + "' title='" + (row.taxonomy_active ? 'Active taxonomy' : 'Opens in its own taxonomy') + "'>" + escapeHtml(row.taxonomy_name) + "</span>"
+                : '';
+            return "<div>" + tax + badge + "<span class='home-path' title='" + escapeHtml(value || '-') + "'>" + escapeHtml(value || '-') + "</span></div>";
         }
 
         const validationAvailable = @json(Route::has('areport-pro.dpm-model.index'));
@@ -183,7 +197,8 @@
             const valBtn = validationAvailable
                 ? "<a class='btn home-val-btn' href='{{ url('/table/validation-report') }}?id=" + encodeURIComponent(row.id || '') + "' target='_blank' rel='noopener' title='Validate module' aria-label='Validate module'><i class='fas fa-circle-check'></i></a>"
                 : "<button type='button' class='btn home-val-btn' title='Validation plugin not installed' aria-label='Validate (unavailable)' disabled><i class='fas fa-circle-check'></i></button>";
-            return "<div class='home-actions'>" + valBtn +
+            const histBtn = "<a class='btn home-val-btn home-hist-btn' href='{{ url('/table/history') }}?id=" + encodeURIComponent(row.id || '') + "' title='Change history' aria-label='Change history'><i class='fas fa-clock-rotate-left'></i></a>";
+            return "<div class='home-actions'>" + histBtn + valBtn +
                 "<form method='POST' action='{{ url('/table') }}' class='home-open-form'>" +
                 "<input type='hidden' name='_token' value='{{ csrf_token() }}'>" +
                 "<input type='hidden' name='period' value='" + escapeHtml(row.period || '') + "'>" +

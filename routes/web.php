@@ -49,6 +49,7 @@ Route::group(['prefix' => 'table', 'middleware' => 'auth'], function () {
     Route::post('/get_data', 'Table\TableController@getData');
     Route::post('/validate', 'Table\TableController@validateInstance');
     Route::get('/validation-report', 'Table\TableController@validationReport')->name('validation.report');
+    Route::get('/history', 'Table\TableController@history')->name('instance.history');
 
 });
 
