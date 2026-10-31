@@ -1123,6 +1123,7 @@
                 markActiveNav();
                 applyFocusCell();
                 $('#validateInstanceBtn').prop('disabled', false);
+                setupKeySuggestions();
                 scheduleAutoValidate(200);
 
 
@@ -1445,6 +1446,51 @@
                     window.alert('The open sheet could not be saved, so it stays open. Check the save status and try again.');
                 });
             });
+
+        // Key suggestions: an identifier entered in one table (the counterparty code in
+        // C 27.00) is offered in every other key of the same dimension or typed domain
+        // (C 28.00, C 29.00…), with the name found on its row.
+        let keySuggestionSeq = 0;
+        function setupKeySuggestions() {
+            const seq = ++keySuggestionSeq;
+            const groups = {};
+            document.querySelectorAll('#table_form input[type="hidden"][name$="[dim]"]').forEach(function (hidden) {
+                let dim;
+                try { dim = JSON.parse(hidden.value); } catch (e) { return; }
+                const key = Object.keys(dim).find(function (k) { return dim[k] === '*'; });
+                if (!key || !dim.typ) return;   // explicit keys are selects already
+                const cell = hidden.name.replace(/\[dim\]$/, '');
+                const input = document.querySelector('#table_form input[name="' + cell + '[value]"]');
+                if (!input) return;
+                (groups[key + '|' + dim.typ] = groups[key + '|' + dim.typ] || []).push(input);
+            });
+            const sheetBox = document.querySelector('#sheets .app-typed-sheet');
+            const sheetInput = document.getElementById('sheetKeyNew');
+            if (sheetBox && sheetInput && sheetBox.dataset.dimension) {
+                const k = sheetBox.dataset.dimension + '|' + (sheetBox.dataset.typ || '');
+                (groups[k] = groups[k] || []).push(sheetInput);
+            }
+            Object.keys(groups).forEach(function (k, i) {
+                const parts = k.split('|');
+                axios.get('/table/key-suggestions', { params: { instance_id: instanceId, dimension: parts[0], typ: parts[1] } }).then(function (response) {
+                    if (seq !== keySuggestionSeq) return;
+                    const items = (response.data && response.data.items) || [];
+                    if (!items.length) return;
+                    const id = 'keysug-' + i;
+                    let list = document.getElementById(id);
+                    if (!list) { list = document.createElement('datalist'); list.id = id; document.body.appendChild(list); }
+                    list.innerHTML = items.map(function (it) {
+                        const label = (it.label ? it.label + ' · ' : '') + it.table;
+                        return '<option value="' + escapeInspectorHtml(it.value) + '" label="' + escapeInspectorHtml(label) + '">' + escapeInspectorHtml(label) + '</option>';
+                    }).join('');
+                    groups[k].forEach(function (input) {
+                        input.setAttribute('list', id);
+                        input.setAttribute('autocomplete', 'off');
+                        input.title = items.length + ' identifier(s) already used in this instance — start typing or pick one';
+                    });
+                }).catch(function () {});
+            });
+        }
 
         // Typed z-axis (one sheet per key value, e.g. a covered bond issue): add a key.
         $("#sheets").on("click", "#sheetKeyAdd", function () {
