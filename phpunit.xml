@@ -17,6 +17,7 @@
     <server name="MAIL_DRIVER" value="array"/>
     <server name="QUEUE_CONNECTION" value="sync"/>
     <server name="SESSION_DRIVER" value="array"/>
+    <server name="AREPORT_PRO_LICENSE_ENFORCEMENT" value="false"/>
   </php>
   <source>
     <include>

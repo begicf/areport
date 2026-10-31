@@ -42,6 +42,15 @@ class TaxonomyExportTest extends TestCase
             ->assertJson(['message' => 'Choose at least one framework to export.']);
     }
 
+    public function test_with_enforcement_the_plugin_needs_a_signed_license(): void
+    {
+        config(['areport-pro.license.enforcement' => true, 'areport-pro.license.key' => 'not-a-license']);
+        $this->getJson('/pro/dpm-model/export')->assertStatus(402);
+
+        config(['areport-pro.license.enforcement' => false]);
+        $this->getJson('/pro/dpm-model/export')->assertOk();
+    }
+
     public function test_download_rejects_unknown_tokens(): void
     {
         $this->get('/pro/dpm-model/export/not-a-token')->assertNotFound();
