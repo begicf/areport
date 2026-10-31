@@ -117,6 +117,13 @@ Stavke 1–10 i UI: Završeno; Postavke: U radu; stavka 11 (DPM 2.0 model): Otvo
 - Biblioteka: hijerarhije kao stablo (ranije gubila članove, npr. AP1 2/6), uvučene opcije, abstract neizborni; def uparivanje za domene s `_`, kocke bez dimenzija, strože uparivanje (EBA F_32.01 sada 138 otvorenih = DPM 2.0); integer kao broj.
 - Demo u bazi: framework SPN, modul `SPN_FBA1`, tabela S_01.00 (rječnik FBA_RS, FBA_DIM1, fba_m1–m3), instanca 18 s podacima; generisano u `tax/eba44/www.fba.ba`. Reporting: Modules → SPN → SPN / 1.0 → Operational risk incidents.
 
+### Sprint 8 — validacije kao DPM 2.0 operacije (2026-10-31)
+- Tabele `dpm_operations` / `_versions` / `_scopes` / `_tables` (migracija `000008`); modeli Operation, OperationVersion, OperationScope.
+- `Dpm2OperationImporter` + `php artisan dpm2:operations [db] [--taxonomy=]`: EBA 4.4 → 12.354 operacija, 19.789 verzija, 31.561 primjena (read-only).
+- `/pro/validations` (`DpmValidationController`, `validations/index.blade.php`): frameworci → moduli, vlastita pravila, preduslovi; tabela s filterima; svojstva (verzije, DPM-XL, preduslov, tabele, moduli); vlastita pravila: prijedlog koda, provjera sintakse, preduslov, moduli s težinom/aktivno, nova verzija; EBA → „Copy as own“. Demo pravilo `fba_v1` za SPN_FBA1.
+- Napomena: CSS klasa `.vr` je zauzeta u Bootstrapu (vertikalna linija) — ne koristiti kao korijensku.
+- Stara pravila iz XBRL formula (`dpm_validation_rules`, 4.0/4.2) ostaju za legacy validator.
+
 ### Posljednji commitovi
 - `areport-pro` … 01fd60b (rječnik), 901bea3 (UI rječnika), cc66605 (generisanje modula) — pushano
 - `areport` b7017d2 — test faktorizacije hiperkocki — pushano
@@ -124,7 +131,7 @@ Stavke 1–10 i UI: Završeno; Postavke: U radu; stavka 11 (DPM 2.0 model): Otvo
 - `dpm-xl-service` 08a5e33 — `where` / `group by`
 
 ## Otvoreno / sljedeći koraci
-1. **SLJEDEĆE:** validacijska pravila u generisanom paketu (`val/`), EBA tabele unutar FBA modula (import preko apsolutnog URL-a), vlastita hijerarhija nad EBA domenom (labele EBA članova), labele EBA domena u rječniku, provjera paketa eksternim validatorom (Arelle).
+1. **SLJEDEĆE:** reporting validator da izvršava vlastita pravila (dpm_operations) za FBA module; pravila u generisanom paketu; EBA tabele unutar FBA modula; vlastita hijerarhija nad EBA domenom (labele EBA članova); labele EBA domena; provjera paketa Arelle-om.
 2. Tipizirana key dimenzija: `resolveTypedDomainRef` u biblioteci traži `typ.xsd` relativno na host tabele; za FBA tabele treba fallback na EBA host.
 3. Validacija uzorka u Architectu ne prenosi dimenzije iz CSV-a → `where` pravila na uzorku daju „nedostaju podaci“.
 4. Ubrzati ANTLR parsiranje DPM 2.0 pravila (prvi prolaz ~20 s); moguć brzi put za v0.9.
