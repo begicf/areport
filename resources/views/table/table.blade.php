@@ -1004,6 +1004,48 @@
                 if (moveVertical(this, e.key === 'ArrowDown' ? 1 : -1)) e.preventDefault();
             }
         });
+        // ---- Paste a block copied from Excel: fills right and down from the focused cell ----
+        function sameColumn(el) {
+            const col = cellKey(el);
+            return Array.prototype.filter.call(document.querySelectorAll('#table_form input:not([type=hidden]):not([disabled]), #table_form select:not([disabled])'),
+                function (x) { return cellKey(x) === col && x.offsetParent !== null; });
+        }
+        function setCell(el, value) {
+            value = String(value).trim();
+            if (el.tagName === 'SELECT') {
+                const v = value.toLowerCase();
+                const opt = Array.prototype.find.call(el.options, function (o) { const ov = o.value.toLowerCase(); return ov === v || ov.endsWith(':' + v) || o.text.trim().toLowerCase() === v; })
+                    || (v ? Array.prototype.find.call(el.options, function (o) { return o.text.trim().toLowerCase().indexOf(v) === 0; }) : null);
+                if (!opt && value !== '') return false;
+                el.value = opt ? opt.value : '';
+            } else {
+                el.value = value;
+                if (el.dataset.num) showNum(el);
+            }
+            return true;
+        }
+        $('#table_form').on('paste', 'input:not([type=hidden])', function (e) {
+            const text = (e.originalEvent.clipboardData || window.clipboardData).getData('text') || '';
+            if (demoReadOnly || (text.indexOf('\t') === -1 && text.replace(/\r?\n$/, '').indexOf('\n') === -1)) return;   // one value: normal paste
+            e.preventDefault();
+            const grid = text.replace(/\r/g, '').replace(/\n$/, '').split('\n').map(function (r) { return r.split('\t'); });
+            const rowInputs = Array.prototype.filter.call(this.closest('tr').querySelectorAll('input:not([type=hidden]):not([disabled]), select:not([disabled])'),
+                function (x) { return cellKey(x); });
+            const start = rowInputs.indexOf(this);
+            let filled = 0, skipped = 0;
+            for (let j = 0; j < (grid[0] || []).length; j++) {
+                const top = rowInputs[start + j];
+                if (!top) { skipped += grid.length; continue; }
+                const col = sameColumn(top), base = col.indexOf(top);
+                for (let i = 0; i < grid.length; i++) {
+                    const target = col[base + i];
+                    if (!target || grid[i][j] === undefined) { skipped++; continue; }
+                    if (setCell(target, grid[i][j])) filled++; else skipped++;
+                }
+            }
+            markDirty();
+            setSaveStatus('dirty', 'Pasted ' + filled + ' cell(s)' + (skipped ? ', ' + skipped + ' skipped' : '') + ' — unsaved');
+        });
         $('#table_form').on('focusin', 'input:not([type=hidden]), select', function () { $(this).closest('td').addClass('kb-focus'); });
         $('#table_form').on('focusout', 'input:not([type=hidden]), select', function () { $(this).closest('td').removeClass('kb-focus'); });
 
