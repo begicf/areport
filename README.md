@@ -1,6 +1,6 @@
 # AReport
 
-AReport is a web application for supervisory reporting with DPM/XBRL taxonomies (EBA, ECB and national extensions). It turns the taxonomy's tables into editable forms, stores the reported facts in a relational database, checks them, and exports filing-ready `xBRL-CSV` and `xBRL-XML` instances.
+AReport is a web application for supervisory reporting with any taxonomy built on the DPM/XBRL standard (EBA, EIOPA, ECB, national regulators and their extensions). It turns the taxonomy's tables into editable forms, stores the reported facts in a relational database, checks them, and exports filing-ready `xBRL-CSV` and `xBRL-XML` instances.
 
 Taxonomy parsing, table rendering and the instance writers live in the companion package [`begicf/areport-dpm-xbrl`](https://github.com/begicf/areport-dpm-xbrl).
 
@@ -33,14 +33,13 @@ Website: <https://areport.net>
 - Pre-export checks:
   - open-table rows and typed sheets must have their key;
   - no `xBRL-XML` from reference date 31.03.2026;
-  - counterparties of C 28.00 / C 29.00 must be identified in C 27.00;
-  - other EBA filing rules.
-- `xBRL-CSV` report packages and `xBRL-XML` instances following the EBA filing rules:
+  - keys that refer to a register table must be identified there (e.g. COREP large exposures counterparties in C 27.00; DORA entities, contractual arrangements, ICT providers and functions in their registers; more registers can be configured);
+  - other filing rules of the reporting framework.
+- `xBRL-CSV` report packages and `xBRL-XML` instances following the filing rules (e.g. the EBA filing rules):
   - one context per member set, and one fact per concept and context;
   - shared datapoints reported once;
   - open-table rows carry their keys;
   - typed members are written correctly.
-- On the 10 EBA 4.2 sample modules that were tested, exports match the official samples fact for fact.
 - Export dialog option to check the exported instance with [Arelle](https://arelle.org) (offline, against the local taxonomy copy).
 - Export to `.xlsx`, `.pdf` and `.html`, and import from spreadsheets and structured files.
 
@@ -128,10 +127,6 @@ php artisan test
 ```
 
 The tests use an in-memory SQLite database. Tests that need the private plugin are skipped when it is not installed.
-
-## Deployment
-
-Each push to `master` deploys <https://demo.areport.net> through GitHub Actions (`.github/workflows/deploy.yml`). The deploy pulls the sibling repositories, runs `composer install` and the migrations, then reloads the application. A change that needs a new `.env` value has to be set on the server separately.
 
 ## Related repositories
 
