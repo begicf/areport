@@ -33,6 +33,10 @@ class DemoGuard
         if (str_starts_with($path, 'taxonomy/')) {
             return $this->deny($request, 'Taxonomies are shared by everyone in this demo, so they cannot be changed here.');
         }
+        $dpm = trim((string) config('areport-dpm.route_prefix', 'dpm'), '/').'/';
+        if (str_starts_with($path, $dpm)) {
+            return $this->deny($request, 'The validation data (taxonomies and DPM databases) is shared by everyone in this demo, so it cannot be changed here.');
+        }
         if (str_starts_with($path, $pro)) {
             $rest = substr($path, strlen($pro));
             foreach (self::PRO_ALLOWED as $re) {
