@@ -4,13 +4,13 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     @php
-        $seoTitle = 'AReport — EBA DPM & XBRL regulatory reporting software (COREP, FINREP, xBRL-CSV)';
-        $seoDesc = 'AReport turns EBA DPM/XBRL taxonomies into reporting forms: enter COREP, FINREP, DORA or MREL data, validate it with DPM-XL rules and Arelle, and export xBRL-CSV and xBRL-XML filings.';
+        $seoTitle = 'AReport — DPM & XBRL regulatory reporting software (EBA, EIOPA, COREP, FINREP, xBRL-CSV)';
+        $seoDesc = 'AReport turns DPM/XBRL taxonomies (EBA, EIOPA, ECB or national) into reporting forms: enter COREP, FINREP, DORA or MREL data, validate it with DPM-XL rules and Arelle, and export xBRL-CSV and xBRL-XML filings.';
         $seoImage = asset('images/landing/workspace.png');
         $faq = [
             ['What is AReport?', 'AReport is a web application for supervisory reporting with DPM/XBRL taxonomies. It renders the taxonomy tables as data entry forms, stores the reported facts, checks them and exports filing-ready xBRL-CSV and xBRL-XML instances.'],
-            ['Which taxonomies does AReport support?', 'EBA taxonomies built on DPM 1.0 and DPM 2.0 (tested with EBA 4.2 and 4.4) — frameworks such as COREP, FINREP, DORA, MREL, IRRBB, AE and MICA — including open tables, typed dimensions and national extensions.'],
-            ['Which file formats can I export?', 'xBRL-CSV report packages and xBRL-XML instances following the EBA filing rules, plus Excel, PDF and HTML copies of the tables. Exported instances can be checked with Arelle before filing.'],
+            ['Which taxonomies does AReport support?', 'Any taxonomy built on the DPM/XBRL standard, DPM 1.0 or DPM 2.0: EBA, EIOPA, ECB or a national regulator\'s, including open tables, typed dimensions and national extensions. Tested with EBA 4.2 and 4.4 (COREP, FINREP, DORA, MREL, IRRBB, AE, MICA).'],
+            ['Which file formats can I export?', 'xBRL-CSV report packages and xBRL-XML instances following the filing rules (e.g. the EBA filing rules), plus Excel, PDF and HTML copies of the tables. Exported instances can be checked with Arelle before filing.'],
             ['How is the data validated?', 'Business rules written in DPM-XL run on the reported data and mark the cells that break a rule directly on the form: red for errors, amber for warnings. A validation report lists every rule with the facts behind it.'],
             ['Can I build my own taxonomy?', 'Yes, with the private DPM Architect plugin: design frameworks, modules, tables, the data dictionary and validation rules, and generate an XBRL taxonomy package that is checked with Arelle.'],
             ['Is AReport open source?', 'The core application is on GitHub. The DPM Architect and Validation plugins are private and provided separately — use the contact form to ask about them.'],
@@ -18,7 +18,7 @@
     @endphp
     <title>{{ $seoTitle }}</title>
     <meta name="description" content="{{ $seoDesc }}">
-    <meta name="keywords" content="EBA reporting, DPM, XBRL, xBRL-CSV, xBRL-XML, COREP, FINREP, DORA, MREL, regulatory reporting software, supervisory reporting, DPM-XL, Arelle, taxonomy, data point model">
+    <meta name="keywords" content="EBA reporting, EIOPA reporting, DPM, XBRL, xBRL-CSV, xBRL-XML, COREP, FINREP, DORA, MREL, regulatory reporting software, supervisory reporting, DPM-XL, Arelle, taxonomy, data point model">
     <meta name="robots" content="index, follow, max-image-preview:large">
     <link rel="canonical" href="{{ url('/') }}">
     <meta name="theme-color" content="#2f557d">
@@ -51,7 +51,7 @@
                 'description' => $seoDesc,
                 'image' => $seoImage,
                 'screenshot' => [asset('images/landing/workspace.png'), asset('images/landing/form.png'), asset('images/landing/architect.png'), asset('images/landing/validation.png')],
-                'featureList' => ['EBA DPM 1.0 and DPM 2.0 taxonomies', 'COREP, FINREP, DORA, MREL reporting forms', 'xBRL-CSV and xBRL-XML export', 'DPM-XL business rule validation', 'Arelle validation of exported instances', 'DPM Architect: taxonomy authoring (private plugin)'],
+                'featureList' => ['DPM 1.0 and DPM 2.0 taxonomies (EBA, EIOPA, ECB, national)', 'COREP, FINREP, DORA, MREL reporting forms', 'xBRL-CSV and xBRL-XML export', 'DPM-XL business rule validation', 'Arelle validation of exported instances', 'DPM Architect: taxonomy authoring (private plugin)'],
                 'offers' => ['@type' => 'Offer', 'price' => '0', 'priceCurrency' => 'EUR', 'description' => 'Demo workspace'],
                 'sameAs' => ['https://github.com/begicf/areport'],
             ],
@@ -267,10 +267,10 @@
 <div class="hero">
     <div class="wrap grid">
         <div>
-            <span class="eyebrow"><i class="fas fa-landmark"></i> EBA DPM · XBRL reporting</span>
+            <span class="eyebrow"><i class="fas fa-landmark"></i> DPM · XBRL supervisory reporting</span>
             <h1>Taxonomy-driven reporting, <span class="hl">modelled and validated</span> in one workspace.</h1>
             <p class="lead">
-                AReport turns EBA taxonomies into a working reporting environment — browse modules,
+                AReport turns DPM/XBRL taxonomies (EBA, EIOPA, ECB or your regulator's) into a working reporting environment — browse modules,
                 fill submission data, and export valid xBRL. Two private plugins let you
                 <strong>author the data model</strong> and <strong>validate every figure</strong> before you file.
             </p>
@@ -283,7 +283,7 @@
                 @endauth
             </div>
             <div class="meta">
-                <span class="m"><i class="fas fa-circle-check"></i> EBA DPM 1.0 &amp; 2.0</span>
+                <span class="m"><i class="fas fa-circle-check"></i> DPM 1.0 &amp; 2.0</span>
                 <span class="m"><i class="fas fa-circle-check"></i> xBRL-XML · OIM CSV · JSON</span>
                 <span class="m"><i class="fas fa-circle-check"></i> DPM-XL · Arelle</span>
             </div>
@@ -316,7 +316,7 @@
         <div class="bcard">
             <div class="ic"><i class="fas fa-sitemap"></i></div>
             <h3>Taxonomy-native</h3>
-            <p>Loads EBA frameworks exactly as published — COREP, FINREP, DORA, MREL and more — with the full dimensional model.</p>
+            <p>Loads any DPM-based taxonomy exactly as published (EBA, EIOPA or a national regulator's: COREP, FINREP, DORA, MREL and more) with the full dimensional model.</p>
         </div>
         <div class="bcard">
             <div class="ic"><i class="fas fa-table-cells"></i></div>
@@ -343,7 +343,7 @@
             <span class="eyebrow">Two private plugins</span>
             <h2>Model the data. Validate the data.</h2>
             <p>Two optional power tools extend the core workspace.</p>
-            <p class="private-note"><i class="fas fa-lock"></i> DPM Architect and the Validation plugin are <b>not publicly available</b> — they are not part of the open-source AReport and are provided separately, on request. <a href="#contact">Contact the author →</a></p>
+            <p class="private-note"><i class="fas fa-lock"></i> DPM Architect and the Validation plugin are <b>not publicly available</b> — they are not part of the open-source AReport and are provided separately, on request. <a href="#contact">Contact us →</a></p>
         </div>
 
         {{-- DPM Architect --}}
@@ -412,7 +412,7 @@
         <h2>From taxonomy to compliant filing in four steps</h2>
     </div>
     <div class="flow">
-        <div class="step"><div class="n">1</div><h4>Model</h4><p>Load an EBA taxonomy or author your own tables in DPM Architect and generate their taxonomy.</p></div>
+        <div class="step"><div class="n">1</div><h4>Model</h4><p>Load a taxonomy (EBA, EIOPA, national) or author your own tables in DPM Architect and generate their taxonomy.</p></div>
         <div class="step"><div class="n">2</div><h4>Report</h4><p>Open a module and enter submission data in real reporting tables.</p></div>
         <div class="step"><div class="n">3</div><h4>Validate</h4><p>Run DPM-XL rules, fix the cells highlighted on the form, and check the file with Arelle.</p></div>
         <div class="step"><div class="n">4</div><h4>Export</h4><p>Produce a valid xBRL-XML, OIM CSV or JSON instance to file.</p></div>
@@ -424,8 +424,8 @@
     <div class="contact">
         <div>
             <span class="eyebrow">Contact</span>
-            <h2 style="margin:.4rem 0 .6rem">Talk to the author</h2>
-            <p class="lead2">Interested in DPM Architect or the Validation plugin, or in using AReport for your regulatory reporting? Send a message and the author will reply by email.</p>
+            <h2 style="margin:.4rem 0 .6rem;font-weight:700;letter-spacing:-.02em;color:#16202c">Contact us</h2>
+            <p class="lead2">Interested in DPM Architect or the Validation plugin, or in using AReport for your regulatory reporting? Send us a message and we will reply by email.</p>
             <ul class="pts">
                 <li><i class="fas fa-lock"></i> Access to the private plugins</li>
                 <li><i class="fas fa-landmark"></i> Own taxonomies and modules for a supervisor</li>
@@ -455,7 +455,7 @@
             <label for="cMessage">Message</label>
             <textarea id="cMessage" name="message" required minlength="10" maxlength="4000">{{ old('message') }}</textarea>
             <div class="foot">
-                <span class="note">No newsletter, no tracking — the message goes to the author only.</span>
+                <span class="note">No newsletter, no tracking.</span>
                 <button class="btn btn-primary" type="submit" id="contactSend">Send message <i class="fas fa-paper-plane"></i></button>
             </div>
         </form>
@@ -485,7 +485,7 @@
 <section class="pad wrap" id="faq">
     <div class="sec-head">
         <span class="eyebrow">FAQ</span>
-        <h2>Questions about EBA DPM / XBRL reporting with AReport</h2>
+        <h2>Questions about DPM / XBRL reporting with AReport</h2>
     </div>
     <div class="faq" style="margin:1.6rem auto 0">
         @foreach($faq as $i => $q)

@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 
 /**
- * The public "contact the author" form. The author's address is never on the page;
+ * The public "contact us" form. The recipient address is never on the page;
  * messages are stored and mailed to config('areport.contact.to'). Spam defences,
  * all invisible to people: a honeypot field, a signed form token that must be at
  * least a few seconds old (and not stale), a per-IP rate limit on the route, and
@@ -90,7 +90,7 @@ class ContactController extends Controller
 
     private function thanks(Request $request)
     {
-        $text = 'Thank you — your message has been sent. The author will reply by email.';
+        $text = 'Thank you — your message has been sent. We will reply by email.';
 
         return $request->expectsJson()
             ? response()->json(['ok' => true, 'message' => $text])
