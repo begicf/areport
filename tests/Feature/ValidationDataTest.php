@@ -26,6 +26,7 @@ class ValidationDataTest extends TestCase
         $this->requireDpm();
         $this->user = User::query()->create(['name' => 'Ana', 'email' => 'ana@bank.example', 'password' => Hash::make('secret')]);
         $this->user->forceFill(['email_verified_at' => now()])->save();
+        config(['areport-dpm.manage' => null, 'areport.upload' => true]);
         $started = &$this->started;
         $this->app->instance(Background::class, new class($started) extends Background {
             public function __construct(private array &$started) {}
@@ -82,5 +83,22 @@ class ValidationDataTest extends TestCase
         config(['areport.demo.shared_user_id' => 999, 'areport.demo.read_only' => true]);   // a shared demo: visitors look, but change nothing
         $this->actingAs($this->user)->postJson('/dpm/taxonomies/'.$taxonomy->id.'/prepare')->assertStatus(403);
         $this->assertSame([], $this->started);
+    }
+
+    public function test_the_validation_data_stays_as_it_is_where_uploads_are_off(): void
+    {
+        config(['areport.upload' => false]);   // e.g. a shared demo server, for every user
+        $taxonomy = Taxonomy::query()->create(['name' => 'EBA 4.4', 'original_name' => 'eba44', 'path' => 'eba44', 'folder' => 'eba44']);
+        $db = Dpm2Database::query()->create(['label' => '4.4', 'schema_name' => 'dpm2_4_4', 'file_name' => 'DPM2 Database_v 4_4.zip', 'status' => 'ready']);
+
+        $this->actingAs($this->user)->get('/dpm')->assertOk()->assertSee('cannot be prepared again');
+        $this->actingAs($this->user)->postJson('/dpm/taxonomies/'.$taxonomy->id.'/prepare')->assertForbidden();
+        $this->actingAs($this->user)->deleteJson('/dpm/databases/'.$db->id)->assertForbidden();
+        $this->actingAs($this->user)->postJson('/dpm/databases/upload', [])->assertForbidden();
+        $this->assertSame([], $this->started);
+        $this->assertTrue(Dpm2Database::query()->whereKey($db->id)->exists());
+
+        config(['areport-dpm.manage' => true]);   // switched on for the validation data alone
+        $this->actingAs($this->user)->deleteJson('/dpm/databases/'.$db->id)->assertOk();
     }
 }
