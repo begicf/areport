@@ -208,6 +208,64 @@ class TeamSignOffTest extends TestCase
         $this->assertSame([], $this->mailedTo());
     }
 
+    public function test_cell_comments_are_shared_in_the_team_and_open_ones_hold_the_approval(): void
+    {
+        ['Pat' => $pat, 'Rita' => $rita, 'Aldo' => $aldo] = $this->team(['Pat' => 'preparer', 'Rita' => 'reviewer', 'Aldo' => 'approver']);
+        $report = $this->report($pat);
+        $where = ['table_path' => 'eba/tab/c_01.00/c_01.00.xsd', 'sheet' => '000', 'table_code' => 'C_01.00'];
+        $this->act($pat, $report, 'submit')->assertOk();
+        Mail::fake();
+
+        // Rita asks about a cell; Pat, the owner, is told — with a link to the cell.
+        $this->actingAs($rita)->postJson('/teams/cell-comments/'.$report->id, $where + ['cell' => 'c0010r0010', 'body' => 'Does not match the ledger'])
+            ->assertOk()->assertJson(['open' => 1, 'report_open' => 1, 'comments' => [['user' => 'Rita', 'body' => 'Does not match the ledger']]]);
+        Mail::assertSent(SignOffStepMail::class, fn (SignOffStepMail $m) => $m->hasTo($pat->email)
+            && $m->comment === 'C 01.00 · r0010 c0010: Does not match the ledger' && str_ends_with($m->url, '&table=c_01.00&cell=c0010r0010'));
+
+        // The cell is marked for every member; the open comment holds the approval.
+        $this->actingAs($aldo)->getJson('/teams/cell-comments/'.$report->id.'?'.http_build_query($where))
+            ->assertOk()->assertJson(['cells' => ['c0010r0010' => ['open' => 1, 'total' => 1]]])->assertJsonCount(1, 'open');
+        $this->act($aldo, $report, 'approve')->assertStatus(422)->assertJsonFragment(['message' => 'One cell comment is still open: resolve it before approving.']);
+
+        // Pat answers and resolves it; then Aldo approves.
+        $this->actingAs($pat)->postJson('/teams/cell-comments/'.$report->id, $where + ['cell' => 'c0010r0010', 'body' => 'Corrected the CET1 deduction']);
+        Mail::assertSent(SignOffStepMail::class, fn (SignOffStepMail $m) => $m->hasTo($rita->email));
+        $this->actingAs($pat)->postJson('/teams/cell-comments/'.$report->id.'/resolve', $where + ['cell' => 'c0010r0010'])
+            ->assertOk()->assertJson(['open' => 0, 'report_open' => 0]);
+        $this->assertStringStartsWith('resolved by Pat', $this->actingAs($aldo)->getJson('/teams/cell-comments/'.$report->id.'/thread?'.http_build_query($where + ['cell' => 'c0010r0010']))->json('comments.0.resolved'));
+        $this->act($aldo, $report, 'approve')->assertOk();
+
+        // The table is kept by its path within the taxonomy, wherever the taxonomy is installed.
+        $this->actingAs($rita)->postJson('/teams/cell-comments/'.$report->id, ['table_path' => '/srv/areport/storage/tax/eba/www.eba.europa.eu/mod/../tab/c_02.00/c_02.00.xsd', 'cell' => 'c0010r0010', 'body' => 'Check'])->assertOk();
+        $this->assertSame('www.eba.europa.eu/tab/c_02.00/c_02.00.xsd', \Begicf\AReportTeams\Models\CellComment::query()->latest('id')->value('table_path'));
+
+        // Outside the team: nothing to see or add.
+        $carol = $this->user('Carol');
+        $this->actingAs($carol)->getJson('/teams/cell-comments/'.$report->id.'?'.http_build_query($where))->assertNotFound();
+        $this->actingAs($carol)->postJson('/teams/cell-comments/'.$report->id, $where + ['cell' => 'c0010r0010', 'body' => 'x'])->assertNotFound();
+        $this->actingAs($rita)->postJson('/teams/cell-comments/'.$report->id, $where + ['cell' => 'nope', 'body' => 'x'])->assertStatus(422);
+    }
+
+    public function test_the_views_on_the_report_form_render(): void
+    {
+        ['Pat' => $pat] = $this->team(['Pat' => 'preparer']);
+        $report = $this->report($pat);
+        $solo = $this->report($this->user('Solo'));
+        $this->actingAs($pat);
+
+        foreach ([$report, $solo] as $instance) {
+            foreach (InstanceHooks::views('form.bar') as $view) {
+                $this->assertIsString(view($view, ['instance' => $instance, 'editLock' => null])->render(), $view);
+            }
+        }
+        $this->assertStringContainsString('signOffBar', view('areport-teams::signoff.form-bar', ['instance' => $report, 'editLock' => null])->render());
+        $this->assertStringContainsString('ccSummary', view('areport-teams::comments.cells', ['instance' => $report])->render());
+        $this->assertStringNotContainsString('ccSummary', view('areport-teams::comments.cells', ['instance' => $solo])->render());
+        foreach (InstanceHooks::views('nav.account') as $view) {
+            $this->assertIsString(view($view)->render(), $view);
+        }
+    }
+
     public function test_whoever_changed_the_data_does_not_approve_it(): void
     {
         ['admin' => $alice, 'Pat' => $pat] = $this->team(['Pat' => 'preparer']);

@@ -710,6 +710,7 @@
 
             renderInspectorEntries('cellInspectorDimensions', [], message || 'Select a cell to inspect its context.');
             renderInspectorEntries('cellInspectorMeta', [], 'No metadata loaded yet.');
+            document.dispatchEvent(new CustomEvent('areport:cell', { detail: { cell: null, td: null } }));
         }
 
         function initializeSheetSelector() {
@@ -850,6 +851,8 @@
 
             renderInspectorEntries('cellInspectorDimensions', dimensions, 'No explicit dimensions stored for this cell.');
             renderInspectorEntries('cellInspectorMeta', metadata, 'No JSON metadata was matched for this cell.');
+            // Plugins (e.g. cell comments) act on the selected cell.
+            document.dispatchEvent(new CustomEvent('areport:cell', { detail: { cell: parentCell.getAttribute('rc-code'), td: parentCell } }));
         }
 
         function setupCellInspector() {
@@ -1462,6 +1465,8 @@
                 enhanceNumberInputs();
                 applyPrior();
                 scheduleAutoValidate(200);
+                // Plugins (e.g. cell comments) mark the cells of the table now shown.
+                document.dispatchEvent(new CustomEvent('areport:table', { detail: { instanceId: instanceId, tablePath: response.data.table_path, tableCode: tableCode, sheet: currentSheetCode() } }));
 
 
                 if (response.data.aspectNode == true) {
