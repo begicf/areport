@@ -29,6 +29,11 @@ class ValidateInstances extends Command
 
             return self::FAILURE;
         }
+        if ($reason = \App\Support\License::refusal('validation')) {
+            $this->error($reason);
+
+            return self::FAILURE;
+        }
         $query = FactModule::query()->withoutGlobalScopes()->orderBy('id');
         if ($this->option('user')) {
             $query->where('user_id', (int) $this->option('user'));

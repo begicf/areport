@@ -55,6 +55,22 @@ return [
         'timeout' => env('AREPORT_ARELLE_TIMEOUT', env('AREPORT_PRO_ARELLE_TIMEOUT', 300)),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | License
+    |--------------------------------------------------------------------------
+    |
+    | One signed key licenses the plugins it lists (validation, teams, architect)
+    | for its hosts; see App\Support\License. With enforcement off (the default)
+    | the installed plugins run without a key.
+    |
+    */
+
+    'license' => [
+        'key' => env('AREPORT_LICENSE_KEY', env('AREPORT_PRO_LICENSE_KEY')),
+        'enforcement' => env('AREPORT_LICENSE_ENFORCEMENT', env('AREPORT_PRO_LICENSE_ENFORCEMENT', false)),
+    ],
+
     'plugin_paths' => array_filter(array_map('trim', explode(',', env('AREPORT_PLUGIN_PATHS', '../areport-dpm,../areport-pro,../areport-teams')))),
 
     /*

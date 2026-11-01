@@ -336,7 +336,7 @@
             return "<div class='home-changed'>" + escapeHtml(row.changed_label) + (row.changed_by ? "<small>by " + escapeHtml(row.changed_by) + "</small>" : '') + "</div>";
         }
 
-        const validationAvailable = @json(class_exists(\Begicf\AReportDpm\Services\InstanceValidator::class));
+        const validationAvailable = @json(class_exists(\Begicf\AReportDpm\Services\InstanceValidator::class) && \App\Support\License::covers('validation'));
 
         function actionOpen(value, row) {
             const valBtn = validationAvailable

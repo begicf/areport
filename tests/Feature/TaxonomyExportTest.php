@@ -42,10 +42,10 @@ class TaxonomyExportTest extends TestCase
 
     public function test_with_enforcement_the_plugin_needs_a_signed_license(): void
     {
-        config(['areport-pro.license.enforcement' => true, 'areport-pro.license.key' => 'not-a-license']);
+        config(['areport.license.enforcement' => true, 'areport.license.key' => 'not-a-license']);
         $this->getJson('/pro/dpm-model/export')->assertStatus(402);
 
-        config(['areport-pro.license.enforcement' => false]);
+        config(['areport.license.enforcement' => false]);
         $this->getJson('/pro/dpm-model/export')->assertOk();
     }
 

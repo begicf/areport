@@ -275,7 +275,7 @@
                 <span class="rib-cap">Data</span>
             </div>
 
-            @if(class_exists(\Begicf\AReportDpm\Services\InstanceValidator::class))   {{-- DPM-XL validation: AReport DPM --}}
+            @if(class_exists(\Begicf\AReportDpm\Services\InstanceValidator::class) && \App\Support\License::covers('validation'))   {{-- DPM-XL validation: AReport DPM --}}
                 <div class="rib-sep rib-right"></div>
                 <div class="rib-group">
                     <div class="rib-btns">

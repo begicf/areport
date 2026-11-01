@@ -96,6 +96,8 @@ php artisan serve
 
 The private plugins are not Composer dependencies: when their folders sit next to the application (`../areport-dpm`, `../areport-pro`, `../areport-teams`, or the folders listed in `AREPORT_PLUGIN_PATHS`), they are loaded from their own `composer.json` (autoload and Laravel providers). Without them, AReport runs as the open-source core.
 
+One signed license key covers the plugins it lists (`validation` = AReport DPM, `teams` = AReport Teams, `architect` = AReport Pro) on its hosts. With `AREPORT_LICENSE_ENFORCEMENT=true`, a plugin the key does not include stays off (its pages answer 402); without enforcement, installed plugins run without a key. `php artisan areport:license` shows the configured license.
+
 ## Configuration
 
 The main application variables in `.env`:
@@ -108,8 +110,8 @@ The main application variables in `.env`:
 | `AREPORT_DEMO_SHARED_USER_ID` | demo mode: whose instances every signed-in user sees (`0` = off) |
 | `AREPORT_DEMO_READONLY`, `AREPORT_DEMO_ADMINS` | in demo mode, visitors cannot change taxonomies, settings, the Architect model or the shared reports (default on); admins (e-mails) can |
 | `AREPORT_EDITION`, `AREPORT_EXTENSION_PROVIDERS` | edition label and extra service providers |
-
 | `AREPORT_ARELLE_CMD` | path to `arelleCmdLine` (e.g. a venv's `bin/arelleCmdLine`): enables the Arelle check of exports |
+| `AREPORT_LICENSE_KEY`, `AREPORT_LICENSE_ENFORCEMENT` | the plugin license and whether it is required (`AREPORT_PRO_LICENSE_*` are still read) |
 
 With the AReport DPM plugin:
 

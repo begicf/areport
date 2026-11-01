@@ -526,7 +526,10 @@ class TableController extends Controller
         $validatorClass = \Begicf\AReportDpm\Services\InstanceValidator::class;
         $tableModel = \Begicf\AReportDpm\Models\DpmTable::class;
         if (! class_exists($validatorClass) || ! class_exists($tableModel)) {
-            return response()->json(['ok' => false, 'error' => 'The DPM Architect package is not installed.'], 422);
+            return response()->json(['ok' => false, 'error' => 'The validation plugin (AReport DPM) is not installed.'], 422);
+        }
+        if ($reason = \App\Support\License::refusal('validation')) {
+            return response()->json(['ok' => false, 'error' => $reason], 402);
         }
 
         /** @var \Begicf\AReportDpm\Services\InstanceValidator $validator */
@@ -720,13 +723,16 @@ class TableController extends Controller
     /**
      * Full validation report for a whole saved module instance — a dedicated page
      * listing every rule (passed / failed / indeterminate / unsupported) and the
-     * cross-table checks, for the filer. Requires the areport-pro plugin + DPM-XL.
+     * cross-table checks, for the filer. Requires the areport-dpm plugin + DPM-XL.
      */
     public function validationReport(Request $request)
     {
         $validatorClass = \Begicf\AReportDpm\Services\InstanceValidator::class;
         if (! class_exists($validatorClass)) {
             abort(404, 'The validation plugin is not installed.');
+        }
+        if ($reason = \App\Support\License::refusal('validation')) {
+            abort(402, $reason);
         }
 
         $module = FactModule::query()
