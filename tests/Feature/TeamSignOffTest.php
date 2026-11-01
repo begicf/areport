@@ -7,6 +7,7 @@ use App\Model\FactModule;
 use App\Model\Taxonomy;
 use App\Support\InstanceHooks;
 use App\User;
+use Begicf\AReportTeams\Mail\SignOffStepMail;
 use Begicf\AReportTeams\Models\SignOff;
 use Begicf\AReportTeams\Models\TeamMember;
 use Begicf\AReportTeams\Support\SignOffFlow;
@@ -157,6 +158,54 @@ class TeamSignOffTest extends TestCase
 
         $actions = \Begicf\AReportTeams\Models\SignOffEvent::query()->where('fact_module_id', $report->id)->orderBy('id')->pluck('action')->all();
         $this->assertSame(['submit', 'return', 'submit', 'approve', 'reopen'], $actions);
+    }
+
+    /** Who got a sign-off e-mail since the last call (sorted names). */
+    private function mailedTo(): array
+    {
+        $names = [];
+        foreach (Mail::sent(SignOffStepMail::class) as $mail) {
+            foreach ($mail->to as $to) {
+                $names[] = $to['name'];
+            }
+        }
+        sort($names);
+        Mail::fake();
+
+        return $names;
+    }
+
+    public function test_sign_off_steps_are_mailed_to_whom_they_concern(): void
+    {
+        ['Rita' => $rita, 'Pat' => $pat, 'Aldo' => $aldo, 'admin' => $alice] = $this->team(['Pat' => 'preparer', 'Rita' => 'reviewer', 'Aldo' => 'approver', 'Olga' => 'preparer']);
+        $report = $this->report($pat);
+        Mail::fake();
+
+        // To review: the reviewers, approvers and admins — not the submitter, not another preparer.
+        $this->act($pat, $report, 'submit')->assertOk();
+        $this->assertSame(['Aldo', 'Alice', 'Rita'], $this->mailedTo());
+
+        // Returned: the submitter, with the reason.
+        $this->act($rita, $report, 'return', 'C 01.00 r010 does not match the ledger')->assertOk();
+        Mail::assertSent(SignOffStepMail::class, fn (SignOffStepMail $m) => $m->hasTo($pat->email) && $m->comment === 'C 01.00 r010 does not match the ledger'
+            && str_contains($m->render(), 'does not match the ledger') && str_contains($m->url, '/table/open?id='.$report->id));
+        $this->assertSame(['Pat'], $this->mailedTo());
+
+        // A member who turned the e-mails off gets none.
+        $this->actingAs($rita)->patch('/teams/notifications', [])->assertSessionHas('success');
+        $this->act($pat, $report, 'submit')->assertOk();
+        $this->assertSame(['Aldo', 'Alice'], $this->mailedTo());
+
+        $this->act($aldo, $report, 'approve')->assertOk();
+        $this->assertSame(['Pat'], $this->mailedTo());
+
+        // A comment: whoever took part (Rita is off) and the owner.
+        $this->act($alice, $report, 'comment', 'Filed copy archived')->assertOk();
+        $this->assertSame(['Aldo', 'Pat'], $this->mailedTo());
+
+        config(['areport-teams.notify_mail' => false]);
+        $this->act($aldo, $report, 'reopen', 'Late adjustment')->assertOk();
+        $this->assertSame([], $this->mailedTo());
     }
 
     public function test_whoever_changed_the_data_does_not_approve_it(): void
