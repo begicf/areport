@@ -40,7 +40,7 @@ class DemoGuard
 
             return $this->deny($request, 'The DPM Architect model and the settings are shared by everyone in this demo — you can explore them, validate and export, but not change them. Contact us for your own workspace.');
         }
-        if (in_array($path, ['table/save', 'table/import', 'instance/settings'], true) && $request->filled('instance_id')) {
+        if (in_array($path, ['table/save', 'table/import', 'table/copy-from', 'instance/settings'], true) && $request->filled('instance_id')) {
             $instance = FactModule::query()->withoutGlobalScope('owner')->find($request->input('instance_id'));
             if (Demo::readOnlyInstance($instance)) {
                 return $this->deny($request, 'This sample report is shared by everyone in the demo. Create your own report (New) to enter data.');

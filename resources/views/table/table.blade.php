@@ -90,6 +90,17 @@
         #table_form input[data-num] { text-align: right; font-variant-numeric: tabular-nums; }
         #table_form input.num-bad { background: #fff1f1 !important; outline: 2px solid #dc2626; outline-offset: -2px; color: #991b1b; }
         #table_form td.kb-focus { box-shadow: inset 0 0 0 2px #2f557d; }
+        .rib-prior i { color: #6d4fc2; }
+        .prior-opt { border: 1px solid #e2e8f0; background: #f8fafc; padding: .55rem .7rem; font-size: .8rem; }
+        .prior-opt b { display: block; color: #16202c; }
+        .prior-opt span { display: block; color: #64748b; font-size: .74rem; }
+        #table_form .pv { display: block; font-size: .64rem; line-height: 1.1; color: #64748b; text-align: right; white-space: nowrap; padding: 1px 3px 0; }
+        #table_form .pv b { font-weight: 600; }
+        #table_form .pv.up b { color: #2e7d4f; } #table_form .pv.down b { color: #b45309; }
+        #table_form .pv.big { color: #5b21b6; background: #f5f3ff; }
+        #table_form .pv.big b { color: #5b21b6; }
+        .prior-bar { font-size: .74rem; color: #5b21b6; background: #f5f3ff; border: 1px solid #ddd6fe; padding: .3rem .6rem; margin-bottom: .45rem; display: flex; gap: .6rem; align-items: center; }
+        .prior-bar button { border: 0; background: none; color: #5b21b6; text-decoration: underline; padding: 0; font-size: .74rem; }
         .demo-ro-bar { display: flex; align-items: center; gap: .8rem; background: #eef3f9; border: 1px solid #c7d6e8; border-left: 4px solid #2f557d; padding: .55rem .8rem; margin-bottom: .6rem; font-size: .82rem; color: #1f2933; }
         .demo-ro-bar > i { color: #2f557d; font-size: 1.05rem; }
         .demo-ro-bar .btn { margin-left: auto; white-space: nowrap; }
@@ -234,6 +245,9 @@
                 <div class="rib-btns">
                     <button type="button" class="rib-btn rib-import" onclick="document.getElementById('fileToUpload').click()" title="Import a source file">
                         <i class="fas fa-file-import"></i><span>Import</span>
+                    </button>
+                    <button type="button" class="rib-btn rib-prior" id="priorBtn" title="Copy values from another period of this module, or compare with it">
+                        <i class="fas fa-clock-rotate-left"></i><span>Prior period</span>
                     </button>
                     <div class="dropdown">
                         <button type="button" class="rib-btn rib-export dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Export the instance">
@@ -445,6 +459,37 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-primary" id="isSave">Save settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade app-modal-shell" id="priorModal" tabindex="-1" aria-labelledby="priorModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <div class="app-page-kicker mb-1"><i class="fas fa-clock-rotate-left"></i> Prior period</div>
+                        <h5 class="modal-title" id="priorModalLabel">Another period of this module</h5>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="priorBody">
+                    <label class="form-label small fw-bold" for="priorSource">Instance</label>
+                    <select id="priorSource" class="form-select form-select-sm"></select>
+                    <div class="prior-opt mt-3">
+                        <b><i class="fas fa-code-compare"></i> Compare on the form</b>
+                        <span>Shows its value under each cell, with the change; changes over 50 % are highlighted.</span>
+                        <button type="button" class="btn btn-sm btn-outline-primary mt-1" id="priorCompare">Compare</button>
+                        <button type="button" class="btn btn-sm btn-link mt-1" id="priorCompareOff" hidden>Stop comparing</button>
+                    </div>
+                    <div class="prior-opt mt-2">
+                        <b><i class="fas fa-copy"></i> Copy its values into this instance</b>
+                        <span>Every table — useful for identification tables and methodologies that rarely change. Recorded in the change history.</span>
+                        <label class="small d-flex align-items-center gap-1 mt-1"><input type="checkbox" id="priorOverwrite"> Also overwrite values already entered</label>
+                        <button type="button" class="btn btn-sm btn-primary mt-1" id="priorCopy">Copy values</button>
+                    </div>
+                    <div class="small mt-2" id="priorMsg"></div>
                 </div>
             </div>
         </div>
@@ -1004,6 +1049,91 @@
                 if (moveVertical(this, e.key === 'ArrowDown' ? 1 : -1)) e.preventDefault();
             }
         });
+        // ---- Prior period: copy values from another instance of the module, or compare with it ----
+        const priorKey = 'areport.prior.' + instanceId;
+        let priorSource = null;
+        try { priorSource = localStorage.getItem(priorKey); } catch (e) {}
+        function currentSheetCode() {
+            const v = $('#sheets').find(':selected').val();
+            try { const o = JSON.parse(v); return (o && o.sheet) || '000'; } catch (e) { return v && v !== 'null' ? v : '000'; }
+        }
+        function applyPrior() {
+            document.querySelectorAll('#table_form .pv').forEach(function (e) { e.remove(); });
+            $('#priorBar').remove();
+            if (!priorSource) return;
+            axios.get('/table/prior-values', { params: { instance_id: instanceId, source_id: priorSource, table_path: $('#export_table_path').val(), sheet: currentSheetCode() } })
+                .then(function (r) {
+                    const vals = r.data.values || {};
+                    $('#table_form').before('<div class="prior-bar" id="priorBar"><i class="fas fa-code-compare"></i> Comparing with <b>' + escapeInspectorHtml(r.data.source || '') + '</b><button type="button" id="priorBarOff">stop</button></div>');
+                    document.querySelectorAll('#table_form input:not([type=hidden]), #table_form select').forEach(function (el) {
+                        const m = /^(c[0-9a-z._-]+?r[0-9a-z._-]+)\[value\]/i.exec(el.name || '');
+                        if (!m || !(m[1] in vals) || vals[m[1]] === null || vals[m[1]] === '') return;
+                        const prev = String(vals[m[1]]);
+                        let cls = 'pv', label;
+                        if (el.tagName === 'SELECT') {
+                            const o = Array.prototype.find.call(el.options, function (x) { return x.value === prev; });
+                            label = 'prev ' + (o ? o.text.trim() : prev);
+                        } else {
+                            const now = parseFloat(parseNum(el.value)), p = parseFloat(prev);
+                            label = 'prev ' + (isNaN(p) ? prev : formatNum(String(prev)));
+                            if (!isNaN(now) && !isNaN(p) && p !== 0) {
+                                const d = (now - p) / Math.abs(p) * 100;
+                                label += ' · <b>' + (d >= 0 ? '+' : '') + d.toFixed(Math.abs(d) < 10 ? 1 : 0) + '%</b>';
+                                cls += d >= 0 ? ' up' : ' down';
+                                if (Math.abs(d) > 50) cls += ' big';
+                            }
+                        }
+                        const tag = document.createElement('span');
+                        tag.className = cls; tag.innerHTML = label;
+                        el.insertAdjacentElement('afterend', tag);
+                    });
+                }).catch(function () {});
+        }
+        $(document).on('click', '#priorBarOff, #priorCompareOff', function () {
+            priorSource = null;
+            try { localStorage.removeItem(priorKey); } catch (e) {}
+            applyPrior();
+            $('#priorCompareOff').prop('hidden', true);
+        });
+        $('#priorBtn').on('click', function () {
+            $('#priorMsg').text('');
+            $('#priorCompareOff').prop('hidden', !priorSource);
+            $('#priorCopy').prop('disabled', demoReadOnly).attr('title', demoReadOnly ? 'Read-only sample report' : '');
+            axios.get('/table/prior-instances', { params: { instance_id: instanceId } }).then(function (r) {
+                const list = r.data.instances || [];
+                $('#priorSource').html(list.length ? list.map(function (i) {
+                    return '<option value="' + i.id + '"' + (String(i.id) === String(priorSource || r.data.suggested) ? ' selected' : '') + '>' + escapeInspectorHtml(i.label) + '</option>';
+                }).join('') : '<option value="">No other instance of this module</option>');
+                $('#priorCompare, #priorCopy').prop('disabled', !list.length || false);
+                if (demoReadOnly) $('#priorCopy').prop('disabled', true);
+                window.appModal.show('priorModal');
+            });
+        });
+        $('#priorCompare').on('click', function () {
+            priorSource = $('#priorSource').val();
+            if (!priorSource) return;
+            try { localStorage.setItem(priorKey, priorSource); } catch (e) {}
+            window.appModal.hide('priorModal');
+            applyPrior();
+        });
+        $('#priorCopy').on('click', function () {
+            const src = $('#priorSource').val();
+            if (!src) return;
+            const btn = this;
+            btn.disabled = true;
+            $('#priorMsg').removeClass('text-danger').text('Copying…');
+            saveIfDirty().then(function () {
+                return axios.post('/table/copy-from', { instance_id: instanceId, source_id: src, overwrite: $('#priorOverwrite').is(':checked') });
+            }).then(function (r) {
+                const d = r.data || {};
+                $('#priorMsg').text(d.added + ' value(s) added, ' + d.changed + ' overwritten' + (d.kept ? ', ' + d.kept + ' kept (already entered)' : '') + '.');
+                renderTableNav();
+                if (document.querySelector('#group')) changeTable(document.querySelector('#group'));   // show the copied values
+            }).catch(function (e) {
+                $('#priorMsg').addClass('text-danger').text(getRequestErrorMessage(e, 'Copy failed.'));
+            }).finally(function () { btn.disabled = false; });
+        });
+
         // ---- Paste a block copied from Excel: fills right and down from the focused cell ----
         function sameColumn(el) {
             const col = cellKey(el);
@@ -1320,6 +1450,7 @@
                 $('#validateInstanceBtn').prop('disabled', false);
                 setupKeySuggestions();
                 enhanceNumberInputs();
+                applyPrior();
                 scheduleAutoValidate(200);
 
 
