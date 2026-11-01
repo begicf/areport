@@ -12,7 +12,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
-/** COREP large exposures: counterparties of C 28.00 / C 29.00 must be identified in C 27.00. */
+/** Keys of open tables must be identified in their register table (COREP large exposures, DORA register of information). */
 class KeyRegisterPreflightTest extends TestCase
 {
     use RefreshDatabase;
@@ -34,11 +34,11 @@ class KeyRegisterPreflightTest extends TestCase
         ]);
     }
 
-    private function cells(string $table, array $cells): void
+    private function cells(string $table, array $cells, string $framework = 'corep/4.2'): void
     {
         $header = FactHeader::query()->create([
             'module_id' => $this->instance->id, 'cr_sheet_code_last' => '000',
-            'table_path' => "www.eba.europa.eu/eu/fr/xbrl/crr/fws/corep/4.2/tab/{$table}/{$table}.xsd",
+            'table_path' => "www.eba.europa.eu/eu/fr/xbrl/crr/fws/{$framework}/tab/{$table}/{$table}.xsd",
         ]);
         foreach ($cells as $cr => $value) {
             FactTable::query()->create(['fact_header_id' => $header->id, 'cr_code' => $cr, 'cr_sheet_code' => '000', 'string_value' => $value,
@@ -75,5 +75,46 @@ class KeyRegisterPreflightTest extends TestCase
         $this->cells('c_28.00', ['c010r1' => 'BANK-A']);
 
         $this->assertSame([], (new FilingPreflight($this->instance->fresh()))->keysNotInRegister());
+    }
+
+    public function test_dora_keys_follow_their_registers(): void
+    {
+        // B_02.01 registers contractual arrangements (CRZ), B_05.01 ICT providers (ICT),
+        // B_01.02 the entities (ESI) that B_02.02 names as users (qLES).
+        $this->cells('b_01.02', ['c0010r1' => 'LEI-A'], 'dora/4.0');
+        $this->cells('b_02.01', ['c0010r1' => 'CA-1'], 'dora/4.0');
+        $this->cells('b_05.01', ['c0010r1' => 'PROV-1'], 'dora/4.0');
+        $this->cells('b_02.02', ['c0010r1' => 'CA-1', 'c0020r1' => 'LEI-A', 'c0030r1' => 'PROV-1',
+            'c0010r2' => 'CA-2', 'c0020r2' => 'LEI-B', 'c0030r2' => 'PROV-2'], 'dora/4.0');
+
+        $missing = (new FilingPreflight($this->instance->fresh()))->keysNotInRegister();
+
+        $this->assertEqualsCanonicalizing([
+            'B_02.02 CRZ CA-2 B_02.01',
+            'B_02.02 qLES LEI-B B_01.02',
+            'B_02.02 ICT PROV-2 B_05.01',
+        ], array_map(fn ($m) => $m['table'].' '.$m['key'].' '.$m['value'].' '.$m['register'], $missing));
+    }
+
+    public function test_linked_arrangements_must_be_registered_too(): void
+    {
+        $this->cells('b_02.01', ['c0010r1' => 'CA-1'], 'dora/4.0');
+        $this->cells('b_02.03', ['c0010r1' => 'CA-1', 'c0020r1' => 'CA-9'], 'dora/4.0');
+
+        $missing = (new FilingPreflight($this->instance->fresh()))->keysNotInRegister();
+
+        $this->assertSame([['table' => 'B_02.03', 'key' => 'CRD', 'value' => 'CA-9', 'register' => 'B_02.01']], $missing);
+    }
+
+    public function test_registers_can_be_added_in_config(): void
+    {
+        config(['areport.key_registers' => [['register' => 'B_06.01', 'key' => 'IOB', 'refs' => ['TYA']]]]);
+        $this->cells('b_06.01', ['c0010r1' => 'F-1'], 'dora/4.0');
+        $this->cells('b_02.02', ['c0050r1' => 'F-1', 'c0060r1' => 'F-2'], 'dora/4.0');
+
+        $missing = (new FilingPreflight($this->instance->fresh()))->keysNotInRegister();
+
+        $this->assertContains(['table' => 'B_02.02', 'key' => 'TYA', 'value' => 'F-2', 'register' => 'B_06.01'], $missing);
+        $this->assertNotContains('F-1', array_column($missing, 'value'));
     }
 }

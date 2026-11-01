@@ -73,6 +73,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Key registers
+    |--------------------------------------------------------------------------
+    |
+    | Before export, every key of an open table that refers to a register table
+    | must be identified there. EBA's registers (COREP large exposures, DORA) are
+    | built in (App\Support\FilingPreflight::KEY_REGISTERS); add others here, e.g.
+    | ['register' => 'B_02.01', 'key' => 'CRZ', 'refs' => ['CRZ']] — table code,
+    | the register's key dimension, and the key dimensions that refer to it.
+    |
+    */
+
+    'key_registers' => [],
+
+    /*
+    |--------------------------------------------------------------------------
     | Public demo
     |--------------------------------------------------------------------------
     |

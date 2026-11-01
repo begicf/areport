@@ -128,27 +128,50 @@ class FilingPreflight
 
     /**
      * Identifiers that must be registered in another table first: a key of an open
-     * table refers to a row of the register (COREP large exposures: every counterparty
-     * of C 28.00 / C 29.00 — and every group code of C 29.00 — is identified in C 27.00).
+     * table refers to a row of its register table. A key is named by its typed
+     * dimension (DPM 2.0 metadata maps the key column to it) or, in older metadata,
+     * by the column itself. More registers (EIOPA, national extensions) can be added
+     * in config('areport.key_registers').
      */
     public const KEY_REGISTERS = [
+        // COREP large exposures: counterparties and group codes are identified in C 27.00.
         ['register' => 'C_27.00', 'key' => 'qINC', 'refs' => ['qINC', 'qGCC']],
+        ['register' => 'C_27.00', 'key' => 'INC', 'refs' => ['INC', 'GCC']],
+        // DORA register of information: entities, branches, contractual arrangements,
+        // ICT third-party service providers and functions are each identified once.
+        ['register' => 'B_01.02', 'key' => 'ESI', 'refs' => ['qLES', 'qLEA']],
+        ['register' => 'B_01.03', 'key' => 'ISB', 'refs' => ['ISB']],
+        ['register' => 'B_02.01', 'key' => 'CRZ', 'refs' => ['CRZ', 'CRN', 'CRD']],
+        ['register' => 'B_05.01', 'key' => 'ICT', 'refs' => ['ICT']],
+        ['register' => 'B_06.01', 'key' => 'IOB', 'refs' => ['IOB']],
     ];
+
+    /** @return array<int, array{register: string, key: string, refs: array<int, string>}> */
+    public static function keyRegisters(): array
+    {
+        return array_merge(self::KEY_REGISTERS, array_values((array) config('areport.key_registers', [])));
+    }
 
     /** @return array<int, array{table: string, key: string, value: ?string, register: string}> value null = register table missing */
     public function keysNotInRegister(): array
     {
         $root = storage_path('app/public/tax/'.($this->instance->taxonomy->folder ?? ''));
-        $values = [];   // table code => key column name => [value => true]
+        $values = [];   // table code => key name => [value => true]
         foreach ($this->instance->factHeader()->with('factTable')->get() as $header) {
             $json = $root.'/'.preg_replace('/\.xsd$/i', '.json', ltrim((string) $header->table_path, '/'));
             $meta = is_file($json) ? json_decode((string) file_get_contents($json), true) : null;
             $template = is_array($meta['tableTemplates'] ?? null) ? reset($meta['tableTemplates']) : null;
+            $dimOf = [];    // key column => typed dimension (local name), from "dim": "$c0010"
+            foreach ((array) ($template['dimensions'] ?? []) as $dim => $ref) {
+                if (is_string($ref) && str_starts_with($ref, '$')) {
+                    $dimOf[substr($ref, 1)] = preg_replace('/^.*:/', '', (string) $dim);
+                }
+            }
             $keys = [];
             foreach ((array) ($template['columns'] ?? []) as $name => $col) {
                 $doc = $col['eba:documentation'] ?? [];
                 if (! in_array($name, ['datapoint', 'factValue'], true) && ($doc['headerDirection'] ?? '') === 'X' && ! empty($doc['headerCode'])) {
-                    $keys[strtolower('c'.$doc['headerCode'])] = $name;
+                    $keys[strtolower('c'.$doc['headerCode'])] = $dimOf[$name] ?? $name;
                 }
             }
             if (! $keys) {
@@ -164,7 +187,7 @@ class FilingPreflight
         }
 
         $out = [];
-        foreach (self::KEY_REGISTERS as $rule) {
+        foreach (self::keyRegisters() as $rule) {
             $registered = $values[$rule['register']][$rule['key']] ?? null;
             foreach ($values as $table => $cols) {
                 if ($table === $rule['register']) {
