@@ -18,9 +18,8 @@
                 <div class="modal-body">
                     <div class="row g-4">
                         @php
-                            $__entityCls = \Begicf\AReportPro\Models\DpmEntity::class;
-                            $__entities = class_exists($__entityCls) ? $__entityCls::orderByDesc('is_default')->orderBy('name')->get() : collect();
-                            $__settingsUrl = \Route::has('areport-pro.settings.index') ? route('areport-pro.settings.index') : url('/pro/settings');
+                            $__entities = \App\Model\Entity::choices();
+                            $__settingsUrl = route('entities.index');
                         @endphp
                         <div class="col-lg-4">
                             <label for="datepicker" class="form-label">Reporting period</label>
@@ -37,7 +36,7 @@
                             </select>
                             <p class="app-form-help mt-2">
                                 @if($__entities->isEmpty())
-                                    No entities yet — <a href="{{ $__settingsUrl }}" target="_blank" rel="noopener">add one in Settings</a> first.
+                                    No entities yet — <a href="{{ $__settingsUrl }}" target="_blank" rel="noopener">add one</a> first.
                                 @else
                                     <a href="{{ $__settingsUrl }}" target="_blank" rel="noopener"><i class="fas fa-plus"></i> Add a new entity</a>
                                 @endif

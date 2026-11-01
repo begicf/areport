@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Table;
 
 use App\Http\Controllers\Controller;
+use App\Model\Entity;
 use App\Model\FactHeader;
 use App\Model\FactModule;
 use App\Model\FactTable;
@@ -55,15 +56,10 @@ class TableController extends Controller
         return $this->_instance;
     }
 
-    /** The chosen entity id if it is one of the user's entities (areport-pro), else null. */
+    /** The chosen entity id if it is one of the user's entities, else null. */
     private function ownedEntityId($id): ?int
     {
-        $entityCls = \Begicf\AReportPro\Models\DpmEntity::class;
-        if (! $id || ! class_exists($entityCls)) {
-            return null;
-        }
-
-        return $entityCls::query()->whereKey($id)->value('id');
+        return $id ? Entity::query()->whereKey($id)->value('id') : null;
     }
 
     public function table(Request $request)
@@ -133,8 +129,7 @@ class TableController extends Controller
 
         endif;
 
-        $entityCls = \Begicf\AReportPro\Models\DpmEntity::class;
-        $entity = ($fact_module->entity_id && class_exists($entityCls)) ? $entityCls::find($fact_module->entity_id) : null;
+        $entity = $fact_module->entity_id ? Entity::find($fact_module->entity_id) : null;
 
         return view('table.table', [
 
@@ -749,8 +744,7 @@ class TableController extends Controller
         $validator = app($validatorClass);
 
         $built = $this->moduleCellValues($module);
-        $entityCls = \Begicf\AReportPro\Models\DpmEntity::class;
-        $entity = ($module->entity_id && class_exists($entityCls)) ? $entityCls::find($module->entity_id) : null;
+        $entity = $module->entity_id ? Entity::find($module->entity_id) : null;
 
         $meta = [
             'module' => $module->module_name,

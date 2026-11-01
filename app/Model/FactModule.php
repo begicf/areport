@@ -104,12 +104,10 @@ class FactModule extends Model
         return $this->period ? $this->period->format('Y-m-d') : null;
     }
 
-    /** The reporting entity (areport-pro), if one is set and the plugin is installed. */
-    public function entityRecord()
+    /** The reporting entity, if one is set. */
+    public function entityRecord(): ?Entity
     {
-        $entityCls = \Begicf\AReportPro\Models\DpmEntity::class;
-
-        return ($this->entity_id && class_exists($entityCls)) ? $entityCls::find($this->entity_id) : null;
+        return $this->entity_id ? Entity::find($this->entity_id) : null;
     }
 
     /** NCA country for the package name: set on the instance, else the entity's country. */

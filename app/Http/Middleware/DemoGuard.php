@@ -27,6 +27,9 @@ class DemoGuard
         $path = trim($request->path(), '/');
         $pro = trim((string) config('areport-pro.route_prefix', 'pro'), '/').'/';
 
+        if (($path === 'entities' || str_starts_with($path, 'entities/')) && $path !== 'entities/lei-lookup') {
+            return $this->deny($request, 'The reporting entities are shared by everyone in this demo, so they cannot be changed here.');
+        }
         if (str_starts_with($path, 'taxonomy/')) {
             return $this->deny($request, 'Taxonomies are shared by everyone in this demo, so they cannot be changed here.');
         }

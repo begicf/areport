@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Export;
 
 use App\Http\Controllers\Controller;
+use App\Model\Entity;
 use App\Model\FactHeader;
 use App\Model\FactModule;
 use App\Model\Taxonomy;
@@ -83,27 +84,20 @@ class InstanceController extends Controller
 
     /**
      * The reporting entity for this export: the one chosen on the instance
-     * (request 'entity') if given, else the default entity, else the legacy
-     * single LEI setting. Returns ['lei' => …, 'name' => …].
+     * (request 'entity') if given, else the default entity, else LEI_CODE.
+     * Returns ['lei' => …, 'name' => …].
      *
      * @return array{lei:string,name:?string}
      */
     private function currentEntity(): array
     {
-        $entityCls = \Begicf\AReportPro\Models\DpmEntity::class;
-        if (class_exists($entityCls)) {
-            $id = $this->_entityId ?: request('entity');
-            $e = $id ? $entityCls::find($id) : $entityCls::current();
-            if ($e && $e->lei) {
-                return ['lei' => $e->lei, 'name' => $e->name];
-            }
+        $id = $this->_entityId ?: request('entity');
+        $e = $id ? Entity::find($id) : Entity::current();
+        if ($e && $e->lei) {
+            return ['lei' => $e->lei, 'name' => $e->name];
         }
 
-        $settingCls = \Begicf\AReportPro\Models\DpmSetting::class;
-        $lei = class_exists($settingCls) ? ($settingCls::get('lei') ?: null) : null;
-        $name = class_exists($settingCls) ? ($settingCls::get('entity_name') ?: null) : null;
-
-        return ['lei' => $lei ?: env('LEI_CODE', '12345678912345678912'), 'name' => $name];
+        return ['lei' => env('LEI_CODE', '12345678912345678912'), 'name' => null];
     }
 
     private function reportingLei(): string
@@ -239,12 +233,10 @@ class InstanceController extends Controller
         return $result;
     }
 
-    /** The signed-in user's reporting entities (areport-pro), or none without the plugin. */
+    /** The signed-in user's reporting entities. */
     private function ownedEntities()
     {
-        $entityCls = \Begicf\AReportPro\Models\DpmEntity::class;
-
-        return class_exists($entityCls) ? $entityCls::query()->orderByDesc('is_default')->orderBy('name')->get() : collect();
+        return Entity::choices();
     }
 
     /** Pre-export checks as JSON, for the form's export dialog. */

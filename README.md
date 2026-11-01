@@ -44,7 +44,7 @@ Website: <https://areport.net>
 - Export to `.xlsx`, `.pdf` and `.html`, and import from spreadsheets and structured files.
 
 ### Workspace
-- Settings for reporting entities (LEI lookup in the GLEIF register), the taxonomy owner and regulator, and translation languages.
+- Reporting entities: add them by LEI, with the legal name and country from the GLEIF register; one is the default for new instances.
 - Sign-in requires a verified email address.
 - Optional demo mode that shares one user's instances with every signed-in user.
 - Public landing page with a spam-protected contact form.
@@ -54,6 +54,7 @@ The optional `begicf/areport-pro` package is private, not public. When it is ins
 - **DPM Architect**: author tables, modules, the data dictionary and validation rules, then generate the XBRL taxonomy (schemas, linkbases, `*-lab-<lang>.xml`). **Export** packs the chosen frameworks as an XBRL taxonomy package, with an optional Arelle check of every module. **Releases** lock a framework version (snapshot, release notes from the changes since the last release, the package as published) and continue in the next version.
 - **Validation**: DPM 2.0 / DPM-XL rules, evaluated by the separate `dpm-xl-service`.
 - **Label translation**: labels translated in the Architect and the dictionary, with optional AI suggestions from Claude or OpenAI.
+- **Settings**: the taxonomy owner and regulator, translation languages and AI translation.
 
 ### Private plugin: AReport Teams
 The optional `begicf/areport-teams` package is private as well, and works with or without AReport Pro. It adds:

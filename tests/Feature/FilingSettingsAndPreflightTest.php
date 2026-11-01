@@ -2,12 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Model\Entity;
 use App\Model\FactHeader;
 use App\Model\FactModule;
 use App\Model\FactTable;
 use App\Model\Taxonomy;
 use App\User;
-use Begicf\AReportPro\Models\DpmEntity;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -24,17 +24,13 @@ class FilingSettingsAndPreflightTest extends TestCase
     {
         parent::setUp();
 
-        if (! class_exists(DpmEntity::class)) {
-            $this->markTestSkipped('areport-pro is not installed.');
-        }
-
         $this->user = User::query()->create(['name' => 'Alice', 'email' => 'alice@example.com', 'password' => Hash::make('secret')]);
         $this->actingAs($this->user);
 
         $taxonomy = Taxonomy::query()->create(['name' => 'EBA 4.2', 'original_name' => 'eba42', 'path' => 'eba42', 'folder' => 'eba42']);
         DB::table('taxonomies')->where('id', $taxonomy->id)->update(['active' => true]);
 
-        $entity = DpmEntity::query()->create(['lei' => '5493001KJTIIGC8Y1R12', 'name' => 'Example Bank', 'is_default' => true]);
+        $entity = Entity::query()->create(['lei' => '5493001KJTIIGC8Y1R12', 'name' => 'Example Bank', 'is_default' => true]);
 
         $this->instance = FactModule::query()->create([
             'taxonomy_id' => $taxonomy->id,
@@ -138,13 +134,13 @@ class FilingSettingsAndPreflightTest extends TestCase
         $this->assertContains('no_data', $codes);
         $this->assertSame(['C_01.00' => false, 'C_02.00' => true], $this->instance->fresh()->filing_indicators);
 
-        DpmEntity::query()->whereKey($this->instance->entity_id)->update(['lei' => 'HWUPKR0MPOU8FGXBT395']);
+        Entity::query()->whereKey($this->instance->entity_id)->update(['lei' => 'HWUPKR0MPOU8FGXBT395']);
         $this->assertContains('lei_invalid', $this->preflightCodes()[1]);
     }
 
     public function testAnotherUsersEntityCannotBeAssigned(): void
     {
-        $other = DpmEntity::query()->withoutGlobalScopes()->create(['lei' => 'HWUPKR0MPOU8FGXBT394', 'name' => 'Not mine', 'user_id' => 999]);
+        $other = Entity::query()->withoutGlobalScopes()->create(['lei' => 'HWUPKR0MPOU8FGXBT394', 'name' => 'Not mine', 'user_id' => 999]);
 
         $this->postJson('/instance/settings', $this->settings(['entity_id' => $other->id]))->assertStatus(422);
     }

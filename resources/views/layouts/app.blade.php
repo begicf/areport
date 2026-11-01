@@ -226,6 +226,9 @@
                                     </a>
 
                                     <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                        <a class="dropdown-item" href="{{ route('entities.index') }}">
+                                            <i class="fas fa-building-columns me-2 text-muted"></i>{{ __('Reporting entities') }}
+                                        </a>
                                         @if(Route::has('areport-pro.settings.index'))
                                             <a class="dropdown-item" href="{{ route('areport-pro.settings.index') }}">
                                                 <i class="fas fa-gear me-2 text-muted"></i>{{ __('Settings') }}

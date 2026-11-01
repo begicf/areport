@@ -49,6 +49,16 @@ class DemoGuardTest extends TestCase
         $this->assertNotSame(true, $r->json('demo'));
     }
 
+    public function test_the_shared_entities_stay_as_they_are(): void
+    {
+        $entity = \App\Model\Entity::query()->create(['user_id' => $this->owner->id, 'lei' => '5493001KJTIIGC8Y1R12', 'name' => 'Demo Bank', 'is_default' => true]);
+
+        $this->actingAs($this->visitor)->postJson('/entities', ['lei' => '5493001KJTIIGC8Y1R12', 'name' => 'Renamed'])->assertStatus(403);
+        $this->actingAs($this->visitor)->deleteJson('/entities/'.$entity->id)->assertStatus(403);
+        $this->assertSame('Demo Bank', $entity->fresh()->name);
+        $this->actingAs($this->visitor)->get('/entities')->assertOk()->assertSee('Demo Bank');
+    }
+
     public function test_the_shared_workspace_is_read_only_for_visitors(): void
     {
         $this->actingAs($this->visitor)->post('/taxonomy/delete', ['id' => 1])->assertSessionHas('warning');

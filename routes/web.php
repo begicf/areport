@@ -80,6 +80,15 @@ Route::group(['prefix' => 'table', 'middleware' => 'auth'], function () {
 
 });
 
+// Reporting entities (LEI, legal name and country from GLEIF)
+Route::group(['prefix' => 'entities', 'middleware' => 'auth'], function () {
+    Route::get('/', 'Entities\EntityController@index')->name('entities.index');
+    Route::post('/', 'Entities\EntityController@store')->name('entities.store');
+    Route::post('/lei-lookup', 'Entities\EntityController@lookup')->name('entities.lei-lookup');
+    Route::patch('/{entity}/default', 'Entities\EntityController@setDefault')->whereNumber('entity')->name('entities.default');
+    Route::delete('/{entity}', 'Entities\EntityController@destroy')->whereNumber('entity')->name('entities.destroy');
+});
+
 //Export instance
 Route::group(['prefix' => 'instance', 'middleware' => 'auth'], function () {
     Route::post('/export', 'Export\InstanceController@exportInstance');

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Areport;
 
 use App\Http\Controllers\Controller;
+use App\Model\Entity;
 use App\Model\FactModule;
 use App\Support\InstanceHooks;
 use Illuminate\Http\Request;
@@ -50,10 +51,7 @@ class HomeController extends Controller
 
         $instances = $data->get();
 
-        $entityCls = \Begicf\AReportPro\Models\DpmEntity::class;
-        $entities = class_exists($entityCls)
-            ? $entityCls::query()->whereIn('id', $instances->pluck('entity_id')->filter()->unique())->get(['id', 'name', 'lei'])->keyBy('id')
-            : collect();
+        $entities = Entity::query()->whereIn('id', $instances->pluck('entity_id')->filter()->unique())->get(['id', 'name', 'lei'])->keyBy('id');
 
         // Who made the latest cell change on each instance.
         $lastEditors = DB::table('fact_audit as a')
