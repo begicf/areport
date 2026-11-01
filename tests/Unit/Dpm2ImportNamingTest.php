@@ -2,7 +2,7 @@
 
 namespace Tests\Unit;
 
-use Begicf\AReportPro\Services\Dpm2DatabaseImporter;
+use Begicf\AReportDpm\Services\Dpm2DatabaseImporter;
 use Tests\TestCase;
 
 class Dpm2ImportNamingTest extends TestCase
@@ -10,9 +10,7 @@ class Dpm2ImportNamingTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        if (! class_exists(Dpm2DatabaseImporter::class)) {
-            $this->markTestSkipped('areport-pro is not installed.');
-        }
+        $this->requireDpm();
     }
 
     public function testReleaseLabelAndSchemaFromEbaFileNames(): void

@@ -18,9 +18,7 @@ class TaxonomyExportTest extends TestCase
     {
         parent::setUp();
 
-        if (! class_exists(DpmTaxonomyExporter::class)) {
-            $this->markTestSkipped('areport-pro is not installed.');
-        }
+        $this->requirePro();
         $this->actingAs(User::query()->create(['name' => 'Alice', 'email' => 'alice@example.com', 'password' => Hash::make('secret'), 'email_verified_at' => now()]));
         $taxonomy = Taxonomy::query()->create(['name' => 'EBA 4.4', 'original_name' => 'eba44', 'path' => 'eba44', 'folder' => 'eba44']);
         DB::table('taxonomies')->where('id', $taxonomy->id)->update(['active' => true]);

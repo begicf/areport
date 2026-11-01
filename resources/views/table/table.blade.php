@@ -275,7 +275,7 @@
                 <span class="rib-cap">Data</span>
             </div>
 
-            @if(Route::has('areport-pro.dpm-model.index'))
+            @if(class_exists(\Begicf\AReportDpm\Services\InstanceValidator::class))   {{-- DPM-XL validation: AReport DPM --}}
                 <div class="rib-sep rib-right"></div>
                 <div class="rib-group">
                     <div class="rib-btns">
@@ -516,7 +516,7 @@
                 <div class="modal-body" id="exportCheckBody"></div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" id="exportCheckSettings">Open settings</button>
-                    @if(class_exists(\Begicf\AReportPro\Services\ArelleValidator::class) && \Begicf\AReportPro\Services\ArelleValidator::available())
+                    @if(\App\Support\ArelleValidator::available())
                         <button type="button" class="btn btn-outline-primary" id="exportCheckArelle" title="Validate the exported file with Arelle (XBRL 2.1, dimensions, data types)"><i class="fas fa-shield-halved"></i> Validate with Arelle</button>
                     @endif
                     <button type="button" class="btn btn-primary" id="exportCheckGo">Download</button>

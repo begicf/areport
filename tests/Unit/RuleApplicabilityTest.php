@@ -2,8 +2,8 @@
 
 namespace Tests\Unit;
 
-use Begicf\AReportPro\Services\DpmValidationImporter;
-use Begicf\AReportPro\Services\InstanceValidator;
+use Begicf\AReportDpm\Services\DpmValidationImporter;
+use Begicf\AReportDpm\Services\InstanceValidator;
 use Tests\TestCase;
 
 class RuleApplicabilityTest extends TestCase
@@ -11,9 +11,7 @@ class RuleApplicabilityTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        if (! class_exists(InstanceValidator::class)) {
-            $this->markTestSkipped('areport-pro is not installed.');
-        }
+        $this->requireDpm();
     }
 
     public function testFilingIndicatorPreconditions(): void

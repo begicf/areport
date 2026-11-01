@@ -7,6 +7,7 @@ use App\Model\Entity;
 use App\Model\FactHeader;
 use App\Model\FactModule;
 use App\Model\Taxonomy;
+use App\Support\ArelleValidator;
 use App\Support\FilingPreflight;
 use AReportDpmXBRL\Creat\CreateXBRLCsvPackage;
 use AReportDpmXBRL\Creat\CreateXBRLFromDB;
@@ -167,8 +168,7 @@ class InstanceController extends Controller
      */
     public function arelleValidate(Request $request)
     {
-        $cls = \Begicf\AReportPro\Services\ArelleValidator::class;
-        abort_unless(class_exists($cls) && $cls::available(), 422, 'Arelle is not configured (AREPORT_PRO_ARELLE_CMD).');
+        abort_unless(ArelleValidator::available(), 422, 'Arelle is not configured (AREPORT_ARELLE_CMD).');
         $format = $request->get('format') === 'xml' ? 'xml' : 'csv';
         $fact_module = $this->instance($format === 'xml' ? ['taxonomy', 'factHeader'] : ['taxonomy', 'factHeader.factTable']);
         $this->_entityId = $fact_module->entity_id ?? null;
@@ -183,7 +183,7 @@ class InstanceController extends Controller
             rename($package['path'], $path);
         }
         try {
-            $result = (new $cls($fact_module->taxonomy))->validate($path);
+            $result = (new ArelleValidator($fact_module->taxonomy))->validate($path);
         } catch (\RuntimeException $e) {
             abort(422, $e->getMessage());
         } finally {

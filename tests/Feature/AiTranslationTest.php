@@ -19,9 +19,7 @@ class AiTranslationTest extends TestCase
     {
         parent::setUp();
 
-        if (! class_exists(AiTranslator::class)) {
-            $this->markTestSkipped('areport-pro is not installed.');
-        }
+        $this->requirePro();
         config(['areport-pro.ai.api_key' => null, 'areport-pro.ai.openai.api_key' => null]);
         $this->actingAs(User::query()->create(['name' => 'Alice', 'email' => 'alice@example.com', 'password' => Hash::make('secret')]));
         DpmLanguage::syncFromConfig();

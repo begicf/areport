@@ -21,7 +21,7 @@ class CellLabels
 
     public static function available(): bool
     {
-        return class_exists(\Begicf\AReportPro\Models\Dpm\DpmTable::class);
+        return class_exists(\Begicf\AReportDpm\Models\DpmTable::class);
     }
 
     /** "row label · column label" for a cell of a table, or null. */

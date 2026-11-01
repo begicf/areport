@@ -16,9 +16,7 @@ class HypercubeFactoringTest extends TestCase
 {
     private function factor(array $tuples, array $dims): array
     {
-        if (! class_exists(DpmTaxonomyGenerator::class)) {
-            $this->markTestSkipped('areport-pro is not installed.');
-        }
+        $this->requirePro();
         $generator = (new ReflectionClass(DpmTaxonomyGenerator::class))->newInstanceWithoutConstructor();
         $m = new ReflectionMethod(DpmTaxonomyGenerator::class, 'factor');
         $m->setAccessible(true);

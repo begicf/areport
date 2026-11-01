@@ -62,7 +62,7 @@ class DemoGuardTest extends TestCase
     public function test_the_shared_workspace_is_read_only_for_visitors(): void
     {
         $this->actingAs($this->visitor)->post('/taxonomy/delete', ['id' => 1])->assertSessionHas('warning');
-        if (class_exists(\Begicf\AReportPro\AReportProServiceProvider::class)) {
+        if (\Illuminate\Support\Facades\Route::has('areport-pro.dashboard')) {
             $this->actingAs($this->visitor)->postJson('/pro/settings/general', ['lei' => 'x'])->assertStatus(403);
             // Checking a DPM-XL expression changes nothing — allowed.
             $r = $this->actingAs($this->visitor)->postJson('/pro/validations/check', ['expression' => '{r0010} > 0']);

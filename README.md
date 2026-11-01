@@ -49,15 +49,17 @@ Website: <https://areport.net>
 - Optional demo mode that shares one user's instances with every signed-in user.
 - Public landing page with a spam-protected contact form.
 
+### Private plugin: AReport DPM
+The optional `begicf/areport-dpm` package is private. It adds the **validation of reports** against the DPM 2.0 / DPM-XL rules of the framework (EBA and own rules), live on the form and as a full validation report, evaluated by the separate `dpm-xl-service`. It holds the DPM model (frameworks, modules, tables, dictionary, rules) and its importers (`dpm:import*`, `dpm2:import`, `dpm2:operations`).
+
 ### Private plugin: AReport Pro
-The optional `begicf/areport-pro` package is private, not public. When it is installed, it adds:
+The optional `begicf/areport-pro` package is private and needs AReport DPM. It adds:
 - **DPM Architect**: author tables, modules, the data dictionary and validation rules, then generate the XBRL taxonomy (schemas, linkbases, `*-lab-<lang>.xml`). **Export** packs the chosen frameworks as an XBRL taxonomy package, with an optional Arelle check of every module. **Releases** lock a framework version (snapshot, release notes from the changes since the last release, the package as published) and continue in the next version.
-- **Validation**: DPM 2.0 / DPM-XL rules, evaluated by the separate `dpm-xl-service`.
 - **Label translation**: labels translated in the Architect and the dictionary, with optional AI suggestions from Claude or OpenAI.
 - **Settings**: the taxonomy owner and regulator, translation languages and AI translation.
 
 ### Private plugin: AReport Teams
-The optional `begicf/areport-teams` package is private as well, and works with or without AReport Pro. It adds:
+The optional `begicf/areport-teams` package is private as well, and works with or without the other plugins. It adds:
 - **Teams and roles**: members (invited by e-mail, joining only after they accept) share their reports and entities; each has a role: admin, preparer, reviewer or approver.
 - **Sign-off**: a report goes *Draft → In review → Approved* before it is exported for filing. Its data is locked while it is in review or approved. A reviewer returns it with a reason, and someone other than whoever submitted or changed it approves it (four-eyes). Every step is kept with its comment.
 
@@ -92,7 +94,7 @@ php artisan serve
 
 `composer.json` points `begicf/areport-dpm-xbrl` at `../areport-dpm-xbrl` (path repository, symlinked), so changes to the library apply right away.
 
-The private plugins are not Composer dependencies: when their folders sit next to the application (`../areport-pro`, `../areport-teams`, or the folders listed in `AREPORT_PLUGIN_PATHS`), they are loaded from their own `composer.json` (autoload and Laravel providers). Without them, AReport runs as the open-source core.
+The private plugins are not Composer dependencies: when their folders sit next to the application (`../areport-dpm`, `../areport-pro`, `../areport-teams`, or the folders listed in `AREPORT_PLUGIN_PATHS`), they are loaded from their own `composer.json` (autoload and Laravel providers). Without them, AReport runs as the open-source core.
 
 ## Configuration
 
@@ -107,12 +109,18 @@ The main application variables in `.env`:
 | `AREPORT_DEMO_READONLY`, `AREPORT_DEMO_ADMINS` | in demo mode, visitors cannot change taxonomies, settings, the Architect model or the shared reports (default on); admins (e-mails) can |
 | `AREPORT_EDITION`, `AREPORT_EXTENSION_PROVIDERS` | edition label and extra service providers |
 
+| `AREPORT_ARELLE_CMD` | path to `arelleCmdLine` (e.g. a venv's `bin/arelleCmdLine`): enables the Arelle check of exports |
+
+With the AReport DPM plugin:
+
+| Variable | Purpose |
+|---|---|
+| `AREPORT_DPMXL_SERVICE_URL` | DPM-XL service (default `http://127.0.0.1:8077`) |
+
 With the AReport Pro plugin:
 
 | Variable | Purpose |
 |---|---|
-| `AREPORT_PRO_ARELLE_CMD` | path to `arelleCmdLine` (e.g. a venv's `bin/arelleCmdLine`) |
-| `AREPORT_PRO_DPMXL_SERVICE_URL` | DPM-XL service (default `http://127.0.0.1:8077`) |
 | `AREPORT_PRO_DPM_OWNER_*`, `AREPORT_PRO_DPM_REGULATOR_*` | owner and regulator of authored taxonomies (also editable under Settings) |
 | `AREPORT_PRO_AI_PROVIDER` | AI translation provider: `claude` or `openai` (can also be set under Settings › AI translation) |
 | `ANTHROPIC_API_KEY`, `AREPORT_PRO_AI_MODEL` | Claude key and model |

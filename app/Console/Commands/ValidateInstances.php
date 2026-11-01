@@ -24,7 +24,7 @@ class ValidateInstances extends Command
 
     public function handle(): int
     {
-        if (! class_exists(\Begicf\AReportPro\Services\InstanceValidator::class)) {
+        if (! class_exists(\Begicf\AReportDpm\Services\InstanceValidator::class)) {
             $this->error('The validation plugin is not installed.');
 
             return self::FAILURE;

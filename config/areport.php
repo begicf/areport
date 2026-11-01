@@ -39,7 +39,23 @@ return [
     |
     */
 
-    'plugin_paths' => array_filter(array_map('trim', explode(',', env('AREPORT_PLUGIN_PATHS', '../areport-pro,../areport-teams')))),
+    /*
+    |--------------------------------------------------------------------------
+    | Arelle
+    |--------------------------------------------------------------------------
+    |
+    | Arelle (https://arelle.org) checks exported instances, and taxonomies made
+    | with the DPM Architect, offline against the local taxonomy copy: the path
+    | of the arelleCmdLine executable (e.g. a venv's bin/arelleCmdLine).
+    |
+    */
+
+    'arelle' => [
+        'cmd' => env('AREPORT_ARELLE_CMD', env('AREPORT_PRO_ARELLE_CMD')),
+        'timeout' => env('AREPORT_ARELLE_TIMEOUT', env('AREPORT_PRO_ARELLE_TIMEOUT', 300)),
+    ],
+
+    'plugin_paths' => array_filter(array_map('trim', explode(',', env('AREPORT_PLUGIN_PATHS', '../areport-dpm,../areport-pro,../areport-teams')))),
 
     /*
     |--------------------------------------------------------------------------

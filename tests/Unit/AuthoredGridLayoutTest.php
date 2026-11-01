@@ -3,7 +3,7 @@
 namespace Tests\Unit;
 
 use Begicf\AReportPro\Http\Controllers\DpmModelController;
-use Begicf\AReportPro\Models\Dpm\DpmTable;
+use Begicf\AReportDpm\Models\DpmTable;
 use ReflectionMethod;
 use Tests\TestCase;
 
@@ -12,9 +12,7 @@ class AuthoredGridLayoutTest extends TestCase
 {
     private function grid(array $cols): string
     {
-        if (! class_exists(DpmModelController::class)) {
-            $this->markTestSkipped('areport-pro is not installed.');
-        }
+        $this->requirePro();
         $m = new ReflectionMethod(DpmModelController::class, 'authoredGridHtml');
         $m->setAccessible(true);
         $html = $m->invoke(app(DpmModelController::class), new DpmTable(['code' => 'X_01.00', 'name' => 'X']), $cols, [], []);
@@ -75,9 +73,7 @@ class AuthoredGridLayoutTest extends TestCase
 
     public function testCellsCanCarryTheirVariable(): void
     {
-        if (! class_exists(\Begicf\AReportPro\Services\GridRenderer::class)) {
-            $this->markTestSkipped('areport-pro is not installed.');
-        }
+        $this->requirePro();
         $html = \Begicf\AReportPro\Services\GridRenderer::render('T', [$this->col(1, null, 0, 'Amount', '0010')], [$this->col(2, null, 0, 'Assets', '0010')], [],
             fn ($row, $col) => ['class' => 'd2-cell', 'attrs' => ' data-vid="42"', 'html' => 'dp7'], false);
 

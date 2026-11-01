@@ -10,9 +10,7 @@ class CodeSuggestionTest extends TestCase
 {
     private function next(array $codes, string $default): string
     {
-        if (! class_exists(DpmDictionaryController::class)) {
-            $this->markTestSkipped('areport-pro is not installed.');
-        }
+        $this->requirePro();
 
         return DpmDictionaryController::followingCode($codes, $default);
     }

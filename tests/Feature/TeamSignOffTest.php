@@ -177,7 +177,7 @@ class TeamSignOffTest extends TestCase
         $report->stamp(['data_changed_at' => now()]);   // changed after the validation
 
         $response = $this->act($pat, $report, 'submit');
-        if (class_exists(\Begicf\AReportPro\Services\InstanceValidator::class)) {
+        if (class_exists(\Begicf\AReportDpm\Services\InstanceValidator::class)) {
             $response->assertStatus(422);
             $this->assertSame(0, SignOff::query()->count());
         } else {

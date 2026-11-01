@@ -523,13 +523,13 @@ class TableController extends Controller
     {
         $this->bindInstance();
 
-        $validatorClass = \Begicf\AReportPro\Services\InstanceValidator::class;
-        $tableModel = \Begicf\AReportPro\Models\Dpm\DpmTable::class;
+        $validatorClass = \Begicf\AReportDpm\Services\InstanceValidator::class;
+        $tableModel = \Begicf\AReportDpm\Models\DpmTable::class;
         if (! class_exists($validatorClass) || ! class_exists($tableModel)) {
             return response()->json(['ok' => false, 'error' => 'The DPM Architect package is not installed.'], 422);
         }
 
-        /** @var \Begicf\AReportPro\Services\InstanceValidator $validator */
+        /** @var \Begicf\AReportDpm\Services\InstanceValidator $validator */
         $validator = app($validatorClass);
         if (! $validator->available()) {
             return response()->json(['ok' => false, 'error' => 'DPM-XL service is offline — start it to run validation.'], 422);
@@ -618,7 +618,7 @@ class TableController extends Controller
      */
     private function validationContext(?FactModule $instance, array $openTables = []): ?array
     {
-        $validatorClass = \Begicf\AReportPro\Services\InstanceValidator::class;
+        $validatorClass = \Begicf\AReportDpm\Services\InstanceValidator::class;
         $context = $instance ? $validatorClass::moduleContext($instance->module_path) : null;
         if (! $context) {
             return null;
@@ -652,7 +652,7 @@ class TableController extends Controller
     /** Build t<table>,r,c → value for a whole saved module + resolve its framework/codes. */
     private function moduleCellValues(FactModule $module): array
     {
-        $tableModel = \Begicf\AReportPro\Models\Dpm\DpmTable::class;
+        $tableModel = \Begicf\AReportDpm\Models\DpmTable::class;
         $cellValues = [];
         $tolerance = [];
         $dims = [];
@@ -661,7 +661,7 @@ class TableController extends Controller
         // taxonomy — the one its rules were imported under.
         $frameworkCode = \AReportDpmXBRL\Library\ModuleInfo::frameworkCode((string) $module->module_path);
         $framework = $frameworkCode
-            ? \Begicf\AReportPro\Models\Dpm\Framework::query()->where('taxonomy_id', $module->taxonomy_id)->where('code', $frameworkCode)->first()
+            ? \Begicf\AReportDpm\Models\Framework::query()->where('taxonomy_id', $module->taxonomy_id)->where('code', $frameworkCode)->first()
             : null;
 
         foreach ($module->factHeader as $header) {
@@ -724,7 +724,7 @@ class TableController extends Controller
      */
     public function validationReport(Request $request)
     {
-        $validatorClass = \Begicf\AReportPro\Services\InstanceValidator::class;
+        $validatorClass = \Begicf\AReportDpm\Services\InstanceValidator::class;
         if (! class_exists($validatorClass)) {
             abort(404, 'The validation plugin is not installed.');
         }
@@ -740,7 +740,7 @@ class TableController extends Controller
             $this->_taxonomy = $module->taxonomy;
         }
 
-        /** @var \Begicf\AReportPro\Services\InstanceValidator $validator */
+        /** @var \Begicf\AReportDpm\Services\InstanceValidator $validator */
         $validator = app($validatorClass);
 
         $built = $this->moduleCellValues($module);
@@ -771,7 +771,7 @@ class TableController extends Controller
                 $context['dims'] = $built['dims'];
             }
             // DPM 2.0 database rules and the owner's own rules need no imported framework; the legacy rules do.
-            $framework = $built['framework'] ?? ((! empty($context['dpm2']) || ! empty($context['own_module_id'])) ? new \Begicf\AReportPro\Models\Dpm\Framework() : null);
+            $framework = $built['framework'] ?? ((! empty($context['dpm2']) || ! empty($context['own_module_id'])) ? new \Begicf\AReportDpm\Models\Framework() : null);
             if (! $framework) {
                 $error = 'No DPM framework found for this module.';
             } else {
