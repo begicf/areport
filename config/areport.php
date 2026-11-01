@@ -132,6 +132,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Usage counts
+    |--------------------------------------------------------------------------
+    |
+    | E-mail addresses that may see the daily usage counts (/stats; see
+    | App\Support\Stats). On a demo server the shared user may see them too.
+    |
+    */
+
+    'stats' => [
+        'viewers' => array_filter(array_map(fn ($e) => strtolower(trim($e)), explode(',', (string) env('AREPORT_STATS_VIEWERS', env('AREPORT_DEMO_ADMINS', ''))))),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Public demo
     |--------------------------------------------------------------------------
     |

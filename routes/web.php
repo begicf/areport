@@ -81,6 +81,8 @@ Route::group(['prefix' => 'table', 'middleware' => 'auth'], function () {
 });
 
 // Reporting entities (LEI, legal name and country from GLEIF)
+Route::get('/stats', 'Stats\StatsController@index')->middleware('auth')->name('stats');
+
 Route::group(['prefix' => 'entities', 'middleware' => 'auth'], function () {
     Route::get('/', 'Entities\EntityController@index')->name('entities.index');
     Route::post('/', 'Entities\EntityController@store')->name('entities.store');
