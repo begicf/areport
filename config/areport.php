@@ -43,6 +43,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Taxonomy uploads
+    |--------------------------------------------------------------------------
+    |
+    | Whether taxonomy packages (and extension packages) may be uploaded or
+    | removed in this installation. Off on a shared demo server.
+    |
+    */
+
+    'upload' => (bool) env('UPLOAD', false),
+
+    /*
+    |--------------------------------------------------------------------------
     | Extension Views
     |--------------------------------------------------------------------------
     |

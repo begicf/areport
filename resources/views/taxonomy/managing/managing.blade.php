@@ -105,7 +105,7 @@
                                             @endforeach
                                         </div>
                                     @endif
-                                    @if(env('UPLOAD'))
+                                    @if(config('areport.upload'))
                                         <details class="tax-add">
                                             <summary><i class="fas fa-plus"></i> Add extension package</summary>
                                             <div class="tax-add-box" data-action="{{ route('taxonomy.package', $row) }}">
@@ -119,7 +119,7 @@
                                     @endif
                                 </td>
                                 <td class="text-center">
-                                    <button onclick='deleteTaxonomy(@json($row))' {{ $row->active == true ? 'disabled' : '' }}
+                                    <button onclick='deleteTaxonomy(@json($row))' {{ ($row->active == true || ! config('areport.upload')) ? 'disabled' : '' }}
                                             type="button" class="btn btn-sm btn-outline-danger" title="Remove this package">
                                         <i class="fas fa-trash"></i>
                                     </button>

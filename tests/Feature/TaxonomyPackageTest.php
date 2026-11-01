@@ -25,7 +25,7 @@ class TaxonomyPackageTest extends TestCase
         $this->folder = '_pkgtest_'.uniqid();
         mkdir(storage_path('app/public/tax/'.$this->folder.'/www.eba.europa.eu'), 0775, true);
         $this->actingAs(User::query()->create(['name' => 'Alice', 'email' => 'alice@example.com', 'password' => Hash::make('secret'), 'email_verified_at' => now()]));
-        putenv('UPLOAD=1');
+        config(['areport.upload' => true]);
     }
 
     protected function tearDown(): void
@@ -50,6 +50,20 @@ class TaxonomyPackageTest extends TestCase
         $zip->close();
 
         return $zipFile;
+    }
+
+    public function test_with_uploads_off_taxonomies_cannot_be_uploaded_or_removed(): void
+    {
+        config(['areport.upload' => false]);
+        $taxonomy = Taxonomy::query()->create(['name' => 'T', 'original_name' => 't', 'path' => 'tax', 'folder' => $this->folder]);
+        $zip = fn () => new UploadedFile($this->packageZip(), 'p.zip', 'application/zip', null, true);
+
+        $this->post('/taxonomy/upload', ['file' => $zip()])->assertForbidden();
+        $this->post('/taxonomy/'.$taxonomy->id.'/package', ['file' => $zip()])->assertForbidden();
+        $this->post('/taxonomy/delete', ['id' => $taxonomy->id])->assertForbidden();
+
+        $this->assertSame(1, Taxonomy::query()->count());
+        $this->assertDirectoryExists(storage_path('app/public/tax/'.$this->folder));
     }
 
     public function test_an_extension_package_is_merged_into_the_taxonomy(): void

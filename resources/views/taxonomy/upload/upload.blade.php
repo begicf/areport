@@ -40,7 +40,7 @@
                 </div>
 
                 <div class="app-actions justify-content-end">
-                    <button class="btn btn-primary px-4" {{ env('UPLOAD') ? '' : 'disabled' }}
+                    <button class="btn btn-primary px-4" {{ config('areport.upload') ? '' : 'disabled' }}
                             onclick="uploadTaxonomy()" type="button">
                         Upload taxonomy
                     </button>

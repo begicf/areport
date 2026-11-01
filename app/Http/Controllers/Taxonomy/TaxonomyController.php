@@ -101,6 +101,7 @@ class TaxonomyController extends Controller
      */
     public function delete(Request $request): \Illuminate\Http\RedirectResponse
     {
+        abort_unless(config('areport.upload'), 403, 'Managing taxonomies is disabled.');
         $id = $request->get('id');
 
         $_tax = Taxonomy::find($id);
@@ -138,6 +139,7 @@ class TaxonomyController extends Controller
      */
     public function store(Request $request): \Illuminate\Http\RedirectResponse
     {
+        abort_unless(config('areport.upload'), 403, 'Uploads are disabled.');
         $request->validate(['file' => ['required', 'file'], 'name' => ['nullable', 'string', 'max:255']]);
         $_name = pathinfo($request->file('file')->getClientOriginalName(), PATHINFO_FILENAME);
         $tmp = storage_path('app/tax-upload/'.uniqid());
@@ -186,7 +188,7 @@ class TaxonomyController extends Controller
      */
     public function addPackage(Request $request, Taxonomy $taxonomy): \Illuminate\Http\RedirectResponse
     {
-        abort_unless(env('UPLOAD'), 403, 'Uploads are disabled.');
+        abort_unless(config('areport.upload'), 403, 'Uploads are disabled.');
         $request->validate(['file' => ['required', 'file']]);
         $tmp = storage_path('app/tax-upload/'.uniqid());
         $target = storage_path('app/public/'.$taxonomy->path.DIRECTORY_SEPARATOR.$taxonomy->folder);
