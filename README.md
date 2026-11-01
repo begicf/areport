@@ -53,7 +53,7 @@ Website: <https://areport.net>
 The optional `begicf/areport-pro` package is private, not public. When it is installed, it adds:
 - **DPM Architect**: author tables, modules, the data dictionary and validation rules, then generate the XBRL taxonomy (schemas, linkbases, `*-lab-<lang>.xml`). **Export** packs the chosen frameworks as an XBRL taxonomy package, with an optional Arelle check of every module. **Releases** lock a framework version (snapshot, release notes from the changes since the last release, the package as published) and continue in the next version.
 - **Validation**: DPM 2.0 / DPM-XL rules, evaluated by the separate `dpm-xl-service`.
-- **Label translation**: labels translated in the Architect and the dictionary, with optional AI suggestions from Claude.
+- **Label translation**: labels translated in the Architect and the dictionary, with optional AI suggestions from Claude or OpenAI.
 
 AReport works without the plugin; the related screens and actions are simply hidden.
 
@@ -108,7 +108,9 @@ With the AReport Pro plugin:
 | `AREPORT_PRO_ARELLE_CMD` | path to `arelleCmdLine` (e.g. a venv's `bin/arelleCmdLine`) |
 | `AREPORT_PRO_DPMXL_SERVICE_URL` | DPM-XL service (default `http://127.0.0.1:8077`) |
 | `AREPORT_PRO_DPM_OWNER_*`, `AREPORT_PRO_DPM_REGULATOR_*` | owner and regulator of authored taxonomies (also editable under Settings) |
-| `ANTHROPIC_API_KEY`, `AREPORT_PRO_AI_MODEL` | AI translation with Claude (can also be set under Settings › AI translation) |
+| `AREPORT_PRO_AI_PROVIDER` | AI translation provider: `claude` or `openai` (can also be set under Settings › AI translation) |
+| `ANTHROPIC_API_KEY`, `AREPORT_PRO_AI_MODEL` | Claude key and model |
+| `OPENAI_API_KEY`, `AREPORT_PRO_AI_OPENAI_MODEL` | OpenAI key and model (e.g. `gpt-5-mini`) |
 
 For large taxonomy uploads, raise the PHP limits in `php.ini`:
 
