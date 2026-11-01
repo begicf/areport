@@ -1706,6 +1706,18 @@
                 success: function (data) {
                     if (importInput) importInput.value = '';
 
+                    if (data && data.ext === 'cells') {   // Excel template read by row / column codes
+                        let filled = 0, missing = 0;
+                        for (const cell in (data.file || {})) {
+                            const input = document.getElementById(cell);
+                            if (input && !input.disabled && input.type !== 'hidden') { setCell(input, data.file[cell]) ? filled++ : missing++; } else missing++;
+                        }
+                        const s = data.summary || {};
+                        if (filled) markDirty();
+                        window.alert(filled + ' of ' + (s.values || 0) + ' values from sheet "' + (s.sheet || '') + '" were filled into this table'
+                            + (missing ? ' (' + missing + ' had no matching cell here)' : '') + '. Review them and save.');
+                        return;
+                    }
                     if (data && data.ext === 'xbrl') {
                         let filled = 0;
                         for (const cell in (data.file || {})) {

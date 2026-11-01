@@ -314,6 +314,13 @@ class TableController extends Controller
 
         elseif ($import['ext'] == 'xlsx'):
 
+            // A template with EBA row / column codes (EBA's, a bank's, our export): read by codes.
+            $byCodes = \App\Support\ExcelCodeImport::forTable($tpn_name, (string) ($request->get('table_code') ?: basename(dirname((string) $request->get('tab')))));
+            if ($byCodes['values']) {
+                return response()->json(['ext' => 'cells', 'file' => $byCodes['values'],
+                    'summary' => ['sheet' => $byCodes['sheet'], 'rows' => $byCodes['rows'], 'columns' => $byCodes['columns'], 'values' => count($byCodes['values'])]]);
+            }
+
             $upload = new ReadExcel($tpn_name, request('sheetcode'));
 
             $args['column'] = $request->get('column');
