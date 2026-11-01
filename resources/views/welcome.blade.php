@@ -74,7 +74,7 @@
         body{margin:0;background:#fff;color:var(--ink);font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.5}
         a{text-decoration:none;color:var(--blue)}
         .wrap{max-width:1160px;margin:0 auto;padding:0 1.4rem}
-        .btn{display:inline-flex;align-items:center;gap:.5rem;border-radius:9px;padding:.6rem 1.05rem;font-weight:600;font-size:.9rem;border:1px solid transparent;cursor:pointer;transition:.15s}
+        .btn{display:inline-flex;align-items:center;gap:.5rem;white-space:nowrap;border-radius:9px;padding:.6rem 1.05rem;font-weight:600;font-size:.9rem;border:1px solid transparent;cursor:pointer;transition:.15s}
         .btn-primary{background:var(--blue);color:#fff;border-color:var(--blue-d)}
         .btn-primary:hover{background:var(--blue-d)}
         .btn-ghost{background:#fff;color:var(--ink);border-color:var(--line)}
@@ -98,7 +98,7 @@
         .hero{position:relative;overflow:hidden;background:
             radial-gradient(1100px 420px at 80% -10%, rgba(47,85,125,.10), transparent 60%),
             radial-gradient(760px 360px at 0% 110%, rgba(228,144,47,.09), transparent 60%);}
-        .hero .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:2.6rem;align-items:center;padding:4rem 0 3.4rem}
+        .hero .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:2.6rem;align-items:center;padding-top:4rem;padding-bottom:3.4rem}
         .hero h1{font-size:2.7rem;line-height:1.08;letter-spacing:-.02em;margin:.7rem 0 0;font-weight:700;color:#16202c}
         .hero h1 .hl{color:var(--blue)}
         .hero p.lead{font-size:1.08rem;color:var(--muted);margin:1rem 0 1.6rem;max-width:34rem}
@@ -116,12 +116,12 @@
 
         /* trust strip */
         .trust{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--band)}
-        .trust .lrow{display:flex;flex-wrap:wrap;gap:1.4rem 2.6rem;justify-content:center;padding:1rem 0}
+        .trust .lrow{display:flex;flex-wrap:wrap;gap:1.4rem 2.6rem;justify-content:center;padding-top:1rem;padding-bottom:1rem}
         .trust .t{font-size:.84rem;color:#52606d;display:flex;align-items:center;gap:.55rem;font-weight:500}
         .trust .t i{color:var(--amber)}
 
         /* sections */
-        section.pad{padding:4rem 0}
+        section.pad{padding-top:4rem;padding-bottom:4rem}
         .sec-head{text-align:center;max-width:42rem;margin:0 auto 2.4rem}
         .sec-head h2{font-size:1.9rem;letter-spacing:-.02em;margin:.5rem 0 0;font-weight:700;color:#16202c}
         .sec-head p{color:var(--muted);margin:.7rem 0 0;font-size:1.02rem}
@@ -134,7 +134,7 @@
 
         /* plugin spotlight */
         .plugins{background:var(--band);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-        .feat{display:grid;grid-template-columns:repeat(2,1fr);gap:3rem;align-items:center;padding:3.2rem 0}
+        .feat{display:grid;grid-template-columns:repeat(2,1fr);gap:3rem;align-items:center;padding-top:3.2rem;padding-bottom:3.2rem}
         .feat.rev .ftext{order:2}
         .pill.private{background:#f8fafc;border-color:#cbd5e1;color:#475569}
         .private-note{display:inline-block;max-width:640px;margin-top:.9rem;line-height:1.5;padding:.5rem .9rem;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#475569;font-size:.86rem}
@@ -199,6 +199,40 @@
         .cmsg.ok{background:#ecfdf3;border:1px solid #abefc6;color:#067647}
         .cmsg.bad{background:#fef3f2;border:1px solid #fecdca;color:#b42318}
         @media (max-width:900px){.contact{grid-template-columns:1fr}.cform .row2{grid-template-columns:1fr}}
+
+        /* phones: 16px gutters, a one-line header, smaller type and tighter sections */
+        @media (max-width:640px){
+            .wrap{padding-left:1rem;padding-right:1rem}
+            .topnav .lrow{height:56px;gap:.6rem}
+            .brand img{height:26px}
+            .brand small{display:none}
+            .topnav .right{gap:.4rem}
+            .topnav .btn{padding:.45rem .75rem;font-size:.82rem}
+            .hero .grid{padding-top:2.2rem;padding-bottom:2.2rem;gap:1.8rem}
+            .hero h1{font-size:1.85rem}
+            .hero p.lead{font-size:1rem;margin:.9rem 0 1.3rem}
+            .hero .meta{gap:.6rem 1.1rem;margin-top:1.3rem}
+            .trust .lrow{gap:.7rem 1.4rem;justify-content:flex-start}
+            section.pad{padding-top:2.6rem;padding-bottom:2.6rem}
+            .sec-head{margin-bottom:1.6rem}
+            .sec-head h2{font-size:1.5rem}
+            .sec-head p{font-size:.96rem}
+            .feat{padding-top:2.2rem;padding-bottom:2.2rem;gap:1.6rem}
+            .feat h3{font-size:1.3rem}
+            .shot-bar{height:24px;gap:5px;padding:0 9px}
+            .shot-dot{width:8px;height:8px}
+            .private-note{font-size:.84rem}
+            .contact{gap:1.6rem}
+            .cform{padding:1.1rem}
+            .cform input,.cform select,.cform textarea{font-size:16px}
+            .cta-band{padding:1.9rem 1.2rem;border-radius:14px}
+            .cta-band h2{font-size:1.45rem}
+            .cta-band .btn-lg{padding:.65rem 1rem;font-size:.92rem}
+        }
+        @media (max-width:360px){
+            .topnav .btn-ghost{display:none}
+            .hero h1{font-size:1.65rem}
+        }
     </style>
 </head>
 <body>
