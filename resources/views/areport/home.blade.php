@@ -69,6 +69,11 @@
         .home-tile.t-exported { --c: #6d4fc2; --tint: #f1edfb; }
         .home-st { display: inline-flex; align-items: center; gap: .3rem; font-size: .7rem; font-weight: 600; padding: .14rem .5rem; border-radius: 999px; white-space: nowrap; }
         .home-st.draft { background: #f1f5f9; color: #52606d; }
+        .home-badges { display: flex; flex-wrap: wrap; gap: .25rem; margin-top: .25rem; }
+        .home-badge { font-size: .66rem; font-weight: 600; padding: .08rem .45rem; border-radius: 4px; border: 1px solid #d5dbe3; color: #52606d; background: #fff; white-space: nowrap; }
+        .home-badge.tone-warn { border-color: #f0c36d; color: #92400e; background: #fffbeb; }
+        .home-badge.tone-ok { border-color: #86c7a0; color: #166534; background: #f0faf4; }
+        .home-badge.tone-danger { border-color: #f1a7a7; color: #b91c1c; background: #fef5f5; }
         .home-st.errors { background: #fdecec; color: #b91c1c; }
         .home-st.warnings { background: #fff7ed; color: #b45309; }
         .home-st.validated { background: #e8f6ee; color: #166534; }
@@ -295,7 +300,12 @@
 
         function statusFormatter(value, row) {
             const icons = { draft: 'fa-circle-half-stroke', errors: 'fa-circle-xmark', warnings: 'fa-triangle-exclamation', validated: 'fa-circle-check', exported: 'fa-paper-plane' };
-            return "<span class='home-st " + escapeHtml(value) + "'><i class='fas " + (icons[value] || 'fa-circle') + "'></i>" + escapeHtml(row.status_label || value) + "</span>";
+            // Badges from plugins (e.g. a sign-off: in review, approved) under the status.
+            const badges = (row.badges || []).map(function (b) {
+                return "<span class='home-badge tone-" + escapeHtml(b.tone || 'info') + "' data-key='" + escapeHtml(b.key) + "'>" + escapeHtml(b.label) + "</span>";
+            }).join('');
+            return "<span class='home-st " + escapeHtml(value) + "'><i class='fas " + (icons[value] || 'fa-circle') + "'></i>" + escapeHtml(row.status_label || value) + "</span>"
+                + (badges ? "<div class='home-badges'>" + badges + "</div>" : '');
         }
 
         function modulePathFormatter(value, row) {

@@ -54,10 +54,15 @@ class FactModule extends Model
         });
     }
 
-    /** Owners whose instances the signed-in user sees: themselves and the shared demo user. */
+    /**
+     * Owners whose instances the signed-in user sees: themselves, the shared demo user
+     * and whoever a plugin adds (e.g. the members of their team, see InstanceHooks).
+     */
     public static function visibleOwnerIds(): array
     {
-        return array_values(array_unique(array_filter([Auth::id(), config('areport.demo.shared_user_id')])));
+        $extra = Auth::check() ? \App\Support\InstanceHooks::visibleUserIds((int) Auth::id()) : [];
+
+        return array_values(array_unique(array_filter([Auth::id(), config('areport.demo.shared_user_id'), ...$extra])));
     }
 
     /** The signed-in user's instance named by the request's instance_id, with its taxonomy. */

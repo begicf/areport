@@ -234,6 +234,9 @@
                                         <a class="dropdown-item" href="{{ url('/taxonomy/managing') }}">
                                             <i class="fas fa-layer-group me-2 text-muted"></i>{{ __('Taxonomies') }}
                                         </a>
+                                        @foreach(\App\Support\InstanceHooks::views('nav.account') as $accountView)
+                                            @include($accountView)
+                                        @endforeach
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item" href="{{ route('logout') }}"
                                            onclick="event.preventDefault();

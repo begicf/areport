@@ -39,7 +39,7 @@ return [
     |
     */
 
-    'plugin_paths' => array_filter(array_map('trim', explode(',', env('AREPORT_PLUGIN_PATHS', '../areport-pro')))),
+    'plugin_paths' => array_filter(array_map('trim', explode(',', env('AREPORT_PLUGIN_PATHS', '../areport-pro,../areport-teams')))),
 
     /*
     |--------------------------------------------------------------------------

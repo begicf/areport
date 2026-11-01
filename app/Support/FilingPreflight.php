@@ -226,6 +226,11 @@ class FilingPreflight
         $info = $this->moduleInfo();
         $refDate = $m->period ? Carbon::parse($m->period) : null;
 
+        // A plugin's hold on filing (e.g. the report is not approved yet).
+        if ($lock = InstanceHooks::lockReason($m, 'export')) {
+            $add('error', 'locked', $lock);
+        }
+
         // Who reports
         if (! $entity) {
             $add('error', 'entity_missing', 'No reporting entity is set on this instance.');

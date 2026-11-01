@@ -299,7 +299,15 @@
         </div>
 
         @include('flash.flash-message')
-        @php $demoReadOnly = \App\Support\Demo::readOnlyInstance($instance ?? null); @endphp
+        @php
+            $demoReadOnly = \App\Support\Demo::readOnlyInstance($instance ?? null);
+            $editLock = \App\Support\InstanceHooks::lockReason($instance ?? null, 'edit');   // e.g. in review (plugins)
+        @endphp
+        @if(!empty($instance))
+            @foreach(\App\Support\InstanceHooks::views('form.bar') as $barView)
+                @include($barView, ['instance' => $instance, 'editLock' => $editLock])
+            @endforeach
+        @endif
         @if($demoReadOnly)
             <div class="demo-ro-bar"><i class="fas fa-eye"></i>
                 <div><b>Sample report — shared by everyone in this demo.</b> Browse the tables, run <b>Validate</b> and try the <b>Export</b> with its Arelle check. To enter your own data, create a report of your own.</div>
@@ -529,8 +537,10 @@
         var aspectNode = null;
         var tableCode = null;
         const instanceId = @json($instance_id);
-        // A shared demo sample: viewable, validatable, exportable — never saved.
-        const demoReadOnly = @json($demoReadOnly ?? false);
+        // A shared demo sample, or an instance a plugin locks (e.g. in review):
+        // viewable, validatable, exportable — never saved.
+        const demoReadOnly = @json(($demoReadOnly ?? false) || !empty($editLock));
+        const readOnlyLabel = @json(!empty($editLock) ? 'Read-only' : 'Read-only sample');
         if (demoReadOnly) {
             const lock = function () {
                 const f = document.getElementById('table_form');
@@ -1098,7 +1108,7 @@
         $('#priorBtn').on('click', function () {
             $('#priorMsg').text('');
             $('#priorCompareOff').prop('hidden', !priorSource);
-            $('#priorCopy').prop('disabled', demoReadOnly).attr('title', demoReadOnly ? 'Read-only sample report' : '');
+            $('#priorCopy').prop('disabled', demoReadOnly).attr('title', demoReadOnly ? readOnlyLabel : '');
             axios.get('/table/prior-instances', { params: { instance_id: instanceId } }).then(function (r) {
                 const list = r.data.instances || [];
                 $('#priorSource').html(list.length ? list.map(function (i) {
@@ -1181,7 +1191,7 @@
 
         // Persist the open sheet. Resolves when stored; rejects (and says so on screen) when not.
         function save(sheet = null) {
-            if (demoReadOnly) { setSaveStatus('saved', 'Read-only sample'); return Promise.resolve({ ok: true, changes: 0 }); }
+            if (demoReadOnly) { setSaveStatus('saved', readOnlyLabel); return Promise.resolve({ ok: true, changes: 0 }); }
             const version = editVersion;
             const payload = {
                 'instance_id': instanceId,

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Areport;
 
 use App\Http\Controllers\Controller;
 use App\Model\FactModule;
+use App\Support\InstanceHooks;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -79,6 +80,7 @@ class HomeController extends Controller
                 'entity_lei' => $entity->lei ?? null,
                 'status' => $status['key'],
                 'status_label' => $status['label'],
+                'badges' => InstanceHooks::badges($m),
                 'changed_at' => $changed ? $changed->format('Y-m-d H:i:s') : null,
                 'changed_label' => $changed ? $changed->format('d.m.Y H:i') : null,
                 'changed_by' => $lastEditors[$m->id] ?? null,

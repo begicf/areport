@@ -55,7 +55,12 @@ The optional `begicf/areport-pro` package is private, not public. When it is ins
 - **Validation**: DPM 2.0 / DPM-XL rules, evaluated by the separate `dpm-xl-service`.
 - **Label translation**: labels translated in the Architect and the dictionary, with optional AI suggestions from Claude or OpenAI.
 
-AReport works without the plugin; the related screens and actions are simply hidden.
+### Private plugin: AReport Teams
+The optional `begicf/areport-teams` package is private as well, and works with or without AReport Pro. It adds:
+- **Teams and roles**: members (invited by e-mail, joining only after they accept) share their reports and entities; each has a role: admin, preparer, reviewer or approver.
+- **Sign-off**: a report goes *Draft → In review → Approved* before it is exported for filing. Its data is locked while it is in review or approved. A reviewer returns it with a reason, and someone other than whoever submitted or changed it approves it (four-eyes). Every step is kept with its comment.
+
+AReport works without the plugins; the related screens and actions are simply hidden. Plugins hook into the core through `App\Support\InstanceHooks` (who sees an instance, what locks it, the labels and panels shown with it).
 
 ## Requirements
 
@@ -86,7 +91,7 @@ php artisan serve
 
 `composer.json` points `begicf/areport-dpm-xbrl` at `../areport-dpm-xbrl` (path repository, symlinked), so changes to the library apply right away.
 
-The private `areport-pro` plugin is not a Composer dependency: when its folder sits next to the application (`../areport-pro`, or the folders listed in `AREPORT_PLUGIN_PATHS`), it is loaded from its own `composer.json` (autoload and Laravel providers). Without it, AReport runs as the open-source core.
+The private plugins are not Composer dependencies: when their folders sit next to the application (`../areport-pro`, `../areport-teams`, or the folders listed in `AREPORT_PLUGIN_PATHS`), they are loaded from their own `composer.json` (autoload and Laravel providers). Without them, AReport runs as the open-source core.
 
 ## Configuration
 
@@ -128,7 +133,7 @@ Taxonomy packages are unpacked under `storage/app/public/tax/<folder>`.
 php artisan test
 ```
 
-The tests use an in-memory SQLite database. Tests that need the private plugin are skipped when it is not installed.
+The tests use an in-memory SQLite database. Tests that need a private plugin are skipped when it is not installed.
 
 ## Related repositories
 

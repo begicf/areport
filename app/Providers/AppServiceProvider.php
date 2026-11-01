@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Model\Taxonomy;
+use App\Support\InstanceHooks;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
@@ -17,6 +18,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->app->singleton(InstanceHooks::class);
+
         foreach (config('areport.plugin_paths', []) as $dir) {
             $this->loadPlugin($dir);
         }
