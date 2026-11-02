@@ -15,6 +15,7 @@ class DemoGuard
         '#^dpm-model/frameworks/\d+/validate-instance$#',
         '#^dpm-model/validations/check$#',
         '#^validations/check$#',
+        '#^validations/try$#',
         '#^dpm-model/modules/\d+/validate-xbrl$#',
         '#^dpm-model/export$#',
     ];
