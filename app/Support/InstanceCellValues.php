@@ -68,17 +68,30 @@ class InstanceCellValues
                         }
                     }
                 }
-                $kind = is_numeric($v) ? \AReportDpmXBRL\Library\MetricTypes::kind((string) ($module->taxonomy->folder ?? ''), $fact->metric) : null;
-                $scaled = $kind ? \AReportDpmXBRL\Library\FactValue::forKind($kind, (string) $v, (int) ($module->monetary_scale ?: 1000)) : $v;
-                $cellValues[$key] = is_numeric($scaled) ? ($scaled + 0) : $scaled;
-                $decimals = ['monetary' => $module->decimals_monetary ?? -3, 'percentage' => $module->decimals_percentage ?? 4,
-                    'integer' => $module->decimals_integer ?? 0, 'decimal' => $module->decimals_decimal ?? 2][$kind] ?? null;
-                if ($decimals !== null) {
-                    $tolerance[$key] = 0.5 * (10 ** (-$decimals));
+                [$cellValues[$key], $tol] = self::factValue($v, $fact->metric, $module);
+                if ($tol !== null) {
+                    $tolerance[$key] = $tol;
                 }
             }
         }
 
         return ['cells' => $cellValues, 'codes' => array_keys($codes), 'framework' => $framework, 'tolerance' => $tolerance, 'dims' => $dims];
+    }
+
+    /**
+     * A value as the rules see it — the fact in the report: amounts entered in thousands
+     * become absolute, percentages pure ratios — with its rounding tolerance from the
+     * instance's decimals. The live check on the form and the full report both use it.
+     *
+     * @return array{0: mixed, 1: ?float}
+     */
+    public static function factValue($v, ?string $metric, FactModule $module): array
+    {
+        $kind = is_numeric($v) ? \AReportDpmXBRL\Library\MetricTypes::kind((string) ($module->taxonomy->folder ?? ''), $metric) : null;
+        $scaled = $kind ? \AReportDpmXBRL\Library\FactValue::forKind($kind, (string) $v, (int) ($module->monetary_scale ?: 1000)) : $v;
+        $decimals = ['monetary' => $module->decimals_monetary ?? -3, 'percentage' => $module->decimals_percentage ?? 4,
+            'integer' => $module->decimals_integer ?? 0, 'decimal' => $module->decimals_decimal ?? 2][$kind] ?? null;
+
+        return [is_numeric($scaled) ? ($scaled + 0) : $scaled, $decimals !== null ? 0.5 * (10 ** (-$decimals)) : null];
     }
 }

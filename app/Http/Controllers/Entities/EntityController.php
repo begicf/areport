@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Entities;
 
 use App\Http\Controllers\Controller;
 use App\Model\Entity;
+use App\Model\FactModule;
 use AReportDpmXBRL\Library\Lei;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -64,13 +65,19 @@ class EntityController extends Controller
                 }
             }],
             'name' => ['required', 'string', 'max:255'],
-            'country' => ['nullable', 'regex:/^[A-Za-z]{2}$/'],
+            'country' => ['nullable', 'regex:/^[A-Za-z]{2}$/', \App\Support\Country::rule()],
         ]);
 
-        $entity = Entity::query()->updateOrCreate(
-            ['lei' => strtoupper($data['lei'])],
-            ['name' => $data['name'], 'country' => ! empty($data['country']) ? strtoupper($data['country']) : null]
-        );
+        // Adding never rewrites an entity you already have: that is what Edit is for.
+        if (Entity::query()->where('lei', strtoupper($data['lei']))->exists()) {
+            return back()->withInput()->withErrors(['lei' => 'This LEI is already one of your entities: change its name or country with Edit in the list.']);
+        }
+
+        $entity = Entity::query()->create([
+            'lei' => strtoupper($data['lei']),
+            'name' => $data['name'],
+            'country' => ! empty($data['country']) ? strtoupper($data['country']) : null,
+        ]);
         if (Entity::query()->count() === 1) {
             $entity->makeDefault();
         }
@@ -86,9 +93,27 @@ class EntityController extends Controller
         return back()->with('success', "'{$record->name}' is now the default entity.");
     }
 
+    /** The name and country of an entity; its LEI is what it is. */
+    public function update(Request $request, int $entity)
+    {
+        $record = Entity::query()->findOrFail($entity);
+        $data = $request->validateWithBag('edit'.$record->id, [
+            'name' => ['required', 'string', 'max:255'],
+            'country' => ['nullable', 'regex:/^[A-Za-z]{2}$/', \App\Support\Country::rule()],
+        ]);
+        $record->update(['name' => $data['name'], 'country' => ! empty($data['country']) ? strtoupper($data['country']) : null]);
+
+        return back()->with('success', "'{$record->name}' updated.");
+    }
+
     public function destroy(int $entity)
     {
         $record = Entity::query()->findOrFail($entity);
+        // Reports keep the entity they were made for: one in use is not removed from under them.
+        $used = FactModule::query()->where('entity_id', $record->id)->count();
+        if ($used) {
+            return back()->with('warning', "'{$record->name}' is the entity of {$used} ".($used === 1 ? 'report' : 'reports').'. Choose another entity in their settings before removing it.');
+        }
         $record->delete();
 
         return back()->with('success', 'Entity removed.');

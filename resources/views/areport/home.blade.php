@@ -121,6 +121,7 @@
         .home-act { width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid transparent; background: transparent;
             color: #94a3b8; font-size: .78rem; text-decoration: none; padding: 0; }
         .home-act:hover { color: #2f557d; background: #eef3f9; border-color: #dbe4ef; }
+        .home-act.is-del:hover { color: #b91c1c; background: #fdecec; border-color: #f5c2c2; }
         .home-act.is-val:hover { color: #2e7d4f; background: #e9f6ee; border-color: #cce6d8; }
         .home-act:disabled { opacity: .35; cursor: not-allowed; }
         .home-open { height: 28px; padding: 0 .65rem; border: 1px solid #2f557d; background: #fff; color: #2f557d; font-size: .74rem; font-weight: 600; display: inline-flex; align-items: center; gap: .35rem; }
@@ -343,12 +344,12 @@
                 ? "<a class='home-act is-val' href='{{ url('/table/validation-report') }}?id=" + encodeURIComponent(row.id || '') + "' target='_blank' rel='noopener' title='Validate' aria-label='Validate'><i class='fas fa-circle-check'></i></a>"
                 : "<button type='button' class='home-act' title='Validation plugin not installed' aria-label='Validate (unavailable)' disabled><i class='fas fa-circle-check'></i></button>";
             const histBtn = "<a class='home-act' href='{{ url('/table/history') }}?id=" + encodeURIComponent(row.id || '') + "' title='Change history' aria-label='Change history'><i class='fas fa-clock-rotate-left'></i></a>";
-            return "<div class='home-actions'>" + histBtn + valBtn +
-                "<form method='POST' action='{{ url('/table') }}' class='home-open-form'>" +
-                "<input type='hidden' name='_token' value='{{ csrf_token() }}'>" +
-                "<input type='hidden' name='id' value='" + escapeHtml(row.id || '') + "'>" +
-                "<button name='view_home' value='true' class='home-open' type='submit' title='Open the instance' aria-label='Open'>" +
-                "Open <i class='fas fa-arrow-right' aria-hidden='true'></i></button></form></div>";
+            const delBtn = row.deletable
+                ? "<button type='button' class='home-act is-del' data-delete='" + escapeHtml(row.id || '') + "' data-name='" + escapeHtml((row.module_name || '') + ' · ' + (row.period_label || row.period || '')) + "' title='Delete this report' aria-label='Delete'><i class='fas fa-trash'></i></button>"
+                : '';
+            return "<div class='home-actions'>" + delBtn + histBtn + valBtn +
+                "<a class='home-open' href='{{ url('/table/open') }}?id=" + encodeURIComponent(row.id || '') + "' title='Open the instance' aria-label='Open'>" +
+                "Open <i class='fas fa-arrow-right' aria-hidden='true'></i></a></div>";
         }
 
         function ajaxRequest(params) {
@@ -385,6 +386,14 @@
         });
 
         $('#refreshHomeTable').on('click', function () { $table.bootstrapTable('refresh', { silent: true }); });
+        $table.on('click', '[data-delete]', function () {
+            const btn = this;
+            if (!confirm('Delete ' + btn.dataset.name + '?\n\nIts values, change history and comments are deleted too. This cannot be undone.')) return;
+            btn.disabled = true;
+            fetch(@json(url('/instance')) + '/' + encodeURIComponent(btn.dataset.delete), { method: 'DELETE', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' } })
+                .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { if (!r.ok || d.ok === false) throw new Error(d.error || d.message || 'The report could not be deleted.'); }); })
+                .then(function () { $table.bootstrapTable('refresh', { silent: true }); }, function (e) { alert(e.message); btn.disabled = false; });
+        });
         let searchTimer = null;
         document.getElementById('homeSearch').addEventListener('input', function (e) {
             clearTimeout(searchTimer);

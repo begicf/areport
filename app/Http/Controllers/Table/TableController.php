@@ -30,9 +30,29 @@ class TableController extends Controller
     {
         $this->_taxonomy = Taxonomy::query()->where('active', true)->first();
 
-        $this->_period = Carbon::parse(request('period'))->format('Y-m-d');
+        $this->_period = self::periodFrom(request('period'));
 
 
+    }
+
+    /**
+     * A reference date as typed or picked (31-12-2026, 31.12.2026, 31/12/2026 or
+     * 2026-12-31) as Y-m-d; null when it is not a date. No period means today, as before.
+     */
+    private static function periodFrom($value): ?string
+    {
+        $value = trim((string) $value);
+        if ($value === '') {
+            return now()->format('Y-m-d');
+        }
+        if (preg_match('/^(\d{1,2})[-.\/](\d{1,2})[-.\/](\d{4})$/', $value, $d) && checkdate((int) $d[2], (int) $d[1], (int) $d[3])) {
+            return sprintf('%04d-%02d-%02d', $d[3], $d[2], $d[1]);
+        }
+        if (preg_match('/^(\d{4})-(\d{2})-(\d{2})/', $value, $d) && checkdate((int) $d[2], (int) $d[3], (int) $d[1])) {
+            return $d[1].'-'.$d[2].'-'.$d[3];
+        }
+
+        return null;
     }
 
     /**
@@ -100,6 +120,10 @@ class TableController extends Controller
             }
 
             // EBA reference dates are period ends; refuse anything else up front.
+            $this->_period = self::periodFrom($request->get('period'));
+            if ($this->_period === null) {
+                return redirect('/modules')->with('warning', 'Enter the reference date as a date, e.g. 31-12-2026.');
+            }
             $refDate = Carbon::parse($this->_period);
             if (! $refDate->isSameDay($refDate->copy()->endOfMonth())) {
                 return redirect('/modules')->with('warning', 'The reference date '.$refDate->format('d.m.Y').' is not a month end. Choose a period end such as '.$refDate->copy()->endOfMonth()->format('d.m.Y').'.');
@@ -123,6 +147,10 @@ class TableController extends Controller
                 ]
             );
             $fact_module->load('taxonomy');
+
+            // Post / redirect / get: the report opens at its own address (bookmarkable,
+            // a reload does not post the dialog again).
+            return redirect()->route('instance.open', ['id' => $fact_module->id]);
 
         else:
 
@@ -344,6 +372,14 @@ class TableController extends Controller
 
             return response()->json($this->ImportXMLJSON($import['ext'], $tpn_name));
 
+        elseif (strtolower((string) $import['ext']) === 'zip'):
+
+            return response()->json(['ok' => false, 'error' => 'xBRL-CSV packages (.zip) cannot be imported into a table yet. Import the xBRL-XML instance (.xbrl) or an Excel workbook (.xlsx).'], 422);
+
+        else:
+
+            return response()->json(['ok' => false, 'error' => 'Import an xBRL-XML instance (.xbrl) or an Excel workbook (.xlsx).'], 422);
+
         endif;
 
 
@@ -425,8 +461,11 @@ class TableController extends Controller
         }
 
         $changes = 0;
+        $invalid = [];
 
         if ($request->get('table_data') && $request->get('tab')):
+
+            $invalid = FactTable::invalidValues((string) $request->get('table_data'), $this->_taxonomy->folder ?? null);
 
             $cr_sheet = '000';
             if (!empty($request->get('sheet'))):
@@ -435,7 +474,7 @@ class TableController extends Controller
 
             $tab = $this->getNormalizeTable($request->get('tab'));
 
-            $changes = DB::transaction(function () use ($instance, $tab, $cr_sheet, $request) {
+            $changes = DB::transaction(function () use ($instance, $tab, $cr_sheet, $request, $invalid) {
                 $fact_header = FactHeader::updateOrCreate(
                     [
                         'module_id' => $instance->id,
@@ -448,7 +487,7 @@ class TableController extends Controller
                     ]
                 );
 
-                return FactTable::storeInstance($request->get('table_data'), $fact_header->id, $request->get('sheet'), $fact_header);
+                return FactTable::storeInstance($request->get('table_data'), $fact_header->id, $request->get('sheet'), $fact_header, $invalid);
             });
 
             if ($changes > 0) {
@@ -459,6 +498,7 @@ class TableController extends Controller
         return response()->json([
             'ok' => true,
             'changes' => $changes,
+            'invalid' => (object) $invalid,   // cells not saved, with why
             'saved_at' => now()->format('H:i'),
         ]);
     }
@@ -577,6 +617,7 @@ class TableController extends Controller
         $tcode = strtolower($table->code);
         $cellValues = [];
         $dims = [];
+        $tolerance = [];
         foreach ($form as $name => $payload) {
             if (! is_array($payload) || ! array_key_exists('value', $payload)) {
                 continue;
@@ -589,9 +630,17 @@ class TableController extends Controller
                 continue;
             }
             $key = 't'.$tcode.',r'.strtolower($m[2]).',c'.strtolower($m[1]);
-            $cellValues[$key] = is_numeric($v) ? ($v + 0) : $v;
-            // The cell's dimensions by code (CEG, qEEA, …) for [where …] / group by, as the full report has them.
             $dim = json_decode((string) ($payload['dim'] ?? ''), true);
+            // Scaled and toleranced exactly as in the full validation report.
+            if ($this->_instance) {
+                [$cellValues[$key], $tol] = \App\Support\InstanceCellValues::factValue($v, is_array($dim) ? ($dim['metric'] ?? null) : null, $this->_instance);
+                if ($tol !== null) {
+                    $tolerance[$key] = $tol;
+                }
+            } else {
+                $cellValues[$key] = is_numeric($v) ? ($v + 0) : $v;
+            }
+            // The cell's dimensions by code (CEG, qEEA, …) for [where …] / group by, as the full report has them.
             foreach (is_array($dim) ? $dim : [] as $d => $member) {
                 if (is_string($member) && str_contains((string) $d, ':') && str_contains($member, ':')) {
                     $dims[$key][substr($d, strrpos($d, ':') + 1)] = $member;
@@ -606,6 +655,9 @@ class TableController extends Controller
         $context = $this->validationContext($this->_instance, [$table->code]);
         if ($context && ! empty($dims)) {
             $context['dims'] = $dims;
+        }
+        if ($context && $tolerance) {
+            $context['tolerance'] = $tolerance;
         }
         $result = $validator->validate($table->framework, $cellValues, [$table->code], $context);
         if (isset($result['error'])) {

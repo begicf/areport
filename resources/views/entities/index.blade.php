@@ -50,6 +50,9 @@
                 </div>
                 <button class="btn btn-primary" type="submit"><i class="fas fa-plus"></i> Add</button>
             </form>
+            @foreach (['lei', 'name', 'country'] as $field)
+                @error($field)<div class="text-danger small mt-1"><i class="fas fa-circle-xmark"></i> {{ $message }}</div>@enderror
+            @endforeach
             <div class="ent-hint mt-1" id="entMsg">e.g. 5493001KJTIIGC8Y1R12 — enter a LEI and click the search to fetch the name.</div>
         </div>
 
@@ -57,7 +60,7 @@
             <h2>Your entities <span class="text-muted fw-normal">· {{ $entities->count() }}</span></h2>
             <div class="table-responsive mt-2">
                 <table class="table table-sm align-middle mb-0">
-                    <thead><tr><th style="width:90px">Default</th><th>Legal name</th><th style="width:90px">Country</th><th style="width:230px">LEI</th><th style="width:70px" class="text-end"></th></tr></thead>
+                    <thead><tr><th style="width:90px">Default</th><th>Legal name</th><th style="width:90px">Country</th><th style="width:230px">LEI</th><th style="width:100px" class="text-end"></th></tr></thead>
                     <tbody>
                         @forelse($entities as $e)
                             <tr>
@@ -74,10 +77,30 @@
                                 <td class="fw-semibold">{{ $e->name }}</td>
                                 <td>{{ $e->country ?: '—' }}</td>
                                 <td><code>{{ $e->lei }}</code>@unless(\AReportDpmXBRL\Library\Lei::isValid($e->lei)) <span class="text-danger small" title="Fails the ISO 17442 check digits"><i class="fas fa-triangle-exclamation"></i> invalid</span>@endunless</td>
-                                <td class="text-end">
+                                <td class="text-end text-nowrap">
+                                    <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#entEdit{{ $e->id }}" aria-label="Edit {{ $e->name }}"><i class="fas fa-pen"></i></button>
                                     <form method="post" action="{{ route('entities.destroy', $e->id) }}" class="d-inline" onsubmit="return confirm(@js('Remove '.$e->name.'?'));">
                                         @csrf @method('delete')
                                         <button class="btn btn-sm btn-outline-danger" type="submit" aria-label="Remove {{ $e->name }}"><i class="fas fa-trash"></i></button>
+                                    </form>
+                                </td>
+                            </tr>
+                            @php($bag = $errors->getBag('edit'.$e->id))
+                            <tr class="collapse {{ $bag->any() ? 'show' : '' }}" id="entEdit{{ $e->id }}">
+                                <td></td>
+                                <td colspan="4">
+                                    <form method="post" action="{{ route('entities.update', $e->id) }}" class="ent-form py-1">
+                                        @csrf @method('patch')
+                                        <div class="f-name">
+                                            <label for="entName{{ $e->id }}">Legal name</label>
+                                            <input class="form-control form-control-sm" name="name" id="entName{{ $e->id }}" value="{{ $bag->any() ? old('name') : $e->name }}">
+                                        </div>
+                                        <div class="f-cc">
+                                            <label for="entCountry{{ $e->id }}">Country</label>
+                                            <input class="form-control form-control-sm" name="country" id="entCountry{{ $e->id }}" maxlength="2" value="{{ $bag->any() ? old('country') : $e->country }}" placeholder="FR">
+                                        </div>
+                                        <button class="btn btn-sm btn-primary" type="submit">Save</button>
+                                        @foreach ($bag->all() as $message)<div class="text-danger small w-100"><i class="fas fa-circle-xmark"></i> {{ $message }}</div>@endforeach
                                     </form>
                                 </td>
                             </tr>

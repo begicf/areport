@@ -88,6 +88,7 @@ Route::group(['prefix' => 'entities', 'middleware' => 'auth'], function () {
     Route::post('/', 'Entities\EntityController@store')->name('entities.store');
     Route::post('/lei-lookup', 'Entities\EntityController@lookup')->name('entities.lei-lookup');
     Route::patch('/{entity}/default', 'Entities\EntityController@setDefault')->whereNumber('entity')->name('entities.default');
+    Route::patch('/{entity}', 'Entities\EntityController@update')->whereNumber('entity')->name('entities.update');
     Route::delete('/{entity}', 'Entities\EntityController@destroy')->whereNumber('entity')->name('entities.destroy');
 });
 
@@ -99,6 +100,7 @@ Route::group(['prefix' => 'instance', 'middleware' => 'auth'], function () {
     Route::post('/arelle', 'Export\InstanceController@arelleValidate');
     Route::get('/settings', 'Export\InstanceController@settings');
     Route::post('/settings', 'Export\InstanceController@updateSettings');
+    Route::delete('/{instance}', 'Export\InstanceController@destroy')->whereNumber('instance')->name('instance.destroy');
 
 });
 

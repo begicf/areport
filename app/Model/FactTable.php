@@ -3,6 +3,7 @@
 namespace App\Model;
 
 use Illuminate\Database\Eloquent\Model;
+use AReportDpmXBRL\Library\MetricTypes;
 use Illuminate\Support\Facades\Auth;
 
 class FactTable extends Model
@@ -17,7 +18,7 @@ class FactTable extends Model
      *
      * @return int number of cells changed
      */
-    public static function storeInstance($req, $factheader_id, $sheet, ?FactHeader $header = null)
+    public static function storeInstance($req, $factheader_id, $sheet, ?FactHeader $header = null, array $skip = [])
     {
 
 
@@ -57,6 +58,9 @@ class FactTable extends Model
             }
             $value = is_string($value) ? trim($value) : $value;
             $submitted[$key] = true;
+            if (isset($skip[$key])) {
+                continue;   // not a valid value for its cell: what was stored stays
+            }
 
             // "0" is a reported value; only an empty field means "no value".
             if ($value === '' || $value === null):
@@ -149,6 +153,40 @@ class FactTable extends Model
         }
 
         return count($audit);
+    }
+
+    /**
+     * Cells of a posted form whose value does not fit their metric: a number, a whole
+     * number, a date or a yes/no where the dictionary says so. [cell code => message].
+     * The form checks numbers too, but a value must not reach a report unchecked.
+     */
+    public static function invalidValues(string $req, ?string $taxonomyFolder): array
+    {
+        $invalid = [];
+        foreach (\App\Support\FormQuery::parse($req) as $key => $row) {
+            if (! is_array($row) || ! isset($row['value']) || ! is_string($row['value']) || trim($row['value']) === '') {
+                continue;
+            }
+            $metric = json_decode($row['dim'] ?? '', true)['metric'] ?? null;
+            if (! $metric) {
+                continue;
+            }
+            $value = trim($row['value']);
+            $type = $taxonomyFolder ? MetricTypes::type($taxonomyFolder, $metric) : null;
+            $kind = MetricTypes::kind($taxonomyFolder, $metric);
+            $problem = match (true) {
+                $kind === 'integer' => preg_match('/^-?\d+$/', $value) ? null : 'Enter a whole number.',
+                in_array($kind, ['monetary', 'percentage', 'decimal'], true) => preg_match('/^-?\d+(\.\d+)?$/', $value) ? null : 'Enter a number (e.g. 1250000 or 12.5).',
+                $type === 'xbrli:dateItemType' => preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $value, $d) && checkdate((int) $d[2], (int) $d[3], (int) $d[1]) ? null : 'Enter a date as YYYY-MM-DD.',
+                $type === 'xbrli:booleanItemType' => in_array($value, ['true', 'false'], true) ? null : 'Choose Yes or No.',
+                default => null,
+            };
+            if ($problem) {
+                $invalid[$key] = $problem;
+            }
+        }
+
+        return $invalid;
     }
 
     /**

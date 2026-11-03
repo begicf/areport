@@ -79,6 +79,8 @@ class HomeController extends Controller
                 'status' => $status['key'],
                 'status_label' => $status['label'],
                 'badges' => InstanceHooks::badges($m),
+                // Not the demo's shared samples, nor a report locked by sign-off.
+                'deletable' => ! \App\Support\Demo::readOnlyInstance($m) && ! InstanceHooks::lockReason($m, 'delete'),
                 'changed_at' => $changed ? $changed->format('Y-m-d H:i:s') : null,
                 'changed_label' => $changed ? $changed->format('d.m.Y H:i') : null,
                 'changed_by' => $lastEditors[$m->id] ?? null,

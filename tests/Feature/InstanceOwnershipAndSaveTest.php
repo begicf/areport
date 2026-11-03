@@ -42,12 +42,12 @@ class InstanceOwnershipAndSaveTest extends TestCase
         ]);
     }
 
-    /** A form field as the reporting grid posts it: c<col>r<row>[value] + its context. */
-    private function form(array $cells): string
+    /** A form field as the reporting grid posts it: c<col>r<row>[value] + its context (metric: monetary unless given). */
+    private function form(array $cells, array $metrics = []): string
     {
         $fields = [];
         foreach ($cells as $code => $value) {
-            $fields[$code] = ['value' => $value, 'dim' => json_encode(['metric' => 'eba_met:mi53'])];
+            $fields[$code] = ['value' => $value, 'dim' => json_encode(['metric' => $metrics[$code] ?? 'eba_met:mi53'])];
         }
 
         return http_build_query($fields);
@@ -172,7 +172,7 @@ class InstanceOwnershipAndSaveTest extends TestCase
 
         $this->actingAs($alice)->postJson('/table/save', [
             'instance_id' => $instance->id, 'tab' => $tab,
-            'table_data' => $this->form(['c010r1' => 'A', 'c010r2' => 'B']),
+            'table_data' => $this->form(['c010r1' => 'A', 'c010r2' => 'B'], ['c010r1' => 'eba_met:si1', 'c010r2' => 'eba_met:si1']),
         ])->assertOk();
 
         // An empty serialization (table not rendered) must not delete anything.
@@ -184,8 +184,70 @@ class InstanceOwnershipAndSaveTest extends TestCase
         // Row 2 removed from the grid → its stored cell goes.
         $this->actingAs($alice)->postJson('/table/save', [
             'instance_id' => $instance->id, 'tab' => $tab,
-            'table_data' => $this->form(['c010r1' => 'A']),
+            'table_data' => $this->form(['c010r1' => 'A'], ['c010r1' => 'eba_met:si1']),
         ])->assertOk()->assertJson(['changes' => 1]);
         $this->assertSame(['c010r1' => 'A'], FactTable::query()->pluck('string_value', 'cr_code')->all());
+    }
+
+    public function testValuesThatAreNotNumbersAreNotSavedAndAreReported(): void
+    {
+        $tax = $this->taxonomy('eba40', true);
+        $alice = $this->user('alice@example.com');
+        $instance = $this->instanceFor($alice, $tax);
+        $tab = 'eba40/www.eba.europa.eu/eu/fr/xbrl/crr/fws/corep/4.0/tab/c_01.00/c_01.00.xsd';
+
+        $this->actingAs($alice)->postJson('/table/save', [
+            'instance_id' => $instance->id,
+            'table_data' => $this->form(
+                ['c010r010' => '1500.25', 'c010r020' => 'abc', 'c010r030' => '12,5', 'c010r040' => '7', 'c010r050' => '1.5', 'c010r060' => 'n/a'],
+                ['c010r030' => 'eba_met:pi1', 'c010r040' => 'eba_met:ii1', 'c010r050' => 'eba_met:ii1', 'c010r060' => 'eba_met:si1'],
+            ),
+            'tab' => $tab,
+        ])->assertOk()->assertJson(['ok' => true, 'changes' => 3, 'invalid' => [
+            'c010r020' => 'Enter a number (e.g. 1250000 or 12.5).',
+            'c010r030' => 'Enter a number (e.g. 1250000 or 12.5).',
+            'c010r050' => 'Enter a whole number.',
+        ]]);
+
+        // Text stays text; the refused cells keep what they had (nothing).
+        $this->assertSame(['c010r010' => '1500.25', 'c010r040' => '7', 'c010r060' => 'n/a'], FactTable::query()->orderBy('cr_code')->pluck('string_value', 'cr_code')->all());
+    }
+
+    public function testAReportIsDeletedWithItsCellsAndOnlyByItsOwner(): void
+    {
+        $tax = $this->taxonomy('eba40', true);
+        $alice = $this->user('alice@example.com');
+        $bob = $this->user('bob@example.com');
+        $instance = $this->instanceFor($alice, $tax);
+        $this->actingAs($alice)->postJson('/table/save', ['instance_id' => $instance->id, 'tab' => 'eba40/corep/tab/c_01.00/c_01.00.xsd',
+            'table_data' => $this->form(['c010r010' => '5'])])->assertOk();
+        $this->assertSame(1, FactAudit::query()->count());
+
+        $this->actingAs($bob)->deleteJson('/instance/'.$instance->id)->assertNotFound();
+        $this->assertSame(1, FactTable::query()->count());
+
+        $row = collect($this->actingAs($alice)->postJson('/areport/json')->json('rows'))->firstWhere('id', $instance->id);
+        $this->assertTrue($row['deletable']);
+        $this->actingAs($alice)->deleteJson('/instance/'.$instance->id)->assertOk();
+        $this->assertSame([0, 0, 0, 0], [FactModule::withoutGlobalScopes()->count(), FactHeader::query()->count(), FactTable::query()->count(), FactAudit::query()->count()]);
+    }
+
+    public function testCreatingAReportRedirectsToItsOwnAddress(): void
+    {
+        $tax = $this->taxonomy('eba40', true);
+        $alice = $this->user('alice@example.com');
+        $form = fn (string $period) => ['period' => $period, 'consolidation' => 'CON', 'module_name' => 'Own Funds',
+            'module_path' => 'www.eba.europa.eu/eu/fr/xbrl/crr/fws/corep/4.0/mod/corep_of.xsd',
+            'table' => [json_encode(['C 01.00' => ['www.eba.europa.eu/eu/fr/xbrl/crr/fws/corep/4.0/tab/c_01.00/c_01.00.xsd']])]];
+
+        // Typed day first with slashes: a date, not a server error.
+        $response = $this->actingAs($alice)->post('/table', $form('31/12/2026'));
+        $instance = FactModule::query()->sole();
+        $response->assertRedirect(route('instance.open', ['id' => $instance->id]));
+        $this->assertSame('2026-12-31', $instance->periodYmd());
+
+        $this->actingAs($alice)->post('/table', $form('31.13.2026'))->assertRedirect('/modules')->assertSessionHas('warning');
+        $this->actingAs($alice)->post('/table', $form('15-12-2026'))->assertRedirect('/modules')->assertSessionHas('warning');
+        $this->assertSame(1, FactModule::query()->count());
     }
 }

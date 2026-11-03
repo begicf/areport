@@ -175,6 +175,8 @@ class XbrlExportWriterTest extends TestCase
         // One positive indicator; the module's other templates are filed="false".
         $this->assertSame(1, (int) $xpath->evaluate('count(/xbrli:xbrl/find:fIndicators/find:filingIndicator[not(@find:filed="false")])'));
         $this->assertGreaterThan(1, (int) $xpath->evaluate('count(/xbrli:xbrl/find:fIndicators/find:filingIndicator[@find:filed="false"])'));
+        // The xBRL-CSV report's own tables are not templates and carry no indicator.
+        $this->assertSame(0, (int) $xpath->evaluate('count(/xbrli:xbrl/find:fIndicators/find:filingIndicator[.="FilingIndicators" or .="FootNotes"])'));
         $this->assertSame(1, (int) $xpath->evaluate('count(/xbrli:xbrl/xbrli:unit[@id="uPURE"])'));
         $this->assertSame(0, (int) $xpath->evaluate('count(/xbrli:xbrl/xbrli:context[@id="c3"]/xbrli:scenario)'));
         $this->assertSame(1, (int) $xpath->evaluate('count(/xbrli:xbrl/xbrli:context[@id="c2"]/xbrli:scenario)'));

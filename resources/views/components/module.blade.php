@@ -109,7 +109,10 @@
         }
 
         if ($datepicker.length) {
-            $datepicker.datepicker('setDate', new Date("{{$period ?? ''}}"));
+            // Reference dates are period ends: without one given, the last quarter end (not today).
+            const given = new Date("{{ $period ?? '' }}");
+            const now = new Date(), quarterEnd = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 0);
+            $datepicker.datepicker('setDate', isNaN(given) ? quarterEnd : given);
         }
     };
 

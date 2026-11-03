@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Model\Entity;
 use App\Model\FactHeader;
 use App\Model\FactModule;
+use App\Model\FactTable;
 use App\Model\Taxonomy;
 use App\Support\ArelleValidator;
 use App\Support\FilingPreflight;
@@ -13,6 +14,7 @@ use AReportDpmXBRL\Creat\CreateXBRLCsvPackage;
 use AReportDpmXBRL\Creat\CreateXBRLFromDB;
 use AReportDpmXBRL\Library\Format;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 
@@ -174,7 +176,7 @@ class InstanceController extends Controller
         $this->_entityId = $fact_module->entity_id ?? null;
 
         if ($format === 'xml') {
-            $path = tempnam(sys_get_temp_dir(), 'areport').'.xbrl';
+            $path = sys_get_temp_dir().'/areport'.bin2hex(random_bytes(8)).'.xbrl';
             file_put_contents($path, $this->xbrlXml($fact_module));
         } else {
             // Arelle recognises a report package by its .zip name.
@@ -278,16 +280,45 @@ class InstanceController extends Controller
         ]);
     }
 
+    /** Delete a report with its cells, history and comments (a sign-off lock or the demo's samples refuse). */
+    public function destroy(int $instance)
+    {
+        $record = FactModule::query()->findOrFail($instance);
+        if (\App\Support\Demo::readOnlyInstance($record)) {
+            return response()->json(['ok' => false, 'error' => 'This sample report is shared by everyone in the demo and cannot be deleted.'], 403);
+        }
+        if ($reason = \App\Support\InstanceHooks::lockReason($record, 'delete')) {
+            return response()->json(['ok' => false, 'error' => $reason], 409);
+        }
+
+        DB::transaction(function () use ($record) {
+            $headers = FactHeader::query()->where('module_id', $record->id)->pluck('id');
+            foreach ($headers->chunk(500) as $chunk) {
+                FactTable::query()->whereIn('fact_header_id', $chunk)->delete();
+            }
+            FactHeader::query()->where('module_id', $record->id)->delete();
+            $record->delete();   // audit trail, sign-off and comments cascade
+        });
+
+        return response()->json(['ok' => true]);
+    }
+
     public function updateSettings(Request $request)
     {
         $instance = $this->instance([]);
 
         $data = $request->validate([
             'entity_id' => ['nullable', 'integer', Rule::in($this->ownedEntities()->pluck('id')->all())],
-            'period' => ['required', 'date'],
+            'period' => ['required', 'date', function ($attribute, $value, $fail) {
+                // EBA reference dates are period ends, as when the report is created.
+                $date = \Carbon\Carbon::parse($value);
+                if (! $date->isSameDay($date->copy()->endOfMonth())) {
+                    $fail('The reference date must be a month end, e.g. '.$date->copy()->endOfMonth()->format('d.m.Y').'.');
+                }
+            }],
             'due_date' => ['nullable', 'date'],
             'consolidation' => ['required', Rule::in(['CON', 'IND'])],
-            'country' => ['nullable', 'regex:/^[A-Za-z]{2}$/'],
+            'country' => ['nullable', 'regex:/^[A-Za-z]{2}$/', \App\Support\Country::rule()],
             'base_currency' => ['required', 'regex:/^[A-Za-z]{3}$/'],
             'monetary_scale' => ['required', Rule::in(array_keys(FactModule::MONETARY_SCALES))],
             'decimals_monetary' => ['required', 'integer', 'between:-9,9'],

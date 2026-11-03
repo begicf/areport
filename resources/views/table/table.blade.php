@@ -279,7 +279,7 @@
                 <div class="rib-sep rib-right"></div>
                 <div class="rib-group">
                     <div class="rib-btns">
-                        <button type="button" class="rib-btn rib-check" id="validateInstanceBtn" disabled title="Validate the instance against the rules">
+                        <button type="button" class="rib-btn rib-check" id="validateInstanceBtn" disabled title="Check this table against the rules (the full report checks every table)">
                             <i class="fas fa-circle-check"></i><span>Validate</span>
                         </button>
                     </div>
@@ -1008,9 +1008,10 @@
             if (!problem) input.value = formatNum(raw);
         }
         function enhanceNumberInputs() {
-            document.querySelectorAll('#table_form input.xbrl-input[type="number"], #table_form input.xbrl-input-decimal').forEach(function (i) {
+            document.querySelectorAll('#table_form input.xbrl-input[type="number"], #table_form input.xbrl-input-decimal, #table_form input.xbrl-input.percent').forEach(function (i) {
                 if (i.dataset.num) return;
                 i.dataset.num = (i.getAttribute('step') === '1') ? 'int' : 'dec';
+                i.removeAttribute('pattern');
                 i.dataset.title = i.title || '';
                 i.type = 'text';
                 i.inputMode = 'decimal';
@@ -1215,6 +1216,15 @@
                 } else {
                     setSaveStatus('dirty', 'Unsaved changes');
                 }
+                // Cells the server refused (not a number, not a date…): marked, the rest is saved.
+                const invalid = Object.keys(d.invalid || {});
+                invalid.forEach(function (code) {
+                    const el = document.querySelector('#table_form [name="' + code + '[value]"]');
+                    if (el) { el.classList.add('num-bad'); el.title = d.invalid[code]; }
+                });
+                if (invalid.length) {
+                    setSaveStatus('error', invalid.length + (invalid.length === 1 ? ' cell' : ' cells') + ' not saved: ' + d.invalid[invalid[0]]);
+                }
                 return d;
             }).catch(function (error) {
                 const msg = getRequestErrorMessage(error, error && error.message ? error.message : 'Save failed.');
@@ -1312,7 +1322,11 @@
         let valSeq = 0, autoValTimer = null, valDetailsOpen = false;
         function scheduleAutoValidate(delay) {
             clearTimeout(autoValTimer);
-            autoValTimer = setTimeout(function () { if (tableCode) validateInstance({ auto: true }); }, delay);
+            // An empty table has nothing to check (the server would answer "enter some values").
+            const hasValues = function () {
+                return Array.prototype.some.call(document.querySelectorAll('#table_form [name$="[value]"]'), function (i) { return String(i.value || '').trim() !== ''; });
+            };
+            autoValTimer = setTimeout(function () { if (tableCode && hasValues()) validateInstance({ auto: true }); }, delay);
         }
 
         function validateInstance(opts) {
@@ -1574,7 +1588,7 @@
                     return '<tr class="' + cls + '"><td><b>' + escapeInspectorHtml(code) + '</b></td>'
                         + '<td><span class="fi-data ' + (t.has_data ? 'yes">has data' : 'no">empty') + '</span></td>'
                         + '<td><select class="form-select form-select-sm" data-fi="' + escapeInspectorHtml(code) + '">'
-                        + '<option value="auto"' + (choice === 'auto' ? ' selected' : '') + '>Auto (' + (t.has_data ? 'reported' : 'not listed') + ')</option>'
+                        + '<option value="auto"' + (choice === 'auto' ? ' selected' : '') + '>Auto (' + (t.has_data ? 'reported' : 'not reported') + ')</option>'
                         + '<option value="true"' + (choice === 'true' ? ' selected' : '') + '>Reported</option>'
                         + '<option value="false"' + (choice === 'false' ? ' selected' : '') + '>Not reported</option>'
                         + '</select></td></tr>';
@@ -1763,7 +1777,7 @@
                 },
                 error: function (xhr) {
                     if (importInput) importInput.value = '';
-                    const reason = xhr && xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.message;
+                    const reason = xhr && xhr.status === 422 && xhr.responseJSON && (xhr.responseJSON.error || xhr.responseJSON.message);
                     window.alert(reason || 'Unable to import the selected file. Please verify the file and try again.');
                 },
                 complete: function () {

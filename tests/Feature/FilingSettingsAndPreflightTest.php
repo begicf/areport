@@ -121,7 +121,10 @@ class FilingSettingsAndPreflightTest extends TestCase
 
     public function testPreflightCatchesDatesIndicatorsAndLei(): void
     {
-        $this->postJson('/instance/settings', $this->settings(['period' => '2026-12-30']))->assertOk();
+        // Settings refuse a date that is not a month end; one stored before (or imported) is still caught.
+        $this->postJson('/instance/settings', $this->settings(['period' => '2026-12-30']))->assertStatus(422)->assertJsonValidationErrors('period');
+        $this->postJson('/instance/settings', $this->settings(['country' => 'XX']))->assertStatus(422)->assertJsonValidationErrors('country');
+        $this->instance->forceFill(['period' => '2026-12-30'])->save();
         $this->assertContains('refdate_month_end', $this->preflightCodes()[1]);
 
         $this->postJson('/instance/settings', $this->settings(['period' => '2025-12-31']))->assertOk();

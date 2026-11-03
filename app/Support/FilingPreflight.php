@@ -72,6 +72,28 @@ class FilingPreflight
      */
     public function openRowsWithoutKey(): array
     {
+        return $this->scanOpenRows()['missing'];
+    }
+
+    /**
+     * Rows of an open table (same sheet) with the same key: two rows for one
+     * counterparty, branch or ICT service are one fact twice (xBRL-CSV duplicate).
+     *
+     * @return array<int, array{table: string, rows: array<int, int>, key: string}>
+     */
+    public function duplicateOpenKeys(): array
+    {
+        return $this->scanOpenRows()['duplicates'];
+    }
+
+    private ?array $openRows = null;
+
+    private function scanOpenRows(): array
+    {
+        if ($this->openRows !== null) {
+            return $this->openRows;
+        }
+        $duplicates = [];
         $root = storage_path('app/public/tax/'.($this->instance->taxonomy->folder ?? ''));
         $out = [];
         foreach ($this->instance->factHeader()->with('factTable')->get() as $header) {
@@ -102,11 +124,15 @@ class FilingPreflight
             }
             $cells = [];
             $valueRows = [];
+            $keyValues = [];
             foreach ($header->factTable as $f) {
                 if (! preg_match('/^(c[0-9a-z._-]+?)r(\d+)$/i', (string) $f->cr_code, $m)) {
                     continue;
                 }
                 $cells[$f->cr_sheet_code][strtolower($m[1])][(int) $m[2]] = trim((string) $f->string_value) !== '';
+                if (isset($keys[strtolower($m[1])]) && trim((string) $f->string_value) !== '') {
+                    $keyValues[$f->cr_sheet_code][(int) $m[2]][strtolower($m[1])] = trim((string) $f->string_value);
+                }
                 if (! empty($f->metric) && ! isset($keys[strtolower($m[1])])) {
                     $valueRows[$f->cr_sheet_code][(int) $m[2]] = true;
                 }
@@ -121,9 +147,26 @@ class FilingPreflight
                     }
                 }
             }
+            // Complete keys only (a missing one is reported above), compared over all key columns.
+            foreach ($keyValues as $sheet => $rows) {
+                $seen = [];
+                foreach ($rows as $row => $vals) {
+                    if (count($vals) !== count($keys)) {
+                        continue;
+                    }
+                    ksort($vals);
+                    $seen[implode(' / ', $vals)][] = $row;
+                }
+                foreach ($seen as $key => $sameRows) {
+                    if (count($sameRows) > 1) {
+                        sort($sameRows);
+                        $duplicates[] = ['table' => $table, 'rows' => $sameRows, 'key' => (string) $key];
+                    }
+                }
+            }
         }
 
-        return $out;
+        return $this->openRows = ['missing' => $out, 'duplicates' => $duplicates];
     }
 
     /**
@@ -291,6 +334,10 @@ class FilingPreflight
         // country column); without it the fact has no identity (xBRL-CSV tcre:missingValue).
         foreach ($this->openRowsWithoutKey() as $miss) {
             $add('error', 'open_row_key_missing', "{$miss['table']} row {$miss['row']}: enter {$miss['column']} — the row holds values but its key is empty.");
+        }
+
+        foreach ($this->duplicateOpenKeys() as $dup) {
+            $add('error', 'open_row_key_duplicate', "{$dup['table']} rows ".implode(', ', $dup['rows'])." have the same key \"{$dup['key']}\" — each row needs its own key, or merge them.");
         }
 
         // Identifiers used in an open table must first be identified in their register table.

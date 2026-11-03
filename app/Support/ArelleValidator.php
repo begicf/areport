@@ -33,7 +33,7 @@ class ArelleValidator
             throw new \RuntimeException('Arelle is not configured — set AREPORT_ARELLE_CMD to the arelleCmdLine executable.');
         }
         $home = $this->home();
-        $log = tempnam(sys_get_temp_dir(), 'arelle').'.json';
+        $log = sys_get_temp_dir().'/arelle'.bin2hex(random_bytes(8)).'.json';
 
         $process = new Process([
             config('areport.arelle.cmd'), '--file', $entryUrl, '--validate',
@@ -48,7 +48,7 @@ class ArelleValidator
         $json = is_file($log) ? json_decode((string) file_get_contents($log), true) : null;
         @unlink($log);
         if (! is_array($json)) {
-            throw new \RuntimeException('Arelle did not produce a log: '.trim(mb_substr($process->getErrorOutput() ?: $process->getOutput(), 0, 500)));
+            throw new \RuntimeException('Arelle did not produce a log: '.self::readable($process->getErrorOutput() ?: $process->getOutput()));
         }
 
         $messages = [];
@@ -64,7 +64,7 @@ class ArelleValidator
             $messages[] = [
                 'level' => $level,
                 'code' => $code,
-                'text' => trim($text),
+                'text' => self::readable($text),
                 'ref' => $m['refs'][0]['href'] ?? null,
             ];
         }
@@ -78,6 +78,22 @@ class ArelleValidator
             'seconds' => $seconds,
             'messages' => $messages,
         ];
+    }
+
+    /**
+     * A message for the user: of a Python traceback only its last line (the error),
+     * and no server paths.
+     */
+    private static function readable(string $text): string
+    {
+        $text = trim($text);
+        if (str_contains($text, 'Traceback (most recent call last)')) {
+            $lines = array_values(array_filter(array_map('trim', explode("\n", $text)), 'strlen'));
+            $text = (string) end($lines);
+        }
+        $text = str_replace([base_path().DIRECTORY_SEPARATOR, storage_path().DIRECTORY_SEPARATOR, sys_get_temp_dir().DIRECTORY_SEPARATOR], '', $text);
+
+        return mb_strimwidth($text, 0, 1000, '…');
     }
 
     /** Arelle config home whose HTTP cache maps each host to the taxonomy folder. */

@@ -48,6 +48,7 @@ class EntityTest extends TestCase
         $this->get('/entities')->assertOk()->assertDontSee('Bob Bank');
         $this->delete('/entities/'.$bobs->id)->assertNotFound();
         $this->patch('/entities/'.$bobs->id.'/default')->assertNotFound();
+        $this->patch('/entities/'.$bobs->id, ['name' => 'Mine now'])->assertNotFound();
         $this->assertNotNull(Entity::query()->withoutGlobalScopes()->find($bobs->id));
     }
 
@@ -62,5 +63,29 @@ class EntityTest extends TestCase
         $this->postJson('/entities/lei-lookup', ['lei' => '5493001kjtiigc8y1r12'])
             ->assertOk()->assertJson(['ok' => true, 'lei' => '5493001KJTIIGC8Y1R12', 'name' => 'EXAMPLE BANK SA', 'country' => 'FR', 'status' => 'ISSUED']);
         $this->postJson('/entities/lei-lookup', ['lei' => '5493001KJTIIGC8Y1R13'])->assertStatus(422);
+    }
+
+    public function test_an_entity_is_edited_not_overwritten_and_kept_while_reports_use_it(): void
+    {
+        $alice = $this->user('alice@example.com');
+        $this->actingAs($alice);
+        $this->post('/entities', ['lei' => '5493001KJTIIGC8Y1R12', 'name' => 'Example Bank', 'country' => 'FR']);
+        $entity = Entity::query()->sole();
+
+        // Adding the same LEI again does not rewrite it.
+        $this->post('/entities', ['lei' => '5493001kjtiigc8y1r12', 'name' => 'Other name'])->assertSessionHasErrors('lei');
+        $this->assertSame(['Example Bank', 'FR'], [$entity->fresh()->name, $entity->fresh()->country]);
+
+        // Edit changes the name and country.
+        $this->patch('/entities/'.$entity->id, ['name' => 'Example Bank SA', 'country' => 'be'])->assertSessionHas('success');
+        $this->assertSame(['Example Bank SA', 'BE'], [$entity->fresh()->name, $entity->fresh()->country]);
+        $this->patch('/entities/'.$entity->id, ['name' => '', 'country' => 'BEL'])->assertSessionHasErrors(['name', 'country'], null, 'edit'.$entity->id);
+
+        // A report uses it: not removed.
+        $tax = \App\Model\Taxonomy::query()->create(['name' => 'EBA', 'original_name' => 'eba', 'path' => 'eba', 'folder' => 'eba']);
+        \App\Model\FactModule::withoutGlobalScopes()->create(['user_id' => $alice->id, 'taxonomy_id' => $tax->id, 'entity_id' => $entity->id,
+            'period' => '2026-12-31', 'module_name' => 'Own Funds', 'module_path' => 'x/mod/corep_of.xsd', 'groups' => '{}']);
+        $this->delete('/entities/'.$entity->id)->assertSessionHas('warning');
+        $this->assertNotNull($entity->fresh());
     }
 }

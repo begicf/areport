@@ -69,6 +69,17 @@ class KeyRegisterPreflightTest extends TestCase
         $this->assertSame([['table' => 'C_28.00', 'key' => 'qINC', 'value' => null, 'register' => 'C_27.00']], $missing);
     }
 
+    public function test_two_rows_with_the_same_key_are_reported(): void
+    {
+        // C 27.00 is keyed by the counterparty code (011) and its type (015) together.
+        $this->cells('c_27.00', ['c011r1' => 'BANK-A', 'c015r1' => 'eba_CT:x12', 'c011r2' => 'BANK-B', 'c015r2' => 'eba_CT:x12',
+            'c011r3' => 'BANK-A', 'c015r3' => 'eba_CT:x12', 'c011r4' => 'BANK-A', 'c015r4' => 'eba_CT:x13']);
+
+        $preflight = new FilingPreflight($this->instance->fresh());
+        $this->assertSame([['table' => 'C_27.00', 'rows' => [1, 3], 'key' => 'BANK-A / eba_CT:x12']], $preflight->duplicateOpenKeys());
+        $this->assertContains('open_row_key_duplicate', array_column($preflight->run('csv')['checks'], 'code'));
+    }
+
     public function test_all_codes_identified_passes(): void
     {
         $this->cells('c_27.00', ['c011r1' => 'BANK-A']);
