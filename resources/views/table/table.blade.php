@@ -253,7 +253,7 @@
                         <button type="button" class="rib-btn rib-export dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Export the instance">
                             <i class="fas fa-file-export"></i><span>Export</span>
                         </button>
-                        <form id="export_table" method="post" action="table/export">
+                        <form id="export_table" method="post" action="{{ url('/table/export') }}">
                             @csrf
                             <input name="period" type="hidden" value="{{$period}}">
                             <input name="mod" type="hidden" value="{{$mod}}">

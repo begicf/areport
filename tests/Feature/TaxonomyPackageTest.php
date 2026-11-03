@@ -115,6 +115,27 @@ class TaxonomyPackageTest extends TestCase
         TaxonomyPackage::extract($zipFile, sys_get_temp_dir().'/pkgx_'.uniqid());
     }
 
+    public function test_only_taxonomy_files_are_unpacked(): void
+    {
+        // Taxonomy folders are served under /storage: a script or page in a package would run on the site.
+        $zipFile = $this->packageZip();
+        $zip = new ZipArchive();
+        $zip->open($zipFile);
+        $zip->addFromString('ex_taxonomy/www.example.org/probe.php', '<?php echo 42;');
+        $zip->addFromString('ex_taxonomy/www.example.org/probe.html', '<script>alert(1)</script>');
+        $zip->addFromString('ex_taxonomy/www.example.org/probe.PHTML', '<?php echo 42;');
+        $zip->close();
+
+        $this->post('/taxonomy/upload', ['file' => new UploadedFile($zipFile, 'EX_v1.zip', 'application/zip', null, true), 'name' => 'EX'])->assertRedirect('/taxonomy/managing');
+
+        $root = storage_path('app/public/tax/'.Taxonomy::query()->where('name', 'EX')->sole()->folder);
+        $this->assertFileExists($root.'/www.example.org/eu/fr/xbrl/crr/fws/ex/1.1/mod/ex1.xsd');
+        foreach (['probe.php', 'probe.html', 'probe.PHTML'] as $file) {
+            $this->assertFileDoesNotExist($root.'/www.example.org/'.$file);
+        }
+        TaxonomyPackage::removeDir($root);
+    }
+
     public function test_uploading_a_package_whose_folder_differs_from_the_zip_name(): void
     {
         $file = new UploadedFile($this->packageZip('some_other_folder'), 'EX_v1.zip', 'application/zip', null, true);

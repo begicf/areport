@@ -12,7 +12,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
-            <form action="table" method="POST">
+            <form action="{{ url('/table') }}" method="POST">
                 @csrf
 
                 <div class="modal-body">

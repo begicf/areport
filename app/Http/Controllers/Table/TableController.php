@@ -160,8 +160,21 @@ class TableController extends Controller
             $tc = is_array($currentGroup) ? current($currentGroup) : null;
         endif;
 
-        return $tc;
+        return self::taxonomyTable($tc);
 
+    }
+
+    /**
+     * A table schema path from the request, only when it is a .xsd inside the uploaded
+     * taxonomies: the path comes from the browser, and any other file must not be read.
+     */
+    private static function taxonomyTable($path): ?string
+    {
+        $file = is_string($path) && $path !== '' ? realpath($path) : false;
+        $root = realpath(storage_path('app/public/tax'));
+
+        // The path as given (the stored keys are built from it), once its real location is checked.
+        return $file && $root && str_starts_with($file, $root.DIRECTORY_SEPARATOR) && str_ends_with($file, '.xsd') ? $path : null;
     }
 
     public function renderTable(Request $request)
@@ -174,7 +187,7 @@ class TableController extends Controller
 
         $tc = $this->getTablePath($request->get('tab'), $groups_array);
 
-        if (file_exists($tc)):
+        if ($tc !== null):
 
             $tax = Data::getTax($tc);
 
@@ -247,6 +260,8 @@ class TableController extends Controller
     public function exportTable(Request $request)
     {
         $this->bindInstance();
+        abort_unless(self::taxonomyTable($request->get('table')), 404);
+        abort_unless(in_array($request->get('export_type'), ['xlsx', 'pdf', 'html'], true), 422, 'Choose Excel, PDF or HTML.');
 
         $tax = Data::getTax($request->get('table'));
 
@@ -345,9 +360,8 @@ class TableController extends Controller
         $instance = $this->bindInstance();
         abort_unless($instance, 404, 'Instance not found.');
 
-        $table = realpath((string) $request->get('tab'));
-        $root = realpath(storage_path('app/public/tax'));
-        abort_unless($table && $root && str_starts_with($table, $root . DIRECTORY_SEPARATOR) && str_ends_with($table, '.xsd'), 422, 'Open a table first.');
+        $table = self::taxonomyTable($request->get('tab'));
+        abort_unless($table, 422, 'Open a table first.');
 
         $sheet = json_decode((string) $request->get('sheet'), true);
         $sheetDims = is_array($sheet) ? $sheet : [];

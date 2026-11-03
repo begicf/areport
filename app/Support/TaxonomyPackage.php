@@ -16,22 +16,46 @@ use ZipArchive;
  */
 class TaxonomyPackage
 {
-    /** Extract a zip into $dir (created), refusing entries that would escape it. */
+    /**
+     * What a taxonomy package holds (schemas, linkbases, xBRL-CSV metadata, readme).
+     * Anything else (.php, .html, .js, .svg…) is left in the zip: taxonomy folders are
+     * served under /storage, so a script or page in them would run on this site.
+     */
+    public const EXTENSIONS = ['xml', 'xsd', 'json', 'csv', 'txt'];
+
+    /** Unpacked size above which an upload is refused (a full EBA release is about 8 GB). */
+    public const MAX_UNPACKED_BYTES = 20 * 1024 ** 3;
+
+    /** Extract a zip into $dir (created): only taxonomy files, refusing entries that would escape it. */
     public static function extract(string $zipFile, string $dir): void
     {
         $zip = new ZipArchive();
         if ($zip->open($zipFile) !== true) {
             throw new \RuntimeException('The file is not a valid zip archive.');
         }
+        $keep = [];
+        $bytes = 0;
         for ($i = 0; $i < $zip->numFiles; $i++) {
-            $name = str_replace('\\', '/', (string) $zip->getNameIndex($i));
-            if (str_starts_with($name, '/') || preg_match('#(^|/)\.\.(/|$)#', $name)) {
+            $stat = $zip->statIndex($i);
+            $name = str_replace('\\', '/', (string) $stat['name']);
+            if (str_starts_with($name, '/') || preg_match('#(^|/)\.\.(/|$)|^[A-Za-z]:#', $name)) {
                 $zip->close();
                 throw new \RuntimeException('The archive contains an unsafe path: '.$name);
             }
+            if (str_ends_with($name, '/') || ! in_array(strtolower(pathinfo($name, PATHINFO_EXTENSION)), self::EXTENSIONS, true)) {
+                continue;
+            }
+            $bytes += (int) $stat['size'];
+            if ($bytes > self::MAX_UNPACKED_BYTES) {
+                $zip->close();
+                throw new \RuntimeException('The archive unpacks to more than 20 GB.');
+            }
+            $keep[] = (string) $stat['name'];
         }
         @mkdir($dir, 0775, true);
-        $zip->extractTo($dir);
+        if ($keep) {
+            $zip->extractTo($dir, $keep);
+        }
         $zip->close();
     }
 

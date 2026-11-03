@@ -36,6 +36,9 @@ class Handler extends ExceptionHandler
      */
     public function report(Throwable $exception)
     {
+        if (self::isMalformedKey($exception)) {
+            return;   // a bad id in a URL, answered with a 404 below
+        }
         parent::report($exception);
     }
 
@@ -50,6 +53,19 @@ class Handler extends ExceptionHandler
      */
     public function render($request,Throwable $exception)
     {
+        if (self::isMalformedKey($exception)) {
+            $exception = new \Symfony\Component\HttpKernel\Exception\NotFoundHttpException('Not found.', $exception);
+        }
+
         return parent::render($request, $exception);
+    }
+
+    /**
+     * An id that is not a number ("?id=abc", "/rules/undefined") reaching a PostgreSQL
+     * bigint column: invalid input, so not found, not a server error.
+     */
+    private static function isMalformedKey(Throwable $e): bool
+    {
+        return $e instanceof \Illuminate\Database\QueryException && $e->getCode() === '22P02';
     }
 }
