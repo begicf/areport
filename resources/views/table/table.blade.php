@@ -974,38 +974,45 @@
             if (!saveInFlight) setSaveStatus('dirty', 'Unsaved changes');
         }
 
-        // ---- Numbers: shown with thousands separators, stored raw ----
-        // Monetary / integer / decimal cells become text inputs: 1,250,000.50 while not focused,
-        // the plain number while editing. What is saved or validated is always the plain number.
-        function parseNum(v) {
-            let s = String(v || '').trim().replace(/[\s'\u00a0]/g, '');
+        // ---- Numbers: shown in the user's style (Settings → Number format), stored raw ----
+        // Monetary / integer / decimal cells become text inputs: 1,250,000.50 or 1.250.000,50 while
+        // not focused, the plain number while editing. What is saved or validated is always the
+        // plain number (1250000.50). Values from the server are plain numbers, never read as typed.
+        const NUM = Object.assign({ decimal: '.', group: ',' }, window.AREPORT_NUM || {});
+        function parseNum(v) {   // what the user typed or pasted → plain number (or the text, when it is not one)
+            let s = String(v || '').trim().replace(/[\s'  ’]/g, '').replace(/^\+/, '');
             if (s === '') return '';
-            const hasComma = s.indexOf(',') !== -1, dots = (s.match(/\./g) || []).length;
-            if (hasComma && dots) {   // the last separator is the decimal one: 1.250.000,50 or 1,250,000.50
-                s = s.lastIndexOf(',') > s.lastIndexOf('.') ? s.replace(/\./g, '').replace(',', '.') : s.replace(/,/g, '');
-            } else if (hasComma) {
-                const p = s.split(',');
-                s = (p.length === 2 && p[1].length !== 3) ? p[0] + '.' + p[1] : s.replace(/,/g, '');
-            } else if (dots > 1) {
-                s = s.replace(/\./g, '');   // 1.250.000
+            const dec = NUM.decimal, other = dec === '.' ? ',' : '.';
+            const count = (c) => s.split(c).length - 1;
+            if (count(dec) > 1 && count(other) <= 1) {   // 1.250.000 / 1.250.000,5 typed in the other style
+                return s.split(dec).join('').replace(other, '.');
+            }
+            if (count(dec) === 1) return s.split(other).join('').replace(dec, '.');
+            if (count(other)) {
+                // No decimal separator of the user's style: groups of three are thousands, anything else a decimal.
+                const grouped = new RegExp('^-?\\d{1,3}(\\' + other + '\\d{3})+$').test(s);
+                if (grouped) return s.split(other).join('');
+                if (count(other) === 1) return s.replace(other, '.');
             }
             return s;
         }
+        function formatNum(raw) {   // plain number → the user's style
+            const m = /^(-?)(\d+)(?:\.(\d+))?$/.exec(String(raw));
+            return m ? m[1] + m[2].replace(/\B(?=(\d{3})+(?!\d))/g, NUM.group) + (m[3] ? NUM.decimal + m[3] : '') : String(raw);
+        }
+        function editNum(raw) { return NUM.decimal === '.' ? raw : String(raw).replace('.', NUM.decimal); }
         function numProblem(raw, isInt) {
             if (raw === '') return null;
-            if (!/^-?\d+(\.\d+)?$/.test(raw)) return 'Enter a number (e.g. 1250000 or 1,250,000.50).';
+            if (!/^-?\d+(\.\d+)?$/.test(raw)) return 'Enter a number (e.g. 1250000 or ' + formatNum('1250000.50') + ').';
             if (isInt && raw.indexOf('.') !== -1) return 'Enter a whole number, without decimals.';
             return null;
         }
-        function formatNum(raw) {
-            const m = /^(-?)(\d+)(\.\d+)?$/.exec(raw);
-            return m ? m[1] + m[2].replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (m[3] || '') : raw;
-        }
-        function showNum(input) {
-            const raw = parseNum(input.value), problem = numProblem(raw, input.dataset.num === 'int');
+        function showNum(input, raw) {   // raw given: a plain number from the server; else read what is typed
+            raw = raw === undefined ? parseNum(input.value) : String(raw).trim();
+            const problem = numProblem(raw, input.dataset.num === 'int');
             input.classList.toggle('num-bad', !!problem);
             input.title = problem || input.dataset.title || '';
-            if (!problem) input.value = formatNum(raw);
+            input.value = problem ? input.value : formatNum(raw);
         }
         function enhanceNumberInputs() {
             document.querySelectorAll('#table_form input.xbrl-input[type="number"], #table_form input.xbrl-input-decimal, #table_form input.xbrl-input.percent').forEach(function (i) {
@@ -1013,15 +1020,16 @@
                 i.dataset.num = (i.getAttribute('step') === '1') ? 'int' : 'dec';
                 i.removeAttribute('pattern');
                 i.dataset.title = i.title || '';
+                const stored = i.value;   // as saved: a plain number
                 i.type = 'text';
                 i.inputMode = 'decimal';
                 i.removeAttribute('step');
-                showNum(i);
+                showNum(i, stored);
             });
         }
         $('#table_form').on('focus', 'input[data-num]', function () {
             const raw = parseNum(this.value);
-            if (!numProblem(raw, this.dataset.num === 'int')) this.value = raw;
+            if (!numProblem(raw, this.dataset.num === 'int')) this.value = editNum(raw);
         });
         $('#table_form').on('blur', 'input[data-num]', function () { showNum(this); });
         // The form as the server expects it: plain numbers.
@@ -1154,7 +1162,8 @@
             return Array.prototype.filter.call(document.querySelectorAll('#table_form input:not([type=hidden]):not([disabled]), #table_form select:not([disabled])'),
                 function (x) { return cellKey(x) === col && x.offsetParent !== null; });
         }
-        function setCell(el, value) {
+        // value: what was pasted (in the user's style), or with plain a number from the server.
+        function setCell(el, value, plain) {
             value = String(value).trim();
             if (el.tagName === 'SELECT') {
                 const v = value.toLowerCase();
@@ -1164,7 +1173,7 @@
                 el.value = opt ? opt.value : '';
             } else {
                 el.value = value;
-                if (el.dataset.num) showNum(el);
+                if (el.dataset.num) showNum(el, plain ? value : undefined);
             }
             return true;
         }
@@ -1371,7 +1380,7 @@
                                     + '<div class="dpm-val-fh"><i class="fas fa-circle dpm-sev-' + escapeValHtml(f.severity) + '"></i> <b>' + escapeValHtml(f.code) + '</b> '
                                     + '<code class="dpm-val-rule">' + escapeValHtml(f.rule || '') + '</code></div>'
                                     + '<div class="dpm-val-facts">' + (f.facts || []).map(function (x) {
-                                        return '<span class="dpm-val-fact"><b>' + escapeValHtml(x.cell) + '</b> = ' + escapeValHtml(x.value === null ? '∅' : x.value) + '</span>';
+                                        return '<span class="dpm-val-fact"><b>' + escapeValHtml(x.cell) + '</b> = ' + escapeValHtml(x.value === null ? '∅' : formatNum(x.value)) + '</span>';
                                     }).join('') + '</div></div>';
                             }).join('') + '</div>';
                     } else if (d.note) {
@@ -1739,7 +1748,7 @@
                         let filled = 0, missing = 0;
                         for (const cell in (data.file || {})) {
                             const input = document.getElementById(cell);
-                            if (input && !input.disabled && input.type !== 'hidden') { setCell(input, data.file[cell]) ? filled++ : missing++; } else missing++;
+                            if (input && !input.disabled && input.type !== 'hidden') { setCell(input, data.file[cell], true) ? filled++ : missing++; } else missing++;
                         }
                         const s = data.summary || {};
                         if (filled) markDirty();
@@ -1751,7 +1760,7 @@
                         let filled = 0;
                         for (const cell in (data.file || {})) {
                             const input = document.getElementById(cell);
-                            if (input) { $(input).val(data.file[cell]); if (input.dataset.num) showNum(input); filled++; }
+                            if (input) { $(input).val(data.file[cell]); if (input.dataset.num) showNum(input, data.file[cell]); filled++; }
                         }
                         const s = data.summary || {};
                         let message = filled + ' of ' + (s.facts || 0) + ' facts in the instance were filled into this table.';

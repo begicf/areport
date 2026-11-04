@@ -374,11 +374,11 @@ class TableController extends Controller
 
         elseif (strtolower((string) $import['ext']) === 'zip'):
 
-            return response()->json(['ok' => false, 'error' => 'xBRL-CSV packages (.zip) cannot be imported into a table yet. Import the xBRL-XML instance (.xbrl) or an Excel workbook (.xlsx).'], 422);
+            return response()->json($this->importXbrl($request, $tpn_name, 'zip'));
 
         else:
 
-            return response()->json(['ok' => false, 'error' => 'Import an xBRL-XML instance (.xbrl) or an Excel workbook (.xlsx).'], 422);
+            return response()->json(['ok' => false, 'error' => 'Import an xBRL-XML instance (.xbrl), an xBRL-CSV package (.zip) or an Excel workbook (.xlsx).'], 422);
 
         endif;
 
@@ -388,10 +388,10 @@ class TableController extends Controller
 
 
     /**
-     * xBRL-XML instance → values for the table (and sheet) open on the form, keyed by
-     * cell id. Only tables of the taxonomy can be read.
+     * xBRL-XML instance or xBRL-CSV package → values for the table (and sheet) open on
+     * the form, keyed by cell id. Only tables of the taxonomy can be read.
      */
-    private function importXbrl(Request $request, string $file): array
+    private function importXbrl(Request $request, string $file, string $format = 'xbrl'): array
     {
         $instance = $this->bindInstance();
         abort_unless($instance, 404, 'Instance not found.');
@@ -403,7 +403,19 @@ class TableController extends Controller
         $sheetDims = is_array($sheet) ? $sheet : [];
 
         try {
-            $result = \App\Support\XbrlInstanceImport::forTable($file, $table, $sheetDims, $this->_taxonomy->folder ?? null, (int) ($instance->monetary_scale ?: 1000));
+            $scale = (int) ($instance->monetary_scale ?: 1000);
+            if ($format === 'zip') {
+                $root = rtrim(\AReportDpmXBRL\Config\Config::publicDir(), DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.($this->_taxonomy->folder ?? '').DIRECTORY_SEPARATOR;
+                $locate = function (string $url) use ($root): ?string {
+                    $rel = ltrim(preg_replace('#^https?://#i', '', $url), '/');
+
+                    return $rel !== '' && ! str_contains($rel, '..') && is_file($root.$rel) ? $root.$rel : null;
+                };
+                $report = \App\Support\ReportFile::read($file, 'report.zip', $locate);
+                $result = \App\Support\XbrlInstanceImport::forTableFromReport($report['facts'], $table, $sheetDims, $this->_taxonomy->folder ?? null, $scale);
+            } else {
+                $result = \App\Support\XbrlInstanceImport::forTable($file, $table, $sheetDims, $this->_taxonomy->folder ?? null, $scale);
+            }
         } catch (\InvalidArgumentException $e) {
             abort(422, $e->getMessage());
         }

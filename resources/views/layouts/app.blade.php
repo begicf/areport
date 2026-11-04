@@ -14,6 +14,12 @@
 
     <!-- Scripts -->
     <script src="{{ asset('js/jquerylib.js') }}" ></script>
+    @auth
+        <script>
+            // The user's number style (Settings): values are plain numbers, shown and typed in this style.
+            window.AREPORT_NUM = @json(\App\Support\NumberFormat::js());
+        </script>
+    @endauth
 
     <script src="{{ asset('js/app.js') }}" defer></script>
 
@@ -229,9 +235,12 @@
                                         <a class="dropdown-item" href="{{ route('entities.index') }}">
                                             <i class="fas fa-building-columns me-2 text-muted"></i>{{ __('Reporting entities') }}
                                         </a>
+                                        <a class="dropdown-item" href="{{ route('account.settings') }}">
+                                            <i class="fas fa-user-gear me-2 text-muted"></i>{{ __('Settings') }}
+                                        </a>
                                         @if(Route::has('areport-pro.settings.index'))
                                             <a class="dropdown-item" href="{{ route('areport-pro.settings.index') }}">
-                                                <i class="fas fa-gear me-2 text-muted"></i>{{ __('Settings') }}
+                                                <i class="fas fa-gear me-2 text-muted"></i>{{ __('Workspace settings') }}
                                             </a>
                                         @endif
                                         <a class="dropdown-item" href="{{ url('/taxonomy/managing') }}">

@@ -38,6 +38,10 @@ Route::post('/contact', 'Contact\ContactController@store')->middleware('throttle
 
 Auth::routes(['verify' => true]);
 Route::get('/home', 'Areport\HomeController@index')->name('home');
+Route::middleware('auth')->group(function () {
+    Route::get('/account/settings', 'Account\SettingsController@index')->name('account.settings');
+    Route::post('/account/settings', 'Account\SettingsController@update')->name('account.settings.update');
+});
 Route::post('/areport/json', 'Areport\HomeController@json')->name('json');
 
 //Taxonomy
@@ -100,6 +104,8 @@ Route::group(['prefix' => 'instance', 'middleware' => 'auth'], function () {
     Route::post('/arelle', 'Export\InstanceController@arelleValidate');
     Route::get('/settings', 'Export\InstanceController@settings');
     Route::post('/settings', 'Export\InstanceController@updateSettings');
+    Route::post('/import-report', 'Export\ReportImportController@store')->name('report.import');
+    Route::get('/import-report/{instance}', 'Export\ReportImportController@status')->whereNumber('instance')->name('report.import.status');
     Route::delete('/{instance}', 'Export\InstanceController@destroy')->whereNumber('instance')->name('instance.destroy');
 
 });

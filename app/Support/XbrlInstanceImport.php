@@ -28,8 +28,30 @@ class XbrlInstanceImport
      */
     public static function forTable(string $instanceFile, string $tablePath, array $sheetDims, ?string $taxonomyFolder, int $monetaryScale): array
     {
-        $facts = self::facts($instanceFile);
-        // Only dimension => member pairs (the sheet option also carries "sheet", "typedMember", …).
+        return self::match(self::facts($instanceFile), $tablePath, $sheetDims, $taxonomyFolder, $monetaryScale);
+    }
+
+    /**
+     * The same for the facts of a report file (ReportFile: an xBRL-CSV package or an instance).
+     *
+     * @param  list<array{concept: string, explicit: array, typed: array, value: string}>  $reportFacts
+     */
+    public static function forTableFromReport(array $reportFacts, string $tablePath, array $sheetDims, ?string $taxonomyFolder, int $monetaryScale): array
+    {
+        $facts = ['values' => [], 'count' => count($reportFacts), 'typed' => 0];
+        foreach ($reportFacts as $fact) {
+            if ($fact['typed']) {
+                $facts['typed']++;
+                continue;
+            }
+            $facts['values'][self::signature($fact['concept'], $fact['explicit'])] = $fact['value'];
+        }
+
+        return self::match($facts, $tablePath, $sheetDims, $taxonomyFolder, $monetaryScale);
+    }
+
+    private static function match(array $facts, string $tablePath, array $sheetDims, ?string $taxonomyFolder, int $monetaryScale): array
+    {        // Only dimension => member pairs (the sheet option also carries "sheet", "typedMember", …).
         $sheetDims = array_filter($sheetDims, fn ($member, $dimension) => is_string($member) && str_contains((string) $dimension, ':'), ARRAY_FILTER_USE_BOTH);
 
         $render = new Render(Data::getTax($tablePath));

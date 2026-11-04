@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Model\Entity;
 use App\Model\FactHeader;
 use App\Model\FactModule;
-use App\Model\FactTable;
 use App\Model\Taxonomy;
 use App\Support\ArelleValidator;
 use App\Support\FilingPreflight;
@@ -14,7 +13,6 @@ use AReportDpmXBRL\Creat\CreateXBRLCsvPackage;
 use AReportDpmXBRL\Creat\CreateXBRLFromDB;
 use AReportDpmXBRL\Library\Format;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 
@@ -291,14 +289,7 @@ class InstanceController extends Controller
             return response()->json(['ok' => false, 'error' => $reason], 409);
         }
 
-        DB::transaction(function () use ($record) {
-            $headers = FactHeader::query()->where('module_id', $record->id)->pluck('id');
-            foreach ($headers->chunk(500) as $chunk) {
-                FactTable::query()->whereIn('fact_header_id', $chunk)->delete();
-            }
-            FactHeader::query()->where('module_id', $record->id)->delete();
-            $record->delete();   // audit trail, sign-off and comments cascade
-        });
+        $record->deleteWithData();
 
         return response()->json(['ok' => true]);
     }

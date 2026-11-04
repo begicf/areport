@@ -194,7 +194,7 @@
                                     @php([$tbl, $cell] = $target($f['key'] ?? ''))
                                     <span class="vr-fact {{ $f['value'] === null ? 'null' : '' }}">
                                         <a href="{{ url('/table/open') }}?id={{ $meta['id'] }}&table={{ urlencode($tbl) }}&cell={{ urlencode($cell) }}" target="_blank" rel="noopener" title="Open this cell in the form">
-                                            <b>{{ $f['cell'] }}</b> = {{ $f['value'] === null ? '∅ empty' : $f['value'] }}<i class="fas fa-up-right-from-square go"></i>
+                                            <b>{{ $f['cell'] }}</b> = {{ $f['value'] === null ? '∅ empty' : \App\Support\NumberFormat::format($f['value']) }}<i class="fas fa-up-right-from-square go"></i>
                                         </a>
                                     </span>
                                 @endforeach

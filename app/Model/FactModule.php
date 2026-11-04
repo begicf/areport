@@ -98,6 +98,19 @@ class FactModule extends Model
         return $due;
     }
 
+    /** Delete the instance with its cells; audit trail, sign-off and comments cascade. */
+    public function deleteWithData(): void
+    {
+        \Illuminate\Support\Facades\DB::transaction(function () {
+            $headers = FactHeader::query()->where('module_id', $this->id)->pluck('id');
+            foreach ($headers->chunk(500) as $chunk) {
+                FactTable::query()->whereIn('fact_header_id', $chunk)->delete();
+            }
+            FactHeader::query()->where('module_id', $this->id)->delete();
+            $this->delete();
+        });
+    }
+
     /** Reference date as Y-m-d (the period column holds a date). */
     public function periodYmd(): ?string
     {

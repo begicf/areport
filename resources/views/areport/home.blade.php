@@ -146,6 +146,16 @@
         .gs .x { position: absolute; top: .45rem; right: .55rem; border: 0; background: none; color: #94a3b8; font-size: 1rem; }
         .gs .x:hover { color: #334155; }
         .gs .demo { font-size: .74rem; color: #2f557d; margin-top: .55rem; }
+        .imp-back { position: fixed; inset: 0; background: rgba(15,23,42,.35); display: none; align-items: center; justify-content: center; z-index: 1060; }
+        .imp-back.is-open { display: flex; }
+        .imp-box { background: #fff; width: min(480px, calc(100vw - 32px)); padding: 1.1rem 1.2rem; box-shadow: 0 12px 40px rgba(15,23,42,.25); }
+        .imp-box h3 { font-size: 1rem; font-weight: 700; margin: 0 0 .3rem; color: #16202c; }
+        .imp-box .sub { font-size: .8rem; color: #64748b; margin-bottom: .7rem; }
+        .imp-bar { height: 8px; background: #eef2f7; overflow: hidden; }
+        .imp-bar span { display: block; height: 100%; width: 0; background: #2f557d; transition: width .3s ease; }
+        .imp-msg { font-size: .8rem; color: #334155; margin-top: .6rem; white-space: pre-line; }
+        .imp-msg.err { color: #b91c1c; }
+        .imp-actions { display: flex; justify-content: flex-end; gap: .5rem; margin-top: .9rem; }
     </style>
 @endpush
 
@@ -160,6 +170,10 @@
             </div>
             <div class="d-flex gap-2">
                 <a href="{{ url('/modules') }}" class="btn btn-sm btn-primary"><i class="fas fa-plus"></i> New instance</a>
+                <button type="button" id="importReportBtn" class="btn btn-sm btn-outline-primary" title="Open an xBRL-XML instance (.xbrl) or an xBRL-CSV package (.zip) as a new report">
+                    <i class="fas fa-file-import"></i> Import report
+                </button>
+                <input type="file" id="importReportFile" accept=".xbrl,.xml,.zip" hidden>
                 <button type="button" id="refreshHomeTable" class="btn btn-sm btn-outline-primary">
                     <i class="fas fa-rotate-right"></i> Refresh
                 </button>
@@ -233,6 +247,19 @@
                 </thead>
             </table>
         </section>
+    </div>
+
+    <div class="imp-back" id="importReport" role="dialog" aria-modal="true" aria-labelledby="importReportTitle">
+        <div class="imp-box">
+            <h3 id="importReportTitle">Importing report</h3>
+            <div class="sub" id="importReportSub"></div>
+            <div class="imp-bar"><span id="importReportBar"></span></div>
+            <div class="imp-msg" id="importReportMsg">Reading the file…</div>
+            <div class="imp-actions" id="importReportActions" hidden>
+                <button type="button" class="btn btn-sm btn-outline-secondary" id="importReportClose">Close</button>
+                <a class="btn btn-sm btn-primary" id="importReportOpen" hidden>Open the report</a>
+            </div>
+        </div>
     </div>
 @endsection
 
@@ -400,5 +427,68 @@
             searchTimer = setTimeout(function () { searchText = e.target.value.trim(); $table.bootstrapTable('refresh', { pageNumber: 1 }); }, 250);
         });
         $table.on('search.bs.table sort.bs.table page-change.bs.table', function () { updateStatus('Updating the view…', 'loading'); });
+
+        // Import an existing report (xBRL-XML or xBRL-CSV) as a new instance; filling runs on the server, we poll its progress.
+        (function () {
+            const file = document.getElementById('importReportFile');
+            const box = document.getElementById('importReport');
+            const bar = document.getElementById('importReportBar');
+            const msg = document.getElementById('importReportMsg');
+            const sub = document.getElementById('importReportSub');
+            const actions = document.getElementById('importReportActions');
+            const open = document.getElementById('importReportOpen');
+            document.getElementById('importReportBtn').addEventListener('click', () => file.click());
+            document.getElementById('importReportClose').addEventListener('click', () => box.classList.remove('is-open'));
+
+            function finish(text, isError, url) {
+                msg.textContent = text;
+                msg.classList.toggle('err', !!isError);
+                actions.hidden = false;
+                open.hidden = !url;
+                if (url) open.href = url;
+                $table.bootstrapTable('refresh', { silent: true });
+            }
+            function poll(statusUrl) {
+                fetch(statusUrl, { headers: { 'Accept': 'application/json' } }).then(r => r.ok ? r.json() : Promise.reject(new Error('The import status is not available.'))).then(function (s) {
+                    sub.textContent = [s.module, s.period, s.entity || s.lei].filter(Boolean).join(' · ');
+                    if (s.total) bar.style.width = Math.round(100 * s.done / s.total) + '%';
+                    if (s.state === 'running') {
+                        msg.textContent = s.total ? 'Filling table ' + Math.min(s.done + 1, s.total) + ' of ' + s.total + '…' : 'Preparing the tables…';
+                        setTimeout(() => poll(statusUrl), 1000);
+                    } else if (s.state === 'failed') {
+                        finish(s.error || 'The import failed.', true);
+                    } else {
+                        bar.style.width = '100%';
+                        let text = s.mapped + ' of ' + s.facts + ' facts were filled into ' + s.total + ' tables.';
+                        if (s.unmapped_count) text += '\n' + s.unmapped_count + ' facts have no cell in this module and were left out.';
+                        if (!s.entity && s.lei) text += '\nThe entity ' + s.lei + ' is not in your entities: choose one in the report settings before exporting.';
+                        text += '\nValidate the report to check it.';
+                        finish(text, false, s.url);
+                    }
+                }).catch(e => finish(e.message, true));
+            }
+            file.addEventListener('change', function () {
+                if (!file.files.length) return;
+                const data = new FormData();
+                data.append('report', file.files[0]);
+                file.value = '';
+                bar.style.width = '0';
+                sub.textContent = data.get('report').name;
+                msg.textContent = 'Reading the file…';
+                msg.classList.remove('err');
+                actions.hidden = true;
+                box.classList.add('is-open');
+                fetch(@json(route('report.import')), { method: 'POST', body: data, headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' } })
+                    .then(r => r.json().catch(() => ({})).then(d => ({ ok: r.ok, status: r.status, d: d })))
+                    .then(function (res) {
+                        if (res.status === 413) return finish('The file is larger than the server accepts.', true);
+                        if (!res.ok || !res.d.ok) {
+                            const errors = res.d.errors ? Object.values(res.d.errors).flat().join(' ') : '';
+                            return finish(res.d.error || errors || res.d.message || 'The file could not be imported.', true);
+                        }
+                        poll(res.d.status);
+                    }, e => finish(e.message, true));
+            });
+        })();
     </script>
 @endpush
