@@ -38,6 +38,12 @@
         .vr-tbl { font-size: .64rem; font-weight: 700; padding: .06rem .4rem; background: var(--blue-soft); color: var(--blue); border: 1px solid var(--blue-bd); border-radius: 5px; }
         .vr-expr { margin-top: .4rem; font-family: "SFMono-Regular","Consolas",monospace; font-size: .74rem; color: #334155; background: var(--band); border: 1px solid var(--line); border-radius: 6px; padding: .35rem .5rem; overflow-x: auto; }
         .vr-facts { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .4rem; }
+        .vr-checks { margin-top: .4rem; font-size: .76rem; color: #334155; font-variant-numeric: tabular-nums; }
+        .vr-check { display: flex; flex-wrap: wrap; gap: .2rem .5rem; align-items: baseline; padding: .1rem 0; }
+        .vr-check a { font-weight: 700; color: var(--blue); text-decoration: none; }
+        .vr-check .exp { font-weight: 600; color: var(--ink); }
+        .vr-check .diff { color: #b91c1c; }
+        .vr-check .parts { color: var(--faint); font-size: .7rem; }
         .vr-fact { font-size: .72rem; background: #f8fafc; border: 1px solid var(--line); border-radius: 5px; padding: .08rem .45rem; font-variant-numeric: tabular-nums; }
         .vr-fact b { color: var(--blue); }
         .vr-fact.null { color: #b45309; }
@@ -188,7 +194,21 @@
                             @if($r['tables'])<span class="vr-tables">@foreach($r['tables'] as $tb)<span class="vr-tbl">{{ $tb }}</span>@endforeach</span>@endif
                         </div>
                         @if($r['rule'])<div class="vr-text">{!! $readable($r['rule']) !!}</div>@endif
-                        @if($r['facts'])
+                        @if(!empty($r['checks']))
+                            <div class="vr-checks">
+                                @foreach($r['checks'] as $c)
+                                    @php([$tbl, $cell] = $target($c['target']))
+                                    @php($num = fn ($v) => \App\Support\NumberFormat::format(rtrim(rtrim(number_format($v, 6, '.', ''), '0'), '.')))
+                                    <div class="vr-check">
+                                        <a href="{{ url('/table/open') }}?id={{ $meta['id'] }}&table={{ urlencode($tbl) }}&cell={{ urlencode($cell) }}" target="_blank" rel="noopener" title="Open this cell in the form">{{ \App\Support\RuleExplain::pretty($c['target']) }}</a>
+                                        <span>is {{ $num($c['lhs']) }}, should be {{ ['=' => '=', '>=' => '≥', '<=' => '≤', '>' => '>', '<' => '<'][$c['op']] }} <span class="exp">{{ $num($c['rhs']) }}</span></span>
+                                        <span class="diff">difference {{ $c['diff'] > 0 ? '+' : '−' }}{{ $num(abs($c['diff'])) }}</span>
+                                        <span class="parts">= {{ \Illuminate\Support\Str::limit(collect($c['parts'])->map(fn ($p, $i) => ($i || $p['sign'] < 0 ? ($p['sign'] < 0 ? ' − ' : ' + ') : '').last(explode(' · ', \App\Support\RuleExplain::pretty($p['cell']))))->implode(''), 110) }}</span>
+                                    </div>
+                                @endforeach
+                                @if($r['checks_count'] > count($r['checks']))<div class="vr-check parts">… and {{ $r['checks_count'] - count($r['checks']) }} more</div>@endif
+                            </div>
+                        @elseif($r['facts'])
                             <div class="vr-facts">
                                 @foreach($r['facts'] as $f)
                                     @php([$tbl, $cell] = $target($f['key'] ?? ''))

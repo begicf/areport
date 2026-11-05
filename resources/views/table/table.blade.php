@@ -31,6 +31,16 @@
         .app-typed-sheet-add input { width: 200px; }
         #table_form td.dpm-cell-warn { background: #fff7ed !important; outline: 2px solid #f59e0b; outline-offset: -2px; }
         #table_form td.dpm-cell-warn input, #table_form td.dpm-cell-warn select { border-color: #f59e0b !important; background: #fffbeb; }
+        #table_form td.dpm-cell-part { box-shadow: inset 0 0 0 1px #fca5a5; }
+        .dpm-val-check { font-size: .74rem; color: #334155; margin: .2rem 0 0 1rem; display: flex; flex-wrap: wrap; gap: .25rem .45rem; align-items: baseline; font-variant-numeric: tabular-nums; }
+        .dpm-val-check a { color: #2f557d; font-weight: 700; cursor: pointer; text-decoration: none; }
+        .dpm-val-check .exp { color: #0f172a; font-weight: 600; }
+        .dpm-val-check .diff { color: #b91c1c; }
+        .dpm-val-check .parts { color: #94a3b8; font-size: .7rem; }
+        .dpm-val-fix { border: 1px solid #cbd5e1; background: #fff; color: #2f557d; font-size: .68rem; font-weight: 600; padding: 0 .4rem; border-radius: 3px; cursor: pointer; }
+        .dpm-val-fix:hover { background: #2f557d; color: #fff; border-color: #2f557d; }
+        .dpm-val-more { font-size: .7rem; color: #94a3b8; margin: .15rem 0 0 1rem; }
+        .dpm-val-recalc { margin-left: .4rem; }
         .dpm-val-toggle { background: none; border: 0; color: #2f557d; font-size: .76rem; font-weight: 600; padding: .2rem 0; cursor: pointer; }
         .dpm-val-live { font-size: .68rem; color: #94a3b8; margin-left: .4rem; }
 
@@ -1284,42 +1294,121 @@
         }
 
         function clearFailedCells() {
-            document.querySelectorAll('#table_form td.dpm-cell-fail, #table_form td.dpm-cell-warn').forEach(function (td) {
-                td.classList.remove('dpm-cell-fail', 'dpm-cell-warn');
+            document.querySelectorAll('#table_form td.dpm-cell-fail, #table_form td.dpm-cell-warn, #table_form td.dpm-cell-part').forEach(function (td) {
+                td.classList.remove('dpm-cell-fail', 'dpm-cell-warn', 'dpm-cell-part');
                 if (td.dataset.valTitle) { td.removeAttribute('title'); delete td.dataset.valTitle; }
             });
         }
 
-        // Paint the cells the validator flagged red. Rules key cells as
-        // "<tablecode>,r<row>,c<col>"; parser cells carry rc-code="c<col>r<row>".
-        // Rules key cells as "<tablecode>,r<row>,c<col>"; parser cells carry rc-code="c<col>r<row>".
-        // A cell used by a failing error rule turns red, by warnings only amber; its title names the rules.
-        function highlightFailedCells(failedCells, failed) {
-            clearFailedCells();
-            const byCell = {};
-            (failed || []).forEach(function (f) {
-                (f.facts || []).forEach(function (x) {
-                    const k = String(x.cell || '').toLowerCase().replace(' · ', ',').replace('/', ',');
-                    (byCell[k] = byCell[k] || []).push(f);
-                });
+        // Paint the cells the validator flagged. Cells are keyed "<tablecode>,r<row>,c<col>";
+        // parser cells carry rc-code="c<col>r<row>". A sum rule that fails marks only its total
+        // (red for an error, amber for a warning) and outlines the cells it adds up; any other
+        // failing rule marks all its cells. A cell's title says what is wrong with it.
+        function valKey(cell) { return String(cell || '').toLowerCase().replace(' · ', ',').replace(/\//g, ','); }
+        function cellInput(key) {   // the input of a cell of the open table, by rule key
+            const p = String(key).split(','), code = String(tableCode || '').toLowerCase();
+            if (p[0] !== code || p.length !== 3) return null;
+            const row = p.find(x => x[0] === 'r'), col = p.find(x => x[0] === 'c');
+            const el = row && col ? document.getElementById(col + row) : null;
+            return el && el.tagName === 'INPUT' && el.dataset.num ? el : null;
+        }
+        // What a sum check says now, in the form's units: from the inputs when every cell is on
+        // this table (so a fix is typed in the units shown), else the validator's values.
+        function checkNow(c) {
+            const target = cellInput(c.key), parts = (c.parts || []).map(p => ({ p: p, el: cellInput(p.key) }));
+            if (!target || parts.some(x => !x.el)) {
+                return { local: false, actual: String(c.actual), expected: String(c.expected), diff: c.diff };
+            }
+            const num = el => { const v = parseFloat(parseNum(el.value)); return isNaN(v) ? 0 : v; };
+            const places = Math.max(0, ...[target].concat(parts.map(x => x.el)).map(el => ((parseNum(el.value).split('.')[1]) || '').length));
+            const expected = parts.reduce((t, x) => t + x.p.sign * num(x.el), 0);
+            const round = v => Number(v.toFixed(Math.min(places, 10)));
+            return { local: true, actual: String(round(num(target))), expected: String(round(expected)), diff: round(num(target) - expected) };
+        }
+        // A rule's long row / column lists shortened: (r0100, r0110, … r0531 · 51).
+        function shortRule(rule) {
+            return String(rule || '').replace(/\(([rc]\w+(?:,\s*[rc]\w+){5,})\)/g, function (all, list) {
+                const items = list.split(/,\s*/);
+                return '(' + items.slice(0, 3).join(', ') + ', … ' + items[items.length - 1] + ' · ' + items.length + ')';
             });
-            (failedCells || []).forEach(function (k) { byCell[k] = byCell[k] || [{ code: '', severity: 'error' }]; });
-            if (!Object.keys(byCell).length || !tableCode) return 0;
+        }
+        function opText(op) { return { '=': '=', '>=': '≥', '<=': '≤', '>': '>', '<': '<' }[op] || op; }
+        function signed(v) { const n = Number(v); return (n > 0 ? '+' : n < 0 ? '−' : '') + formatNum(String(Math.abs(n))); }
+
+        function highlightFailedCells(failedCells, failed, involvedCells) {
+            clearFailedCells();
+            const byCell = {}, parts = {};
+            (failed || []).forEach(function (f) {
+                if ((f.checks || []).length) {
+                    f.checks.forEach(function (c) {
+                        (byCell[c.key] = byCell[c.key] || []).push({ f: f, c: c });
+                        (c.parts || []).forEach(function (p) { parts[p.key] = true; });
+                    });
+                    return;
+                }
+                (f.facts || []).forEach(function (x) { const k = valKey(x.cell); (byCell[k] = byCell[k] || []).push({ f: f }); });
+            });
+            (failedCells || []).forEach(function (k) { byCell[k] = byCell[k] || [{ f: { code: '', severity: 'error' } }]; });
+            (involvedCells || []).forEach(function (k) { parts[k] = true; });
+            if (!tableCode) return 0;
             const code = String(tableCode).toLowerCase();
             let hits = 0;
             document.querySelectorAll('#table_form td[rc-code]').forEach(function (td) {
                 const m = /^c([^r]+)r(.+)$/.exec(td.getAttribute('rc-code') || '');
                 if (!m) return;
                 const col = 'c' + m[1].toLowerCase(), row = 'r' + m[2].toLowerCase();
-                const rules = byCell[code + ',' + row + ',' + col] || byCell[code + ',' + col + ',' + row];
-                if (!rules) return;
-                const isError = rules.some(function (f) { return (f.severity || 'error') === 'error'; });
+                const key = code + ',' + row + ',' + col;
+                const entries = byCell[key] || byCell[code + ',' + col + ',' + row];
+                if (!entries) {
+                    if (parts[key]) { td.classList.add('dpm-cell-part'); td.title = 'Part of a total that does not add up'; td.dataset.valTitle = '1'; }
+                    return;
+                }
+                const isError = entries.some(function (e) { return (e.f.severity || 'error') === 'error'; });
                 td.classList.add(isError ? 'dpm-cell-fail' : 'dpm-cell-warn');
-                const names = rules.map(function (f) { return f.code; }).filter(Boolean);
-                if (names.length) { td.title = (isError ? 'Fails: ' : 'Warning: ') + Array.from(new Set(names)).join(', '); td.dataset.valTitle = '1'; }
+                const lines = entries.map(function (e) {
+                    if (!e.c) return e.f.code;
+                    const n = checkNow(e.c);
+                    return e.f.code + ': should be ' + opText(e.c.op) + ' ' + formatNum(n.expected) + ' (difference ' + signed(n.diff) + ')';
+                }).filter(Boolean);
+                if (lines.length) { td.title = (isError ? 'Fails — ' : 'Warning — ') + Array.from(new Set(lines)).join('\n'); td.dataset.valTitle = '1'; }
                 hits++;
             });
             return hits;
+        }
+
+        // A total set to what its parts add up to.
+        function setTotal(key, expected) {
+            const el = cellInput(key);
+            if (!el) return false;
+            showNum(el, String(expected));
+            markDirty();
+            return true;
+        }
+        function fixCheck(btn) {
+            const c = lastChecks[+btn.dataset.check];
+            if (!c) return;
+            const n = checkNow(c);
+            if (n.local && setTotal(c.key, n.expected)) scheduleAutoValidate(150);
+        }
+        function focusCell(key) {
+            const el = cellInput(key) || (function () { const p = String(key).split(','); return document.getElementById((p[2] || '') + (p[1] || '')); })();
+            if (el) { el.scrollIntoView({ block: 'center' }); el.focus(); }
+        }
+        // Every "=" total of the open table set from its parts, repeated until nothing changes
+        // (totals of totals settle bottom-up); totals defined twice in conflicting ways stop it.
+        function recalcTotals() {
+            const checks = lastChecks.filter(c => c.op === '=' && checkNow(c).local);
+            let changed = 0, pass = 0, moved = true;
+            while (moved && pass < 25) {
+                moved = false; pass++;
+                checks.forEach(function (c) {
+                    const n = checkNow(c);
+                    if (Number(n.diff) !== 0 && setTotal(c.key, n.expected)) { moved = true; changed++; }
+                });
+            }
+            setSaveStatus('dirty', (changed ? 'Recalculated ' + changed + ' total(s)' : 'Totals already add up')
+                + (moved ? '; some are defined by two rules that disagree, see the red cells' : '') + ' — unsaved');
+            scheduleAutoValidate(150);
         }
 
         function escapeValHtml(v) {
@@ -1328,7 +1417,7 @@
 
         // Live validation: runs when a table opens and shortly after each change, so the
         // reporter always sees which cells break a rule (red) or raise a warning (amber).
-        let valSeq = 0, autoValTimer = null, valDetailsOpen = false;
+        let valSeq = 0, autoValTimer = null, valDetailsOpen = false, lastChecks = [];
         function scheduleAutoValidate(delay) {
             clearTimeout(autoValTimer);
             // An empty table has nothing to check (the server would answer "enter some values").
@@ -1359,7 +1448,8 @@
                     const d = response.data || {};
                     if (!d.ok) { box.style.display = 'block'; box.innerHTML = '<span class="dpm-val-err">' + escapeValHtml(d.error || 'Validation failed.') + '</span>'; return; }
                     const s = d.summary || {};
-                    const hits = highlightFailedCells(d.failed_cells, d.failed);
+                    const hits = highlightFailedCells(d.failed_cells, d.failed, d.involved_cells);
+                    lastChecks = [];
                     // A clean live run stays out of the way; problems always show.
                     if (auto && !(d.failed || []).length) { box.style.display = 'none'; box.innerHTML = ''; return; }
                     box.style.display = 'block';
@@ -1373,16 +1463,33 @@
                         + '<button type="button" class="dpm-val-close" onclick="resetValidationPanel()">&times;</button>'
                         + '</div>';
                     if ((d.failed || []).length) {
-                        html += '<div class="dpm-val-note">' + hits + ' cell(s) marked below — red: a rule fails, amber: a warning. Hover a cell to see its rules.'
-                            + ' <button type="button" class="dpm-val-toggle" onclick="toggleValDetails(this)">' + (valDetailsOpen ? 'Hide' : 'Show') + ' ' + d.failed.length + ' rule(s)</button></div>'
-                            + '<div class="dpm-val-fails"' + (valDetailsOpen ? '' : ' style="display:none"') + '>' + d.failed.map(function (f) {
-                                return '<div class="dpm-val-fail">'
-                                    + '<div class="dpm-val-fh"><i class="fas fa-circle dpm-sev-' + escapeValHtml(f.severity) + '"></i> <b>' + escapeValHtml(f.code) + '</b> '
-                                    + '<code class="dpm-val-rule">' + escapeValHtml(f.rule || '') + '</code></div>'
-                                    + '<div class="dpm-val-facts">' + (f.facts || []).map(function (x) {
-                                        return '<span class="dpm-val-fact"><b>' + escapeValHtml(x.cell) + '</b> = ' + escapeValHtml(x.value === null ? '∅' : formatNum(x.value)) + '</span>';
-                                    }).join('') + '</div></div>';
-                            }).join('') + '</div>';
+                        const rows = d.failed.map(function (f) {
+                            let body;
+                            if ((f.checks || []).length) {
+                                body = f.checks.map(function (c) {
+                                    const i = lastChecks.push(c) - 1, n = checkNow(c);
+                                    const partsText = (c.parts || []).map((p, j) => (j || p.sign < 0 ? (p.sign < 0 ? ' − ' : ' + ') : '') + p.cell.split(' · ').pop()).join('');
+                                    return '<div class="dpm-val-check"><a onclick="focusCell(\'' + escapeValHtml(c.key) + '\')">' + escapeValHtml(c.cell.split(' · ').pop()) + '</a>'
+                                        + '<span>is ' + escapeValHtml(formatNum(n.actual)) + ', should be ' + opText(c.op) + ' <span class="exp">' + escapeValHtml(formatNum(n.expected)) + '</span></span>'
+                                        + '<span class="diff">difference ' + escapeValHtml(signed(n.diff)) + '</span>'
+                                        + (c.op === '=' && n.local && !demoReadOnly ? '<button type="button" class="dpm-val-fix" data-check="' + i + '" onclick="fixCheck(this)">Set to ' + escapeValHtml(formatNum(n.expected)) + '</button>' : '')
+                                        + '<span class="parts" title="' + escapeValHtml(partsText) + '">= ' + escapeValHtml(partsText.length > 90 ? partsText.slice(0, 90) + '…' : partsText) + '</span></div>';
+                                }).join('') + (f.checks_count > f.checks.length ? '<div class="dpm-val-more">… and ' + (f.checks_count - f.checks.length) + ' more</div>' : '');
+                            } else {
+                                body = '<div class="dpm-val-facts">' + (f.facts || []).map(function (x) {
+                                    return '<span class="dpm-val-fact"><b>' + escapeValHtml(x.cell) + '</b> = ' + escapeValHtml(x.value === null ? '∅' : formatNum(x.value)) + '</span>';
+                                }).join('') + '</div>';
+                            }
+                            return '<div class="dpm-val-fail">'
+                                + '<div class="dpm-val-fh"><i class="fas fa-circle dpm-sev-' + escapeValHtml(f.severity) + '"></i> <b>' + escapeValHtml(f.code) + '</b> '
+                                + '<code class="dpm-val-rule" title="' + escapeValHtml(f.rule || '') + '">' + escapeValHtml(shortRule(f.rule)) + '</code></div>' + body + '</div>';
+                        }).join('');
+                        const fixable = lastChecks.filter(c => c.op === '=' && checkNow(c).local).length;
+                        html += '<div class="dpm-val-note">' + hits + ' cell(s) marked below — red: a total that does not add up or a rule that fails, amber: a warning; outlined: the cells a total adds up. Hover a cell for details.'
+                            + ' <button type="button" class="dpm-val-toggle" onclick="toggleValDetails(this)">' + (valDetailsOpen ? 'Hide' : 'Show') + ' ' + d.failed.length + ' rule(s)</button>'
+                            + (fixable && !demoReadOnly ? '<button type="button" class="dpm-val-fix dpm-val-recalc" onclick="recalcTotals()" title="Set every total of this table to the sum of its parts, then check again">Recalculate ' + fixable + ' total(s)</button>' : '')
+                            + '</div>'
+                            + '<div class="dpm-val-fails"' + (valDetailsOpen ? '' : ' style="display:none"') + '>' + rows + '</div>';
                     } else if (d.note) {
                         html += '<div class="dpm-val-note"><i class="fas fa-circle-info"></i> ' + escapeValHtml(d.note) + '</div>';
                     } else {

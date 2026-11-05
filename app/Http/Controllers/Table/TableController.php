@@ -681,15 +681,74 @@ class TableController extends Controller
             ? 'No validation rules are defined for '.$table->code.' in the active taxonomy ('.$this->_taxonomy->folder.').'
             : null;
 
+        [$failed, $failedCells, $involved] = self::explainFailures($result['failed'], $result['failed_cells'], $cellValues, $tolerance);
+
         return response()->json([
             'ok' => true,
             'table' => $table->code,
             'values' => count($cellValues),
             'summary' => $result['summary'],
-            'failed' => $result['failed'],
-            'failed_cells' => $result['failed_cells'],
+            'failed' => $failed,
+            'failed_cells' => $failedCells,
+            'involved_cells' => $involved,
             'note' => $note,
         ]);
+    }
+
+    /**
+     * Failed sum rules say which total is off and by how much (RuleExplain): only that
+     * total is a failing cell, the cells it adds up are "involved". Other rules keep all
+     * their cells as failing. Cells are keyed as the form reads them: "<table>,r<row>,c<col>".
+     *
+     * @return array{0: array, 1: list<string>, 2: list<string>}
+     */
+    public static function explainFailures(array $failed, array $failedCells, array $values, array $tolerance, int $limit = 60): array
+    {
+        $key = fn (string $cell) => substr(strtolower($cell), 1);   // without the rule's "t" prefix
+        $sheets = \App\Support\RuleExplain::sheets($values);
+        $targets = $involved = [];
+        $explainedFacts = [];
+        foreach ($failed as &$f) {
+            $checks = \App\Support\RuleExplain::failing((string) ($f['rule'] ?? ''), $values, $tolerance, $sheets);
+            if (! $checks) {
+                continue;
+            }
+            $f['checks_count'] = count($checks);
+            $f['checks'] = array_map(function ($c) use ($key, &$targets, &$involved) {
+                $targets[$key($c['target'])] = true;
+                $parts = array_map(function ($p) use ($key, &$involved) {
+                    $involved[$key($p['cell'])] = true;
+
+                    return ['key' => $key($p['cell']), 'cell' => \App\Support\RuleExplain::pretty($p['cell']), 'sign' => $p['sign']];
+                }, $c['parts']);
+
+                return ['key' => $key($c['target']), 'cell' => \App\Support\RuleExplain::pretty($c['target']), 'op' => $c['op'],
+                    'actual' => $c['lhs'], 'expected' => $c['rhs'], 'diff' => $c['diff'], 'parts' => $parts];
+            }, array_slice($checks, 0, $limit));
+            foreach ($f['facts'] ?? [] as $fact) {
+                $explainedFacts[strtolower(str_replace([' · ', '/'], ',', $fact['cell']))] = true;
+            }
+        }
+        unset($f);
+
+        // Cells only explained rules use are not failing themselves; the rest stay as the validator had them.
+        $unexplained = [];
+        foreach ($failed as $f) {
+            if (empty($f['checks'])) {
+                foreach ($f['facts'] ?? [] as $fact) {
+                    $unexplained[strtolower(str_replace([' · ', '/'], ',', $fact['cell']))] = true;
+                }
+            }
+        }
+        $cells = array_keys($targets + $unexplained);
+        foreach ($failedCells as $cell) {
+            if (! isset($explainedFacts[$cell]) || isset($unexplained[$cell])) {
+                $cells[] = $cell;
+            }
+        }
+        $cells = array_values(array_unique($cells));
+
+        return [$failed, $cells, array_values(array_diff(array_keys($involved), $cells))];
     }
 
     /**
@@ -803,6 +862,15 @@ class TableController extends Controller
                     $error = $report['error'];
                 } else {
                     $module->stamp(['validated_at' => now(), 'validation_summary' => $report['summary']]);
+                    // A failed sum rule says which total is off and by how much.
+                    $sheets = \App\Support\RuleExplain::sheets($built['cells']);
+                    foreach ($report['rules'] as &$rule) {
+                        if ($rule['status'] === 'failed' && ($checks = \App\Support\RuleExplain::failing((string) ($rule['rule'] ?? ''), $built['cells'], $built['tolerance'] ?? [], $sheets))) {
+                            $rule['checks'] = array_slice($checks, 0, 12);
+                            $rule['checks_count'] = count($checks);
+                        }
+                    }
+                    unset($rule);
                 }
                 $meta['rules_source'] = ! empty($context['dpm2']) ? 'EBA DPM 2.0 database '.$context['dpm2']['database']->label : (! empty($context['own_module_id']) ? 'own rules (DPM Architect Validations)' : 'taxonomy validation linkbases');
                 if (! empty($context['dpm2']) && ! empty($context['own_module_id'])) {
