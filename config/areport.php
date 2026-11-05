@@ -109,6 +109,9 @@ return [
     |
     */
 
+    // The public landing page (robots.txt and sitemap.xml point search engines there).
+    'public_url' => rtrim(env('AREPORT_PUBLIC_URL', 'https://areport.net'), '/'),
+
     'contact' => [
         'to' => env('AREPORT_CONTACT_TO', 'info@areport.net'),
         'min_seconds' => (int) env('AREPORT_CONTACT_MIN_SECONDS', 4),
