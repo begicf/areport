@@ -5,15 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     @php
         $seoTitle = 'AReport — DPM & XBRL regulatory reporting software (EBA, EIOPA, COREP, FINREP, xBRL-CSV)';
-        $seoDesc = 'AReport turns DPM/XBRL taxonomies (EBA, EIOPA, ECB or national) into reporting forms: enter COREP, FINREP, DORA or MREL data, validate it with DPM-XL rules and Arelle, and export xBRL-CSV and xBRL-XML filings.';
+        $seoDesc = 'AReport turns DPM/XBRL taxonomies (EBA, EIOPA, ECB or national) into reporting forms: enter or import COREP, FINREP, DORA or MREL data, validate it with DPM-XL rules and Arelle, sign it off as a team and export xBRL-CSV and xBRL-XML filings.';
         $seoImage = asset('images/landing/workspace.png');
         $faq = [
             ['What is AReport?', 'AReport is a web application for supervisory reporting with DPM/XBRL taxonomies. It renders the taxonomy tables as data entry forms, stores the reported facts, checks them and exports filing-ready xBRL-CSV and xBRL-XML instances.'],
             ['Which taxonomies does AReport support?', 'Any taxonomy built on the DPM/XBRL standard, DPM 1.0 or DPM 2.0: EBA, EIOPA, ECB or a national regulator\'s, including open tables, typed dimensions and national extensions. Tested with EBA 4.2 and 4.4 (COREP, FINREP, DORA, MREL, IRRBB, AE, MICA).'],
             ['Which file formats can I export?', 'xBRL-CSV report packages and xBRL-XML instances following the filing rules (e.g. the EBA filing rules), plus Excel, PDF and HTML copies of the tables. Exported instances can be checked with Arelle before filing.'],
-            ['How is the data validated?', 'Business rules written in DPM-XL run on the reported data and mark the cells that break a rule directly on the form: red for errors, amber for warnings. A validation report lists every rule with the facts behind it.'],
-            ['Can I build my own taxonomy?', 'Yes, with the private DPM Architect plugin: design frameworks, modules, tables, the data dictionary and validation rules, and generate an XBRL taxonomy package that is checked with Arelle.'],
-            ['Is AReport open source?', 'The core application is on GitHub. The DPM Architect and Validation plugins are private and provided separately — use the contact form to ask about them.'],
+            ['Can I bring in reports I already have?', 'Yes. An xBRL-CSV report package or an xBRL-XML instance opens as a new report: the module, reference date, entity and filing indicators come from the file and every fact goes into its cell, open tables and typed sheets included. Excel templates are read by their EBA row and column codes, and a block copied from Excel can be pasted straight into a table.'],
+            ['How is the data validated?', 'Business rules written in DPM-XL run on the reported data and mark the cells to look at directly on the form: red for errors, amber for warnings. For a total that does not add up the form shows what its parts add up to and the difference, and sets it in one click. A validation report lists every rule with the facts behind it.'],
+            ['Can I build my own taxonomy?', 'Yes, with the private DPM Architect plugin: design frameworks, modules, tables, the data dictionary and validation rules, release versions, and generate an XBRL taxonomy package that is checked with Arelle.'],
+            ['Can a team review and approve reports?', 'Yes, with the private Teams plugin: members share reports and entities, with preparer, reviewer and approver roles, a four-eyes sign-off (draft, in review, approved, exported), comments on cells and an e-mail at every step.'],
+            ['Is AReport open source?', 'The core application is on GitHub. The DPM Architect, Validation and Teams plugins are private and provided separately — use the contact form to ask about them.'],
         ];
     @endphp
     <title>{{ $seoTitle }}</title>
@@ -51,7 +53,7 @@
                 'description' => $seoDesc,
                 'image' => $seoImage,
                 'screenshot' => [asset('images/landing/workspace.png'), asset('images/landing/form.png'), asset('images/landing/architect.png'), asset('images/landing/validation.png')],
-                'featureList' => ['DPM 1.0 and DPM 2.0 taxonomies (EBA, EIOPA, ECB, national)', 'COREP, FINREP, DORA, MREL reporting forms', 'xBRL-CSV and xBRL-XML export', 'DPM-XL business rule validation', 'Arelle validation of exported instances', 'DPM Architect: taxonomy authoring (private plugin)'],
+                'featureList' => ['DPM 1.0 and DPM 2.0 taxonomies (EBA, EIOPA, ECB, national)', 'COREP, FINREP, DORA, MREL reporting forms', 'Import of xBRL-CSV packages and xBRL-XML instances', 'xBRL-CSV and xBRL-XML export', 'DPM-XL business rule validation', 'Arelle validation of exported instances', 'DPM Architect: taxonomy authoring (private plugin)', 'Teams: four-eyes sign-off (private plugin)'],
                 'offers' => ['@type' => 'Offer', 'price' => '0', 'priceCurrency' => 'EUR', 'description' => 'Demo workspace'],
                 'sameAs' => ['https://github.com/begicf/areport'],
             ],
@@ -126,7 +128,7 @@
         .sec-head h2{font-size:1.9rem;letter-spacing:-.02em;margin:.5rem 0 0;font-weight:700;color:#16202c}
         .sec-head p{color:var(--muted);margin:.7rem 0 0;font-size:1.02rem}
 
-        .benefits{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+        .benefits{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
         .bcard{border:1px solid var(--line);border-radius:12px;padding:1.3rem;background:#fff;box-shadow:0 1px 2px rgba(16,24,40,.04)}
         .bcard .ic{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:var(--blue-soft);color:var(--blue);border:1px solid var(--blue-bd);font-size:1.05rem;margin-bottom:.9rem}
         .bcard h3{font-size:1rem;margin:0 0 .35rem;font-weight:600}
@@ -147,8 +149,27 @@
         .feat ul li{display:flex;gap:.6rem;align-items:flex-start;font-size:.92rem;color:#3a4654}
         .feat ul li i{color:var(--blue);margin-top:.2rem}
 
+        /* sign-off mock (Teams) */
+        .so{padding:1.2rem 1.3rem 1.3rem;font-size:.86rem;color:#3a4654}
+        .so-head{display:flex;justify-content:space-between;gap:.8rem;align-items:baseline;flex-wrap:wrap}
+        .so-head b{font-size:.98rem;color:#16202c}
+        .so-head span{font-size:.76rem;color:var(--faint)}
+        .so-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem;margin:1rem 0 1.1rem}
+        .so-step{text-align:center;font-size:.72rem;font-weight:600;color:var(--faint);padding-top:.55rem;border-top:3px solid var(--line)}
+        .so-step.done{color:#15803d;border-color:#22c55e}
+        .so-step.now{color:var(--blue);border-color:var(--blue)}
+        .so-log{display:grid;gap:.55rem}
+        .so-log div{display:grid;grid-template-columns:28px 1fr;gap:.6rem;align-items:start}
+        .so-log .av{width:28px;height:28px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;color:#fff}
+        .so-log p{margin:0;font-size:.82rem;line-height:1.4}
+        .so-log p small{display:block;color:var(--faint);font-size:.72rem}
+        .so-log q{color:#16202c}
+        .so-foot{margin-top:1.1rem;display:flex;gap:.5rem;justify-content:flex-end}
+        .so-btn{font-size:.76rem;font-weight:600;padding:.35rem .75rem;border-radius:7px;border:1px solid var(--line);background:#fff;color:#3a4654}
+        .so-btn.go{background:var(--blue);border-color:var(--blue-d);color:#fff}
+
         /* workflow */
-        .flow{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;counter-reset:step}
+        .flow{display:grid;grid-template-columns:repeat(5,1fr);gap:1rem;counter-reset:step}
         .step{border:1px solid var(--line);border-radius:12px;padding:1.3rem;background:#fff;position:relative}
         .step .n{width:30px;height:30px;border-radius:999px;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem}
         .step h4{margin:.8rem 0 .3rem;font-size:1rem;font-weight:600}
@@ -175,6 +196,7 @@
 
         @media (max-width:900px){
             .hero .grid,.feat,.benefits,.flow{grid-template-columns:1fr}
+            .benefits{grid-template-columns:1fr}
             .hero h1{font-size:2.1rem}
             .feat.rev .ftext{order:0}
             .shot.tilt{transform:none}
@@ -271,8 +293,8 @@
             <h1>Taxonomy-driven reporting, <span class="hl">modelled and validated</span> in one workspace.</h1>
             <p class="lead">
                 AReport turns DPM/XBRL taxonomies (EBA, EIOPA, ECB or your regulator's) into a working reporting environment — browse modules,
-                fill submission data, and export valid xBRL. Two private plugins let you
-                <strong>author the data model</strong> and <strong>validate every figure</strong> before you file.
+                fill or import submission data, and export valid xBRL. Three private plugins let you
+                <strong>author the data model</strong>, <strong>validate every figure</strong> and <strong>sign off as a team</strong> before you file.
             </p>
             <div class="cta">
                 @auth
@@ -284,7 +306,7 @@
             </div>
             <div class="meta">
                 <span class="m"><i class="fas fa-circle-check"></i> DPM 1.0 &amp; 2.0</span>
-                <span class="m"><i class="fas fa-circle-check"></i> xBRL-XML · OIM CSV · JSON</span>
+                <span class="m"><i class="fas fa-circle-check"></i> xBRL-CSV · xBRL-XML · Excel</span>
                 <span class="m"><i class="fas fa-circle-check"></i> DPM-XL · Arelle</span>
             </div>
         </div>
@@ -298,10 +320,11 @@
 {{-- ===== Trust strip ===== --}}
 <div class="trust">
     <div class="wrap lrow">
-        <span class="t"><i class="fas fa-layer-group"></i> Framework → Table group → Table</span>
+        <span class="t"><i class="fas fa-file-import"></i> Import existing xBRL-CSV &amp; xBRL-XML reports</span>
+        <span class="t"><i class="fas fa-table-cells"></i> Excel by EBA row &amp; column codes</span>
+        <span class="t"><i class="fas fa-shield-halved"></i> DPM-XL rules &amp; Arelle</span>
+        <span class="t"><i class="fas fa-user-check"></i> Four-eyes sign-off</span>
         <span class="t"><i class="fas fa-file-zipper"></i> Generated XBRL taxonomy packages</span>
-        <span class="t"><i class="fas fa-file-import"></i> Import &amp; export instances</span>
-        <span class="t"><i class="fas fa-shield-halved"></i> Rule-based data quality</span>
     </div>
 </div>
 
@@ -316,22 +339,32 @@
         <div class="bcard">
             <div class="ic"><i class="fas fa-sitemap"></i></div>
             <h3>Taxonomy-native</h3>
-            <p>Loads any DPM-based taxonomy exactly as published (EBA, EIOPA or a national regulator's: COREP, FINREP, DORA, MREL and more) with the full dimensional model.</p>
+            <p>Loads any DPM-based taxonomy exactly as published (EBA, EIOPA or a national regulator's: COREP, FINREP, DORA, MREL and more) with the full dimensional model, open tables and typed sheets.</p>
         </div>
         <div class="bcard">
-            <div class="ic"><i class="fas fa-table-cells"></i></div>
-            <h3>Real reporting tables</h3>
-            <p>Render authored and official tables with RC notation, nested headers and open axes, ready for direct data entry.</p>
+            <div class="ic"><i class="fas fa-keyboard"></i></div>
+            <h3>Forms made for reporters</h3>
+            <p>Real reporting tables with RC codes. Numbers in your style (1.234,56 or 1,234.56), a block pasted from Excel, Enter down the column, and last period copied or compared with the change in %.</p>
+        </div>
+        <div class="bcard">
+            <div class="ic"><i class="fas fa-file-import"></i></div>
+            <h3>Bring the reports you have</h3>
+            <p>Open an existing xBRL-CSV package or xBRL-XML instance as a new report — module, date, entity and filing indicators come from the file. Excel templates are read by their EBA codes.</p>
         </div>
         <div class="bcard">
             <div class="ic"><i class="fas fa-right-left"></i></div>
-            <h3>Open formats</h3>
-            <p>Import and export xBRL-XML, OIM xBRL-CSV and JSON. Round-trips are lossless, so nothing is lost in translation.</p>
+            <h3>Filing-ready exports</h3>
+            <p>xBRL-CSV report packages and xBRL-XML instances that follow the EBA filing rules, checked with Arelle, plus Excel, PDF and HTML copies of any table.</p>
         </div>
         <div class="bcard">
-            <div class="ic"><i class="fas fa-circle-check"></i></div>
-            <h3>Confidence to file</h3>
-            <p>Business rules run on your data and highlight exactly which cells to fix — before the submission ever leaves your desk.</p>
+            <div class="ic"><i class="fas fa-list-check"></i></div>
+            <h3>Know where each report stands</h3>
+            <p>Every report shows its status — not validated, with errors, ready or exported — and its EBA remittance date. A pre-flight check covers entity (LEI from GLEIF), filing indicators and settings.</p>
+        </div>
+        <div class="bcard">
+            <div class="ic"><i class="fas fa-clock-rotate-left"></i></div>
+            <h3>A full audit trail</h3>
+            <p>Every change to a cell is kept with who made it and when, so a figure can always be traced back — on screen or in the report's history.</p>
         </div>
     </div>
 </section>
@@ -340,10 +373,10 @@
 <div class="plugins" id="plugins">
     <div class="wrap">
         <div class="sec-head" style="padding-top:3.4rem">
-            <span class="eyebrow">Two private plugins</span>
-            <h2>Model the data. Validate the data.</h2>
-            <p>Two optional power tools extend the core workspace.</p>
-            <p class="private-note"><i class="fas fa-lock"></i> DPM Architect and the Validation plugin are <b>not publicly available</b> — they are not part of the open-source AReport and are provided separately, on request. <a href="#contact">Contact us →</a></p>
+            <span class="eyebrow">Three private plugins</span>
+            <h2>Model the data. Validate it. Sign it off.</h2>
+            <p>Three optional extensions of the core workspace, each usable on its own.</p>
+            <p class="private-note"><i class="fas fa-lock"></i> DPM Architect, Validation and Teams are <b>not publicly available</b> — they are not part of the open-source AReport and are provided separately, on request. <a href="#contact">Contact us →</a></p>
         </div>
 
         {{-- DPM Architect --}}
@@ -355,7 +388,9 @@
                 <ul>
                     <li><i class="fas fa-check"></i> Structure editor for X / Y / Z axes: metric, dimensions and open (key) axes per coordinate</li>
                     <li><i class="fas fa-check"></i> Data dictionary of metrics, dimensions, domains, members &amp; hierarchies</li>
-                    <li><i class="fas fa-check"></i> Validation rules in DPM-XL, alongside EBA's 12,000+ operations</li>
+                    <li><i class="fas fa-check"></i> Validation rules in DPM-XL, alongside EBA's 12,000+ operations — also edited in Excel and imported back</li>
+                    <li><i class="fas fa-check"></i> Releases: compare a version with the one before; a released version's files stay as filed</li>
+                    <li><i class="fas fa-check"></i> Labels in every language you report in, with AI-suggested translations</li>
                     <li><i class="fas fa-check"></i> Generates tables, modules and a taxonomy package, checked with Arelle</li>
                 </ul>
             </div>
@@ -373,8 +408,9 @@
                 <p>A dedicated DPM-XL engine runs the framework’s business rules against your instance and shows precisely what to fix — right on the reporting form.</p>
                 <ul>
                     <li><i class="fas fa-check"></i> Powered by the official EBA DPM-XL ANTLR grammar</li>
-                    <li><i class="fas fa-check"></i> A validation report per instance: errors, warnings, missing data, with the facts behind each rule</li>
-                    <li><i class="fas fa-check"></i> Failing cells are highlighted in red on the reporting form</li>
+                    <li><i class="fas fa-check"></i> Rules straight from the EBA DPM 2.0 database for each module version, with EBA's rule deactivation packages applied</li>
+                    <li><i class="fas fa-check"></i> A validation report per instance: errors, warnings, missing data, with the facts behind each rule — as a page, CSV or PDF</li>
+                    <li><i class="fas fa-check"></i> A total that does not add up says what its parts add up to and the difference</li>
                     <li><i class="fas fa-check"></i> The exported xBRL-XML or xBRL-CSV file is checked with Arelle before you file</li>
                 </ul>
             </div>
@@ -391,15 +427,49 @@
                 <h3>See what breaks a rule while you enter the data</h3>
                 <p>As soon as a table opens — and again after every change — the rules run in the background and the form marks the cells to look at. No separate step, no guessing which figure is wrong.</p>
                 <ul>
-                    <li><i class="fas fa-check"></i> Red cells break a blocking rule, amber cells raise a warning</li>
-                    <li><i class="fas fa-check"></i> Hover a cell to see which rules it takes part in</li>
-                    <li><i class="fas fa-check"></i> The table list shows which tables still have errors</li>
-                    <li><i class="fas fa-check"></i> Fix a value and the mark clears on its own</li>
+                    <li><i class="fas fa-check"></i> Only the total that does not add up turns red; the cells it adds up are outlined</li>
+                    <li><i class="fas fa-check"></i> “R0100 is 56.938, should be 620.401” — set it with one click, or recalculate every total of the table</li>
+                    <li><i class="fas fa-check"></i> Amber cells raise a warning; hover a cell to see its rules</li>
+                    <li><i class="fas fa-check"></i> The table list shows which tables still have errors, and a fixed value clears its mark on its own</li>
                 </ul>
             </div>
             <div class="shot">
                 <div class="shot-bar"><span class="shot-dot" style="background:#ef6a5f"></span><span class="shot-dot" style="background:#f5bf4f"></span><span class="shot-dot" style="background:#61c454"></span></div>
                 <img src="{{ asset('images/landing/form.png') }}?v={{ @filemtime(public_path('images/landing/form.png')) }}" alt="Reporting form with cells marked by live validation">
+            </div>
+        </div>
+
+        {{-- Teams --}}
+        <div class="feat rev">
+            <div class="ftext">
+                <span class="pill"><i class="fas fa-user-check"></i> Plugin · Teams</span> <span class="pill private"><i class="fas fa-lock"></i> Not public</span>
+                <h3>Prepare, review and approve — as a team</h3>
+                <p>Reports and entities are shared within the team, and nothing goes to the supervisor without a second pair of eyes.</p>
+                <ul>
+                    <li><i class="fas fa-check"></i> Roles: preparer, reviewer, approver and admin</li>
+                    <li><i class="fas fa-check"></i> Four-eyes sign-off: Draft → In review → Approved → Exported; only an approved report passes the filing export</li>
+                    <li><i class="fas fa-check"></i> A team can require a clean validation before submitting; the approver is never who submitted or changed the data</li>
+                    <li><i class="fas fa-check"></i> Comments on cells, and an e-mail at every step to whom it concerns</li>
+                </ul>
+            </div>
+            <div class="shot" aria-label="Sign-off of a report">
+                <div class="shot-bar"><span class="shot-dot" style="background:#ef6a5f"></span><span class="shot-dot" style="background:#f5bf4f"></span><span class="shot-dot" style="background:#61c454"></span></div>
+                <div class="so">
+                    <div class="so-head"><b>Own Funds — COREP · 31.12.2026</b><span>Demo Bank d.d. · CON</span></div>
+                    <div class="so-steps">
+                        <div class="so-step done"><i class="fas fa-check"></i> Draft</div>
+                        <div class="so-step now">In review</div>
+                        <div class="so-step">Approved</div>
+                        <div class="so-step">Exported</div>
+                    </div>
+                    <div class="so-log">
+                        <div><span class="av" style="background:#2f557d">PR</span><p>Submitted for review <small>Preparer · validated, 0 errors</small></p></div>
+                        <div><span class="av" style="background:#c2731f">RV</span><p>Returned: <q>C 01.00 r0010 differs from the general ledger.</q> <small>Reviewer · comment on the cell</small></p></div>
+                        <div><span class="av" style="background:#2f557d">PR</span><p>Corrected and submitted again <small>Preparer</small></p></div>
+                        <div><span class="av" style="background:#15803d">RV</span><p>Comment: <q>Checked against the ledger, fine now.</q> <small>Reviewer</small></p></div>
+                    </div>
+                    <div class="so-foot"><span class="so-btn">Return</span><span class="so-btn go"><i class="fas fa-check"></i> Approve</span></div>
+                </div>
             </div>
         </div>
     </div>
@@ -409,13 +479,14 @@
 <section class="pad wrap" id="workflow">
     <div class="sec-head">
         <span class="eyebrow">How it works</span>
-        <h2>From taxonomy to compliant filing in four steps</h2>
+        <h2>From taxonomy to compliant filing in five steps</h2>
     </div>
     <div class="flow">
         <div class="step"><div class="n">1</div><h4>Model</h4><p>Load a taxonomy (EBA, EIOPA, national) or author your own tables in DPM Architect and generate their taxonomy.</p></div>
-        <div class="step"><div class="n">2</div><h4>Report</h4><p>Open a module and enter submission data in real reporting tables.</p></div>
-        <div class="step"><div class="n">3</div><h4>Validate</h4><p>Run DPM-XL rules, fix the cells highlighted on the form, and check the file with Arelle.</p></div>
-        <div class="step"><div class="n">4</div><h4>Export</h4><p>Produce a valid xBRL-XML, OIM CSV or JSON instance to file.</p></div>
+        <div class="step"><div class="n">2</div><h4>Report</h4><p>Open a module and enter the data, paste it from Excel, or import a report you already have.</p></div>
+        <div class="step"><div class="n">3</div><h4>Validate</h4><p>Run the DPM-XL rules and fix the cells marked on the form — totals are recalculated in one click.</p></div>
+        <div class="step"><div class="n">4</div><h4>Sign off</h4><p>A reviewer checks it, an approver approves it — every step kept with its comment.</p></div>
+        <div class="step"><div class="n">5</div><h4>Export</h4><p>Produce the xBRL-CSV package or xBRL-XML instance, checked with Arelle, and file it.</p></div>
     </div>
 </section>
 
@@ -425,7 +496,7 @@
         <div>
             <span class="eyebrow">Contact</span>
             <h2 style="margin:.4rem 0 .6rem;font-weight:700;letter-spacing:-.02em;color:#16202c">Contact us</h2>
-            <p class="lead2">Interested in DPM Architect or the Validation plugin, or in using AReport for your regulatory reporting? Send us a message and we will reply by email.</p>
+            <p class="lead2">Interested in DPM Architect, Validation or Teams, or in using AReport for your regulatory reporting? Send us a message and we will reply by email.</p>
             <ul class="pts">
                 <li><i class="fas fa-lock"></i> Access to the private plugins</li>
                 <li><i class="fas fa-landmark"></i> Own taxonomies and modules for a supervisor</li>

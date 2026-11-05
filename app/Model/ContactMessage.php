@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class ContactMessage extends Model
 {
     public const TOPICS = [
-        'plugins' => 'Access to DPM Architect / Validation',
+        'plugins' => 'Access to DPM Architect / Validation / Teams',
         'reporting' => 'Regulatory reporting with AReport',
         'other' => 'Something else',
     ];
