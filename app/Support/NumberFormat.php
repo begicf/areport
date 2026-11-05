@@ -11,10 +11,13 @@ use Illuminate\Support\Facades\Auth;
  */
 class NumberFormat
 {
+    /** Until a user chooses: point between thousands, comma for decimals. */
+    public const DEFAULT = 'eu';
+
     /** style => [decimal separator, group separator, label] */
     public const STYLES = [
-        'en' => ['.', ',', '1,234,567.89'],
         'eu' => [',', '.', '1.234.567,89'],
+        'en' => ['.', ',', '1,234,567.89'],
         'space' => [',', ' ', '1 234 567,89'],
         'ch' => ['.', "'", "1'234'567.89"],
     ];
@@ -23,7 +26,7 @@ class NumberFormat
     {
         $style = Auth::user()->number_format ?? null;
 
-        return isset(self::STYLES[$style]) ? $style : 'en';
+        return isset(self::STYLES[$style]) ? $style : self::DEFAULT;
     }
 
     /** For the page scripts (window.AREPORT_NUM). */

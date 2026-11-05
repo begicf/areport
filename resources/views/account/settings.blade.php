@@ -45,7 +45,7 @@
                 @foreach ($styles as $key => [$decimal, $group, $label])
                     <label class="acc-style">
                         <input type="radio" name="number_format" value="{{ $key }}" @checked($style === $key)>
-                        <div><b>{{ $label }}</b><span>{{ $hints[$key] }}</span></div>
+                        <div><b>{{ $label }}</b><span>{{ $hints[$key] }}@if($key === \App\Support\NumberFormat::DEFAULT) — the default @endif</span></div>
                     </label>
                 @endforeach
             </div>

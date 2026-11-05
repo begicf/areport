@@ -988,7 +988,7 @@
         // Monetary / integer / decimal cells become text inputs: 1,250,000.50 or 1.250.000,50 while
         // not focused, the plain number while editing. What is saved or validated is always the
         // plain number (1250000.50). Values from the server are plain numbers, never read as typed.
-        const NUM = Object.assign({ decimal: '.', group: ',' }, window.AREPORT_NUM || {});
+        const NUM = Object.assign({ decimal: ',', group: '.' }, window.AREPORT_NUM || {});
         function parseNum(v) {   // what the user typed or pasted → plain number (or the text, when it is not one)
             let s = String(v || '').trim().replace(/[\s'  ’]/g, '').replace(/^\+/, '');
             if (s === '') return '';

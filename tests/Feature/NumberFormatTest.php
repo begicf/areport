@@ -25,10 +25,13 @@ class NumberFormatTest extends TestCase
     public function test_numbers_follow_the_users_style(): void
     {
         $user = $this->user();
-        $this->assertSame('1,250,000.5', NumberFormat::format('1250000.5'));   // default
+        $this->assertSame('1.250.000,5', NumberFormat::format('1250000.5'));   // default
+        $this->assertSame(['style' => 'eu', 'decimal' => ',', 'group' => '.'], NumberFormat::js());
+
+        $user->forceFill(['number_format' => 'en'])->save();
+        $this->assertSame('1,250,000.5', NumberFormat::format('1250000.5'));
 
         $user->forceFill(['number_format' => 'eu'])->save();
-        $this->assertSame('1.250.000,5', NumberFormat::format('1250000.5'));
         $this->assertSame('-1.234', NumberFormat::format(-1234));
         $this->assertSame('0,125', NumberFormat::format('0.125'));
         $this->assertSame('eba_CU:EUR', NumberFormat::format('eba_CU:EUR'));   // not a number
