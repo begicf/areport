@@ -774,6 +774,7 @@ class TableController extends Controller
             $indicators[$code] = $indicators[$code] ?? true;
         }
         $context['indicators'] = $indicators;
+        $context['params'] = self::formulaParameters($instance);
 
         // Rules straight from the EBA DPM 2.0 database when one defines this module version.
         $moduleVid = \AReportDpmXBRL\Library\ModuleInfo::load((string) ($instance->taxonomy->folder ?? ''), (string) $instance->module_path)['module_vid'] ?? null;
@@ -788,6 +789,23 @@ class TableController extends Controller
         }
 
         return $context;
+    }
+
+    /**
+     * The parameters EBA's rules before 4.0 read ($ReportingLevel, $AccountingStandard), worked
+     * out as the taxonomy's params.xml does: consolidated unless the module (corep_ind.xsd) or
+     * the instance says individual; GAAP for a *gaap* module, else IFRS.
+     */
+    public static function formulaParameters(FactModule $instance): array
+    {
+        $module = strtolower(pathinfo((string) $instance->module_path, PATHINFO_FILENAME));
+        $level = match (true) {
+            (bool) preg_match('/(^|_)ind(_|$)/', $module) => 'ind',
+            (bool) preg_match('/(^|_)con(_|$)/', $module) => 'con',
+            default => strtoupper((string) $instance->consolidation) === 'IND' ? 'ind' : 'con',
+        };
+
+        return ['ReportingLevel' => $level, 'AccountingStandard' => str_contains($module, 'gaap') ? 'GAAP' : 'IFRS'];
     }
 
     /** Build t<table>,r,c → value for a whole saved module + resolve its framework/codes. */

@@ -50,7 +50,7 @@ class RuleWorkbookTest extends TestCase
 
             public function available(): bool { return true; }
 
-            public function evaluateBatch(array $values, array $rules, array $tolerance = [], array $dims = []): array
+            public function evaluateBatch(array $values, array $rules, array $tolerance = [], array $dims = [], array $params = []): array
             {
                 return ['results' => array_map(fn ($r) => str_contains($r['expression'], '>>')
                     ? ['code' => $r['code'], 'ok' => false, 'error' => "line 1:20 mismatched input '>'"]

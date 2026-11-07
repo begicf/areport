@@ -49,7 +49,7 @@ class RuleBuilderTest extends TestCase
 
             public function available(): bool { return true; }
 
-            public function evaluateBatch(array $values, array $rules, array $tolerance = [], array $dims = []): array
+            public function evaluateBatch(array $values, array $rules, array $tolerance = [], array $dims = [], array $params = []): array
             {
                 $this->sent[] = $rules;
 
