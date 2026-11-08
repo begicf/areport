@@ -29,6 +29,20 @@ class StatsTest extends TestCase
         $this->assertSame(['id', 'day', 'metric', 'value'], array_keys((array) DB::table('daily_stats')->first()));
     }
 
+    public function test_a_sign_in_is_remembered_on_the_user(): void
+    {
+        $ana = $this->user('ana@bank.example');
+        $updated = $ana->updated_at;
+        $this->travel(5)->minutes();
+
+        $this->post('/login', ['email' => 'ana@bank.example', 'password' => 'secret'])->assertRedirect();
+
+        $ana->refresh();
+        $this->assertSame(now()->format('Y-m-d H:i'), $ana->last_login_at?->format('Y-m-d H:i'));
+        $this->assertEquals($updated, $ana->updated_at);
+        $this->assertSame(1, Stats::days(1)[now()->toDateString()]['logins']);
+    }
+
     public function test_a_signed_in_user_counts_once_a_day(): void
     {
         $ana = $this->user('ana@bank.example');

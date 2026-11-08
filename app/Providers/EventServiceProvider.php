@@ -35,7 +35,11 @@ class EventServiceProvider extends ServiceProvider
 
         Event::listen(Registered::class, fn () => Stats::hit('registrations'));
         Event::listen(Verified::class, fn () => Stats::hit('verified'));
-        Event::listen(Login::class, fn () => Stats::hit('logins'));
+        Event::listen(Login::class, function (Login $event) {
+            Stats::hit('logins');
+            // When they last signed in; not a change to the account, so updated_at stays.
+            $event->user->newQuery()->whereKey($event->user->getAuthIdentifier())->toBase()->update(['last_login_at' => now()]);
+        });
         FactModule::created(fn () => Stats::hit('reports_created'));
     }
 }
