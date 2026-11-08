@@ -9,7 +9,8 @@
         .dpm-val-head { display: flex; gap: .4rem; align-items: center; flex-wrap: wrap; }
         .dpm-val-pill { font-size: .72rem; font-weight: 700; padding: .12rem .5rem; border-radius: 3px; }
         .dpm-val-pill.ok { background: #dcfce7; color: #166534; } .dpm-val-pill.err { background: #fee2e2; color: #b91c1c; }
-        .dpm-val-pill.ind { background: #fef3c7; color: #b45309; } .dpm-val-pill.mut { background: #f1f5f9; color: #64748b; }
+        .dpm-val-pill.warn { background: #ffedd5; color: #c2410c; }
+        .dpm-val-pill.ind { background: #e0f2fe; color: #0369a1; } .dpm-val-pill.mut { background: #f1f5f9; color: #64748b; }
         .dpm-val-meta { font-size: .72rem; color: #94a3b8; margin-left: .2rem; }
         .dpm-val-close { margin-left: auto; border: 0; background: transparent; font-size: 1.1rem; line-height: 1; color: #94a3b8; cursor: pointer; }
         .dpm-val-note { font-size: .74rem; color: #b45309; margin: .4rem 0 .3rem; }
@@ -1453,10 +1454,14 @@
                     // A clean live run stays out of the way; problems always show.
                     if (auto && !(d.failed || []).length) { box.style.display = 'none'; box.innerHTML = ''; return; }
                     box.style.display = 'block';
+                    const errorsFailed = (d.failed || []).filter(f => (f.severity || 'error') === 'error').length;
+                    const warningsFailed = (d.failed || []).length - errorsFailed;
                     let html = '<div class="dpm-val-head">'
                         + '<span class="dpm-val-pill ok">' + (s.passed || 0) + ' passed</span>'
-                        + '<span class="dpm-val-pill err">' + (s.failed || 0) + ' failed</span>'
-                        + '<span class="dpm-val-pill ind">' + (s.indeterminate || 0) + ' indeterminate</span>'
+                        // Failed rules split by the module's severity: errors block a filing (red cells), warnings are to review (amber).
+                        + '<span class="dpm-val-pill ' + (errorsFailed ? 'err' : 'mut') + '">' + errorsFailed + ' error' + (errorsFailed === 1 ? '' : 's') + '</span>'
+                        + '<span class="dpm-val-pill ' + (warningsFailed ? 'warn' : 'mut') + '">' + warningsFailed + ' warning' + (warningsFailed === 1 ? '' : 's') + '</span>'
+                        + '<span class="dpm-val-pill ind">' + (s.indeterminate || 0) + ' missing data</span>'
                         + '<span class="dpm-val-pill mut">' + (s.unsupported || 0) + ' unsupported</span>'
                         + '<span class="dpm-val-meta">' + escapeValHtml(d.table) + ' · ' + (d.values || 0) + ' values · ' + (s.total || 0) + ' rules'
                         + (auto ? '<span class="dpm-val-live"><i class="fas fa-bolt"></i> live</span>' : '') + '</span>'
@@ -1485,7 +1490,10 @@
                                 + '<code class="dpm-val-rule" title="' + escapeValHtml(f.rule || '') + '">' + escapeValHtml(shortRule(f.rule)) + '</code></div>' + body + '</div>';
                         }).join('');
                         const fixable = lastChecks.filter(c => c.op === '=' && checkNow(c).local).length;
-                        html += '<div class="dpm-val-note">' + hits + ' cell(s) marked below — red: a total that does not add up or a rule that fails, amber: a warning; outlined: the cells a total adds up. Hover a cell for details.'
+                        const legend = !errorsFailed ? 'all amber: the module lists these rules as warnings — to review, they do not block the filing'
+                            : !warningsFailed ? 'red: a total that does not add up or a rule that fails'
+                            : 'red: a total that does not add up or a rule that fails, amber: a warning to review';
+                        html += '<div class="dpm-val-note">' + hits + ' cell(s) marked below — ' + legend + '; outlined: the cells a total adds up. Hover a cell for details.'
                             + ' <button type="button" class="dpm-val-toggle" onclick="toggleValDetails(this)">' + (valDetailsOpen ? 'Hide' : 'Show') + ' ' + d.failed.length + ' rule(s)</button>'
                             + (fixable && !demoReadOnly ? '<button type="button" class="dpm-val-fix dpm-val-recalc" onclick="recalcTotals()" title="Set every total of this table to the sum of its parts, then check again">Recalculate ' + fixable + ' total(s)</button>' : '')
                             + '</div>'
