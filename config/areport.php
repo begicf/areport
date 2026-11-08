@@ -101,25 +101,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Contact form
-    |--------------------------------------------------------------------------
-    |
-    | Where the public contact form's messages are mailed (never shown on the
-    | page; messages are also stored in contact_messages), and its spam limits.
-    |
-    */
-
-    // The public landing page (robots.txt and sitemap.xml point search engines there).
-    'public_url' => rtrim(env('AREPORT_PUBLIC_URL', 'https://areport.net'), '/'),
-
-    'contact' => [
-        'to' => env('AREPORT_CONTACT_TO', 'info@areport.net'),
-        'min_seconds' => (int) env('AREPORT_CONTACT_MIN_SECONDS', 4),
-        'max_links' => (int) env('AREPORT_CONTACT_MAX_LINKS', 2),
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
     | Key registers
     |--------------------------------------------------------------------------
     |

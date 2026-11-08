@@ -4,10 +4,15 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-/** Messages sent to the author from the public contact form (plugin requests etc.). */
+/** The public contact form moved to the product site (a separate application); its messages went with it. */
 return new class extends Migration
 {
     public function up(): void
+    {
+        Schema::dropIfExists('contact_messages');
+    }
+
+    public function down(): void
     {
         Schema::create('contact_messages', function (Blueprint $table) {
             $table->id();
@@ -22,10 +27,5 @@ return new class extends Migration
             $table->timestamp('handled_at')->nullable();
             $table->timestamps();
         });
-    }
-
-    public function down(): void
-    {
-        Schema::dropIfExists('contact_messages');
     }
 };

@@ -47,7 +47,6 @@ Website: <https://areport.net>
 - Reporting entities: add them by LEI, with the legal name and country from the GLEIF register; one is the default for new instances.
 - Sign-in requires a verified email address.
 - Optional demo mode that shares one user's instances with every signed-in user.
-- Public landing page with a spam-protected contact form.
 
 ### Private plugin: AReport DPM
 The optional `begicf/areport-dpm` package is private. It adds the **validation of reports** against the DPM 2.0 / DPM-XL rules of the framework (EBA and own rules), live on the form and as a full validation report, evaluated by the separate `dpm-xl-service`. It holds the DPM model (frameworks, modules, tables, dictionary, rules) and its importers (`dpm:import*`, `dpm2:import`, `dpm2:operations`).
@@ -96,7 +95,7 @@ php artisan serve
 
 The private plugins are not Composer dependencies: when their folders sit next to the application (`../areport-dpm`, `../areport-pro`, `../areport-teams`, or the folders listed in `AREPORT_PLUGIN_PATHS`), they are loaded from their own `composer.json` (autoload and Laravel providers). Without them, AReport runs as the open-source core.
 
-One signed license key covers the plugins it lists (`validation` = AReport DPM, `teams` = AReport Teams, `architect` = AReport Pro) on its hosts. With `AREPORT_LICENSE_ENFORCEMENT=true`, a plugin the key does not include stays off (its pages answer 402); without enforcement, installed plugins run without a key. `php artisan areport:license` shows the configured license.
+One signed license key covers the plugins it lists (`validation` = AReport DPM, `teams` = AReport Teams, `architect` = AReport Pro) on its hosts. With `AREPORT_LICENSE_ENFORCEMENT=true`, a plugin the key does not include stays off (its pages answer 402); without enforcement, installed plugins run without a key. `php artisan areport:license` shows the configured license. Keys are issued by the AReport license issuer.
 
 ## Configuration
 
@@ -106,7 +105,6 @@ The main application variables in `.env`:
 |---|---|
 | `UPLOAD` | `1` allows taxonomy uploads from the UI |
 | `LEI_CODE` | fallback LEI when no reporting entity is set |
-| `AREPORT_CONTACT_TO` | recipient of contact form messages (default `info@areport.net`) |
 | `AREPORT_DEMO_SHARED_USER_ID` | demo mode: whose instances every signed-in user sees (`0` = off) |
 | `AREPORT_DEMO_READONLY`, `AREPORT_DEMO_ADMINS` | in demo mode, visitors cannot change taxonomies, settings, the Architect model or the shared reports (default on); admins (e-mails) can |
 | `AREPORT_EDITION`, `AREPORT_EXTENSION_PROVIDERS` | edition label and extra service providers |

@@ -5,9 +5,9 @@ namespace App\Support;
 /**
  * Signed licenses of the AReport plugins: AREPORT1.<payload>.<signature>, base64url, where
  * the payload is JSON {licensee, products[], domains[], expires, issued} and the signature
- * an Ed25519 signature over "AREPORT1.<payload>". Only the holder of the private signing
- * key (kept off the repository, see the areport:license command) can issue one; the public
- * key below verifies it, so a key cannot be forged or edited (products, domains, expiry).
+ * an Ed25519 signature over "AREPORT1.<payload>". Only the AReport license issuer holds the
+ * private signing key, so only the issuer can issue one; the public key below verifies it,
+ * so a key cannot be forged or edited (products, domains, expiry).
  *
  * One key licenses any of the products: validation (AReport DPM), teams (AReport Teams),
  * architect (AReport Pro). A key issued before products existed covers what AReport Pro
