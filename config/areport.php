@@ -119,13 +119,14 @@ return [
     | Usage counts
     |--------------------------------------------------------------------------
     |
-    | E-mail addresses that may see the daily usage counts (/stats; see
-    | App\Support\Stats). On a demo server the shared user may see them too.
+    | The daily usage counts (App\Support\Stats) can be read as JSON at
+    | /stats.json by whoever holds this token (Authorization: Bearer …), e.g.
+    | a dashboard elsewhere. Without a token the endpoint does not exist.
     |
     */
 
     'stats' => [
-        'viewers' => array_filter(array_map(fn ($e) => strtolower(trim($e)), explode(',', (string) env('AREPORT_STATS_VIEWERS', env('AREPORT_DEMO_ADMINS', ''))))),
+        'token' => env('AREPORT_STATS_TOKEN'),
     ],
 
     /*

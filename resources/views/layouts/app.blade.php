@@ -249,11 +249,6 @@
                                         @foreach(\App\Support\InstanceHooks::views('nav.account') as $accountView)
                                             @include($accountView)
                                         @endforeach
-                                        @if(\App\Support\Stats::canView(Auth::user()))
-                                            <a class="dropdown-item" href="{{ route('stats') }}">
-                                                <i class="fas fa-chart-column me-2 text-muted"></i>{{ __('Usage') }}
-                                            </a>
-                                        @endif
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item" href="{{ route('logout') }}"
                                            onclick="event.preventDefault();

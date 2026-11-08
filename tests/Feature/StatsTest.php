@@ -38,11 +38,25 @@ class StatsTest extends TestCase
         $this->assertSame(2, Stats::days(1)[now()->toDateString()]['active_users']);
     }
 
-    public function test_only_the_listed_viewers_see_the_usage_page(): void
+    public function test_the_counts_are_read_with_the_token_only(): void
     {
-        config(['areport.stats.viewers' => ['boss@bank.example']]);
-        $this->actingAs($this->user('ana@bank.example'))->get('/stats')->assertNotFound();
-        $this->actingAs($this->user('boss@bank.example'))->get('/stats')->assertOk()->assertSee('Usage')->assertSee('Signed-in users');
+        $this->user('ana@bank.example');
+        User::query()->create(['name' => 'Bo', 'email' => 'bo@bank.example', 'password' => Hash::make('secret')]);
+        Stats::hit('exports', 4);
+
+        config(['areport.stats.token' => null]);
+        $this->getJson('/stats.json')->assertNotFound();
+        $this->getJson('/stats.json', ['Authorization' => 'Bearer '])->assertNotFound();
+
+        config(['areport.stats.token' => 'secret-token']);
+        $this->getJson('/stats.json', ['Authorization' => 'Bearer wrong'])->assertNotFound();
+        $json = $this->getJson('/stats.json?days=7', ['Authorization' => 'Bearer secret-token'])->assertOk()->json();
+        $this->assertCount(7, $json['days']);
+        $this->assertSame(4, $json['days'][now()->toDateString()]['exports']);
+        $this->assertSame('Exports', $json['metrics']['exports']);
+        $this->assertSame(['total' => 2, 'verified' => 1], $json['users']);
+
+        $this->get('/stats')->assertNotFound();   // no usage page in the workspace
         $this->artisan('areport:stats', ['--days' => 3])->assertSuccessful();
     }
 }

@@ -109,6 +109,7 @@ The main application variables in `.env`:
 | `AREPORT_DEMO_READONLY`, `AREPORT_DEMO_ADMINS` | in demo mode, visitors cannot change taxonomies, settings, the Architect model or the shared reports (default on); admins (e-mails) can |
 | `AREPORT_EDITION`, `AREPORT_EXTENSION_PROVIDERS` | edition label and extra service providers |
 | `AREPORT_ARELLE_CMD` | path to `arelleCmdLine` (e.g. a venv's `bin/arelleCmdLine`): enables the Arelle check of exports |
+| `AREPORT_STATS_TOKEN` | lets the daily usage counts (counts only) be read as JSON at `/stats.json` with this bearer token; `php artisan areport:stats` shows them |
 | `AREPORT_LICENSE_KEY`, `AREPORT_LICENSE_ENFORCEMENT` | the plugin license and whether it is required (`AREPORT_PRO_LICENSE_*` are still read) |
 
 With the AReport DPM plugin:
