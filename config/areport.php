@@ -120,8 +120,10 @@ return [
     |--------------------------------------------------------------------------
     |
     | The daily usage counts (App\Support\Stats) can be read as JSON at
-    | /stats.json by whoever holds this token (Authorization: Bearer …), e.g.
-    | a dashboard elsewhere. Without a token the endpoint does not exist.
+    | /stats.json, and the users who confirmed their e-mail (name, address,
+    | reports, entities) at /stats/users.json, by whoever holds this token
+    | (Authorization: Bearer …) — the operator's own dashboard. Without a token
+    | neither exists.
     |
     */
 

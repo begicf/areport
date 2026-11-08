@@ -59,4 +59,22 @@ class StatsTest extends TestCase
         $this->get('/stats')->assertNotFound();   // no usage page in the workspace
         $this->artisan('areport:stats', ['--days' => 3])->assertSuccessful();
     }
+
+    public function test_the_confirmed_users_are_listed_with_the_token_only(): void
+    {
+        $ana = $this->user('ana@bank.example');
+        User::query()->create(['name' => 'Bo', 'email' => 'bo@bank.example', 'password' => Hash::make('secret')]);   // not confirmed
+        \App\Model\Entity::withoutGlobalScopes()->create(['user_id' => $ana->id, 'lei' => '529900T8BM49AURSDO55', 'name' => 'Demo Banka d.d.', 'country' => 'BA']);
+
+        config(['areport.stats.token' => null]);
+        $this->getJson('/stats/users.json')->assertNotFound();
+        config(['areport.stats.token' => 'secret-token']);
+        $this->getJson('/stats/users.json', ['Authorization' => 'Bearer wrong'])->assertNotFound();
+
+        $users = $this->getJson('/stats/users.json', ['Authorization' => 'Bearer secret-token'])->assertOk()->json('users');
+        $this->assertCount(1, $users);
+        $this->assertSame(['Ana', 'ana@bank.example', 0], [$users[0]['name'], $users[0]['email'], $users[0]['reports']]);
+        $this->assertSame([['name' => 'Demo Banka d.d.', 'lei' => '529900T8BM49AURSDO55', 'country' => 'BA']], $users[0]['entities']);
+        $this->assertNotNull($users[0]['verified_at']);
+    }
 }

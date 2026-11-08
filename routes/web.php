@@ -71,6 +71,7 @@ Route::group(['prefix' => 'table', 'middleware' => 'auth'], function () {
 
 // Reporting entities (LEI, legal name and country from GLEIF)
 Route::get('/stats.json', 'Stats\StatsController@json')->middleware('throttle:30,1')->name('stats.json');
+Route::get('/stats/users.json', 'Stats\StatsController@users')->middleware('throttle:30,1')->name('stats.users');
 
 Route::group(['prefix' => 'entities', 'middleware' => 'auth'], function () {
     Route::get('/', 'Entities\EntityController@index')->name('entities.index');
