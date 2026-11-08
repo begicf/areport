@@ -38,43 +38,12 @@ class StatsTest extends TestCase
         $this->assertSame(2, Stats::days(1)[now()->toDateString()]['active_users']);
     }
 
-    public function test_the_counts_are_read_with_the_token_only(): void
+    public function test_the_counts_are_shown_on_the_command_line_only(): void
     {
-        $this->user('ana@bank.example');
-        User::query()->create(['name' => 'Bo', 'email' => 'bo@bank.example', 'password' => Hash::make('secret')]);
         Stats::hit('exports', 4);
 
-        config(['areport.stats.token' => null]);
-        $this->getJson('/stats.json')->assertNotFound();
-        $this->getJson('/stats.json', ['Authorization' => 'Bearer '])->assertNotFound();
-
-        config(['areport.stats.token' => 'secret-token']);
-        $this->getJson('/stats.json', ['Authorization' => 'Bearer wrong'])->assertNotFound();
-        $json = $this->getJson('/stats.json?days=7', ['Authorization' => 'Bearer secret-token'])->assertOk()->json();
-        $this->assertCount(7, $json['days']);
-        $this->assertSame(4, $json['days'][now()->toDateString()]['exports']);
-        $this->assertSame('Exports', $json['metrics']['exports']);
-        $this->assertSame(['total' => 2, 'verified' => 1], $json['users']);
-
-        $this->get('/stats')->assertNotFound();   // no usage page in the workspace
+        $this->get('/stats')->assertNotFound();
+        $this->get('/stats.json')->assertNotFound();
         $this->artisan('areport:stats', ['--days' => 3])->assertSuccessful();
-    }
-
-    public function test_the_confirmed_users_are_listed_with_the_token_only(): void
-    {
-        $ana = $this->user('ana@bank.example');
-        User::query()->create(['name' => 'Bo', 'email' => 'bo@bank.example', 'password' => Hash::make('secret')]);   // not confirmed
-        \App\Model\Entity::withoutGlobalScopes()->create(['user_id' => $ana->id, 'lei' => '529900T8BM49AURSDO55', 'name' => 'Demo Banka d.d.', 'country' => 'BA']);
-
-        config(['areport.stats.token' => null]);
-        $this->getJson('/stats/users.json')->assertNotFound();
-        config(['areport.stats.token' => 'secret-token']);
-        $this->getJson('/stats/users.json', ['Authorization' => 'Bearer wrong'])->assertNotFound();
-
-        $users = $this->getJson('/stats/users.json', ['Authorization' => 'Bearer secret-token'])->assertOk()->json('users');
-        $this->assertCount(1, $users);
-        $this->assertSame(['Ana', 'ana@bank.example', 0], [$users[0]['name'], $users[0]['email'], $users[0]['reports']]);
-        $this->assertSame([['name' => 'Demo Banka d.d.', 'lei' => '529900T8BM49AURSDO55', 'country' => 'BA']], $users[0]['entities']);
-        $this->assertNotNull($users[0]['verified_at']);
     }
 }

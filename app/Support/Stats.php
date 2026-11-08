@@ -8,9 +8,8 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * How much the installation is used, per day: counts only — no e-mails, IP addresses or
- * who did what. They stay in this installation's database and nothing is sent anywhere:
- * `php artisan areport:stats` shows them, and with areport.stats.token set they can be read
- * as JSON at /stats.json with that token. Who was signed in today is remembered in the
+ * who did what. They stay in this installation's database and nothing is sent anywhere;
+ * `php artisan areport:stats` shows them. Who was signed in today is remembered in the
  * cache until tomorrow, so each user counts once a day.
  */
 class Stats

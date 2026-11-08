@@ -116,23 +116,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Usage counts
-    |--------------------------------------------------------------------------
-    |
-    | The daily usage counts (App\Support\Stats) can be read as JSON at
-    | /stats.json, and the users who confirmed their e-mail (name, address,
-    | reports, entities) at /stats/users.json, by whoever holds this token
-    | (Authorization: Bearer …) — the operator's own dashboard. Without a token
-    | neither exists.
-    |
-    */
-
-    'stats' => [
-        'token' => env('AREPORT_STATS_TOKEN'),
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
     | Public demo
     |--------------------------------------------------------------------------
     |
